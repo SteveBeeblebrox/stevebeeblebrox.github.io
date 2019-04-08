@@ -29,7 +29,7 @@
   <h1 class="w3-xxxlarge w3-animate-bottom">MIXIN: MODDING WITH EASE</h1>
     <div>
 	<div class="w3-center">
-      <a href="https://stevebeeblebrox.github.io/mixin/Mixin_1.0.0.jar"  class="w3-btn w3-xlarge w3-dark-grey w3-hover-light-grey" style="font-weight:900;" download><i class="fa fa-download"></i> DOWNLOAD NOW</a>
+      <a href="https://stevebeeblebrox.github.io/mixin/Mixin_1.0.0.jar" onclick="alert('Downloaded')" class="w3-btn w3-xlarge w3-dark-grey w3-hover-light-grey" style="font-weight:900;" download><i class="fa fa-download"></i> DOWNLOAD NOW</a>
     </div>
 	<br>
 </div>
@@ -77,8 +77,23 @@
   </div>
 </footer>
 
+<script type="application/javascript">
+	//IP getter
+	var ip = "";
+	function getIP(json) {
+    ip = json.ip;
+  }
+</script>
+<script type="application/javascript" src="https://api.ipify.org?format=jsonp&amp;callback=getIP"></script>
+
 <!-- Script for Sidebar, Tabs, Accordions, Progress bars and slideshows -->
 <script>
+//Report Download
+const response = "https://docs.google.com/forms/d/e/1FAIpQLSdghtQgS_s_TlahWeZGzP2TTnabYprVc58pcIPzZn2z4x9cBg/formResponse?ifq&entry.1569717296=67.166.46.64"
+function onDownload() {
+   alert(ip)
+}
+
 // Side navigation
 function w3_open() {
   var x = document.getElementById("mySidebar");
@@ -108,52 +123,6 @@ function openCity(evt, cityName) {
 
 var mybtn = document.getElementsByClassName("testbtn")[0];
 mybtn.click();
-
-// Accordions
-function myAccFunc(id) {
-  var x = document.getElementById(id);
-  if (x.className.indexOf("w3-show") == -1) {
-    x.className += " w3-show";
-  } else { 
-    x.className = x.className.replace(" w3-show", "");
-  }
-}
-
-// Slideshows
-var slideIndex = 1;
-
-function plusDivs(n) {
-  slideIndex = slideIndex + n;
-  showDivs(slideIndex);
-}
-
-function showDivs(n) {
-  var x = document.getElementsByClassName("mySlides");
-  if (n > x.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = x.length} ;
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";  
-  }
-  x[slideIndex-1].style.display = "block";  
-}
-
-showDivs(1);
-
-// Progress Bars
-function move() {
-  var elem = document.getElementById("myBar");   
-  var width = 5;
-  var id = setInterval(frame, 10);
-  function frame() {
-    if (width == 100) {
-      clearInterval(id);
-    } else {
-      width++; 
-      elem.style.width = width + '%'; 
-      elem.innerHTML = width * 1  + '%';
-    }
-  }
-}
 </script>
 
 </body>
