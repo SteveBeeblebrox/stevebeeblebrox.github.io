@@ -29,7 +29,7 @@
   <h1 class="w3-xxxlarge w3-animate-bottom">MIXIN: MODDING WITH EASE</h1>
     <div>
 	<div class="w3-center">
-      <a href="https://stevebeeblebrox.github.io/mixin/Mixin_1.0.0.jar" onclick="alert('Downloaded')" class="w3-btn w3-xlarge w3-dark-grey w3-hover-light-grey" style="font-weight:900;" download><i class="fa fa-download"></i> DOWNLOAD NOW</a>
+      <a href="https://stevebeeblebrox.github.io/mixin/Mixin_1.0.0.jar" onclick="post()" class="w3-btn w3-xlarge w3-dark-grey w3-hover-light-grey" style="font-weight:900;" download><i class="fa fa-download"></i> DOWNLOAD NOW</a>
     </div>
 	<br>
 </div>
@@ -89,9 +89,41 @@
 <!-- Script for Sidebar, Tabs, Accordions, Progress bars and slideshows -->
 <script>
 //Report Download
-const response = "https://docs.google.com/forms/d/e/1FAIpQLSdghtQgS_s_TlahWeZGzP2TTnabYprVc58pcIPzZn2z4x9cBg/formResponse?ifq&entry.1569717296=67.166.46.64"
-function onDownload() {
-   alert(ip)
+const form = "https://docs.google.com/forms/d/e/1FAIpQLSdghtQgS_s_TlahWeZGzP2TTnabYprVc58pcIPzZn2z4x9cBg/formResponse?ifq&entry.1569717296="//67.166.46.64
+function post()
+{
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("POST", form+ip, true);
+  xhttp.send();
+}
+
+const valueStart = '&lt;value&gt;'
+const valueEnd = '&lt;/value&gt;'
+
+function getDownloads()
+{
+  var xhr = new XMLHttpRequest();
+  var source = ""
+  xhr.open("GET", 'https://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
+  xhr.onload = function () {
+      source = xhr.responseText
+  }
+  xhr.send(null);
+  
+  return ((source.split(valueStart))[1].split(valueEnd)[0])
+}
+
+function getUses()
+{
+  var xhr = new XMLHttpRequest();
+  var source = ""
+  xhr.open("GET", 'https://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
+  xhr.onload = function () {
+      source = xhr.responseText
+  }
+  xhr.send(null);
+  
+  return ((source.split(valueStart))[1].split(valueEnd)[0])
 }
 
 // Side navigation
