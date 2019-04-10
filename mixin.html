@@ -183,7 +183,7 @@
   <p>Website by Steve Beeblebrox</p>
   <p>Special thanks to Naida Riverheart</p>
   <p><a href=" https://discord.gg/KNgCxTq " target="_blank">Contact</a></p>
-  <p><a href="htts://stevebeeblebrox.github.io" target="_blank">About</a></p>
+  <p><a href="https://stevebeeblebrox.github.io" target="_blank">About</a></p>
   <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
   <div style="position:relative;bottom:55px;" class="w3-tooltip w3-right">
     <span class="w3-text w3-theme-light w3-padding">Go To Top</span>    
@@ -197,19 +197,18 @@
 //Stat Stuff
 const valueStart = '&lt;value&gt;'
 const valueEnd = '&lt;/value&gt;'
-const proxy = 'https://thingproxy.freeboard.io/fetch/'
-const sourceView = 'view-source:'
+const proxy = 'https://cors-anywhere.herokuapp.com/'
+const sourceView = ''//'view-source:'
 
 function getDownloads()
 {
   var xhr = new XMLHttpRequest();
   var source = ""
-  xhr.open("GET", sourceView+proxy+'https://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
+  xhr.open("GET", proxy+'https://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
   xhr.onload = function () {
       source = xhr.responseText
   }
   xhr.send(null);
-  
   return ((source.split(valueStart))[1].split(valueEnd)[0])
 }
 
@@ -217,7 +216,7 @@ function getUses()
 {
   var xhr = new XMLHttpRequest();
   var source = ""
-  xhr.open("GET", sourceView+proxy+'https://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
+  xhr.open("GET", proxy+'https://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
   xhr.onload = function () {
       source = xhr.responseText
   }
@@ -265,18 +264,6 @@ function plusDivs(n) {
   slideIndex = slideIndex + n;
   showDivs(slideIndex);
 }
-
-function showDivs(n) {
-  var x = document.getElementsByClassName("mySlides");
-  if (n > x.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = x.length} ;
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";  
-  }
-  x[slideIndex-1].style.display = "block";  
-}
-
-showDivs(1);
 
 // Progress Bars
 function move() {
