@@ -197,14 +197,14 @@
 //Stat Stuff
 const valueStart = '&lt;value&gt;'
 const valueEnd = '&lt;/value&gt;'
-const proxy = 'http://thingproxy.freeboard.io'
+const proxy = 'https://thingproxy.freeboard.io/fetch/'
 const sourceView = 'view-source:'
 
 function getDownloads()
 {
   var xhr = new XMLHttpRequest();
   var source = ""
-  xhr.open("GET", sourceView+proxy+'http://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
+  xhr.open("GET", sourceView+proxy+'https://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
   xhr.onload = function () {
       source = xhr.responseText
   }
@@ -217,7 +217,7 @@ function getUses()
 {
   var xhr = new XMLHttpRequest();
   var source = ""
-  xhr.open("GET", sourceView+proxy+'http://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
+  xhr.open("GET", sourceView+proxy+'https://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
   xhr.onload = function () {
       source = xhr.responseText
   }
