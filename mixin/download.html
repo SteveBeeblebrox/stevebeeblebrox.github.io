@@ -55,10 +55,70 @@
     </div>
 </div>
 
+<div class="w3-row w3-purple">
+  <div class="w3-third w3-container">
+	<h1 id="downloads">XXX Downloads</h1>
+  </div>
+  <div class="w3-third w3-container w3-center">
+    <h1 id="games">Powering XXX Games</h1>  
+  </div>
+  <div class="w3-third w3-container w3-center">
+    <img src="stars.png" alt="5 Stars" style="width: 75%; height: auto;">
+  </div>
+</div>
+<br>
+
+<div class="w3-container">
+<div class="w3-responsive">
+<table class="w3-table w3-striped w3-bordered">
+<thead>
+<tr class="w3-theme">
+  <th>Mixin</th>
+  <th>1.0.0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="w3-white">
+  <td>For Minecraft</td>
+  <td>1.12.2</td>
+</tr>
+<tr>
+  <td>Requires</td>
+  <td>Forge 1.12.2-14.23.1.2603</td>
+</tr>
+<tr>
+  <td>Release Type</td>
+  <td>Stable Late Development</td>
+</tr>
+<tr>
+  <td>License</td>
+  <td>All Rights Reserved</td>
+</tr>
+<tr>
+  <td>Author(s)</td>
+  <td>Steve Beeblebrox</td>
+</tr>
+<tr>
+  <td>Credits</td>
+  <td>Naida Riverheart, Redstone Tim, and Shadows</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
 <hr>
 <div class="w3-center">
-  <h2>Auto-Updating</h2>
+  <h2>Changelog</h2>
+  <h4>Auto-Updating</h4>
   <p class="w3-large">As of version {$version} Mixin automatically updates it self so you never have to worry about using the latest version. In order for this to work you must have an Internet connection. In case you would like to not autoupdate, just launch the game once and change the config to disable this feature.</p>
+</div>
+<br>
+<hr>
+<div class="w3-center">
+  <h2>Notice</h2>
+  <p class="w3-large">When downloading Mixin, you consent to having your public ip address recorded. It is only used to help the developers keep track of how many people use Mixin. Your data is secure will not be shared with anyone else.</p>
 </div>
 <br>
 
@@ -97,19 +157,21 @@ function post()
   xhttp.send();
 }
 
+//Stat Stuff
 const valueStart = '&lt;value&gt;'
 const valueEnd = '&lt;/value&gt;'
+const proxy = 'https://cors-anywhere.herokuapp.com/'
+const sourceView = ''//'view-source:'
 
 function getDownloads()
 {
   var xhr = new XMLHttpRequest();
   var source = ""
-  xhr.open("GET", 'https://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
+  xhr.open("GET", proxy+'https://docs.google.com/document/d/18aj6nRNCzmotNoRynlvpMkUJNqRpOhlAbidcaLaTzZM/edit', false);
   xhr.onload = function () {
       source = xhr.responseText
   }
   xhr.send(null);
-  
   return ((source.split(valueStart))[1].split(valueEnd)[0])
 }
 
@@ -117,7 +179,7 @@ function getUses()
 {
   var xhr = new XMLHttpRequest();
   var source = ""
-  xhr.open("GET", 'https://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
+  xhr.open("GET", proxy+'https://docs.google.com/document/d/1b-5ytKXK_-hd1Cu-7RaEW6yKE07W-c9W8A1Ettno2Yk/edit', false);
   xhr.onload = function () {
       source = xhr.responseText
   }
@@ -125,6 +187,11 @@ function getUses()
   
   return ((source.split(valueStart))[1].split(valueEnd)[0])
 }
+
+(function displayStats() {
+  document.getElementById('downloads').textContent = getDownloads() + " Downloads";
+  document.getElementById('games').textContent = "Powering " + getUses() + " Games";
+})();
 
 // Side navigation
 function w3_open() {
