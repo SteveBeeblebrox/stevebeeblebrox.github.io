@@ -1,0 +1,11 @@
+{
+  "homepage": "https://minecraft.curseforge.com/projects/steves-machine-overhaul",
+  "1.12": {
+    "1.2.9": "https://minecraft.curseforge.com/projects/steves-machine-overhaul/files/2663134"
+  },
+  
+  "promos": {
+    "1.12-latest": "1.2.9",
+    "1.12-recommended": "1.2.9"
+  }
+}
