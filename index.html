@@ -1,189 +1,57 @@
 <!DOCTYPE html>
-<html>
-<title>Steve Beeblebrox.com</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
-
-<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-<body>
-
-<!-- Side Navigation -->
-<nav class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-center" style="display:none" id="mySidebar">
-  <h1 class="w3-xxxlarge w3-text-theme">Side Navigation</h1>
-  <button class="w3-bar-item w3-button" onclick="w3_close()">Close <i class="fa fa-remove"></i></button>
-  <a href="#" class="w3-bar-item w3-button">Link 1</a>
-  <a href="#" class="w3-bar-item w3-button">Link 2</a>
-  <a href="#" class="w3-bar-item w3-button">Link 3</a>
-  <a href="#" class="w3-bar-item w3-button">Link 4</a>
-</nav>
-
-<!-- Header -->
-<header class="w3-container w3-theme w3-padding" id="myHeader">
-  <i onclick="w3_open()" class="fa fa-bars w3-xlarge w3-button w3-theme"></i> 
-  <div class="w3-center">
-  <h4>JAVA, PYTHON, AND WEBSITE DEVELOPER</h4>
-  <h1 class="w3-xxxlarge w3-animate-bottom">STEVE BEEBLEBROX</h1>
-    <div class="w3-padding-32">
-      <button class="w3-btn w3-xlarge w3-dark-grey w3-hover-light-grey" onclick="document.getElementById('id01').style.display='block'" style="font-weight:900;">ABOUT</button>
-    </div>
-  </div>
-</header>
-
-<!-- Modal -->
-<div id="id01" class="w3-modal">
-    <div class="w3-modal-content w3-card-4 w3-animate-top">
-      <header class="w3-container w3-theme-l1"> 
-        <span onclick="document.getElementById('id01').style.display='none'"
-        class="w3-button w3-display-topright">×</span>
-        <h4>Oh snap! This links nowhere!</h4>
-        <h5>This Is Embarrassing<i class="fa fa-smile-o"></i></h5>
-      </header>
-      <div class="w3-padding">
-        <p>Please Report This Error Here: <a class="w3-btn" href=stevebeeblebrox.github.io></a></p>
-      </div>
-      <footer class="w3-container w3-theme-l1">
-        <p>Thanks</p>
-      </footer>
-    </div>
-</div>
-
-<div class="w3-row-padding w3-center w3-margin-top">
-<div class="w3-third">
-  <div class="w3-card w3-container" style="min-height:460px">
-  <h3>Projects</h3><br>
-  <i class="fa fa-desktop w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
-  <p>Minecraft Mods</p>
-  <p>Modding APIs</p>
-  <p>Python Scripts</p>
-  <p>Websites</p>
-  <p>Android Apps</p>
-  </div>
-</div>
-
-<div class="w3-third">
-  <div class="w3-card w3-container" style="min-height:460px">
-  <h3>Standard CSS</h3><br>
-  <i class="fa fa-gears w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
-  <p>Standard CSS only</p>
-  <p>Easy to learn</p>
-  <p>No need for jQuery</p>
-  <p>No JavaScript library</p>
-  </div>
-</div>
-
-<div class="w3-third">
-  <div class="w3-card w3-container" style="min-height:460px">
-  <h3>Languages</h3><br>
-  <i class="fa fa-code w3-margin-bottom w3-text-theme" style="font-size:120px"></i>
-  <p>Python</p>
-  <p>Java</p>
-  <p>ASM</p>
-  <p>JavaScript</p>
-  <p>HTML</p>
-  </div>
-</div>
-</div>
-
-<hr>
-<div class="w3-center">
-  <h2>Built-In Responsiveness</h2>
-  <p class="w3-large">Resize the page to see the effect!</p>
-</div>
-<br>
-
-<!-- Footer -->
-<footer class="w3-container w3-theme-dark w3-padding-16">
-  <h3>Footer</h3>
-  <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
-  <div style="position:relative;bottom:55px;" class="w3-tooltip w3-right">
-    <span class="w3-text w3-theme-light w3-padding">Go To Top</span>    
-    <a class="w3-text-white" href="#myHeader"><span class="w3-xlarge">
-    <i class="fa fa-chevron-circle-up"></i></span></a>
-  </div>
-  <p>Remember to check out our  <a href="w3css_references.asp" class="w3-btn w3-theme-light" target="_blank">W3.CSS Reference</a></p>
-</footer>
-
-<!-- Script for Sidebar, Tabs, Accordions, Progress bars and slideshows -->
-<script>
-// Side navigation
-function w3_open() {
-  var x = document.getElementById("mySidebar");
-  x.style.width = "100%";
-  x.style.fontSize = "40px";
-  x.style.paddingTop = "10%";
-  x.style.display = "block";
-}
-function w3_close() {
-  document.getElementById("mySidebar").style.display = "none";
-}
-
-// Tabs
-function openCity(evt, cityName) {
-  var i;
-  var x = document.getElementsByClassName("city");
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";
-  }
-  var activebtn = document.getElementsByClassName("testbtn");
-  for (i = 0; i < x.length; i++) {
-    activebtn[i].className = activebtn[i].className.replace(" w3-dark-grey", "");
-  }
-  document.getElementById(cityName).style.display = "block";
-  evt.currentTarget.className += " w3-dark-grey";
-}
-
-var mybtn = document.getElementsByClassName("testbtn")[0];
-mybtn.click();
-
-// Accordions
-function myAccFunc(id) {
-  var x = document.getElementById(id);
-  if (x.className.indexOf("w3-show") == -1) {
-    x.className += " w3-show";
-  } else { 
-    x.className = x.className.replace(" w3-show", "");
-  }
-}
-
-// Slideshows
-var slideIndex = 1;
-
-function plusDivs(n) {
-  slideIndex = slideIndex + n;
-  showDivs(slideIndex);
-}
-
-function showDivs(n) {
-  var x = document.getElementsByClassName("mySlides");
-  if (n > x.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = x.length} ;
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";  
-  }
-  x[slideIndex-1].style.display = "block";  
-}
-
-showDivs(1);
-
-// Progress Bars
-function move() {
-  var elem = document.getElementById("myBar");   
-  var width = 5;
-  var id = setInterval(frame, 10);
-  function frame() {
-    if (width == 100) {
-      clearInterval(id);
-    } else {
-      width++; 
-      elem.style.width = width + '%'; 
-      elem.innerHTML = width * 1  + '%';
-    }
-  }
-}
-</script>
-
-</body>
+<html lang="en" style="--blue: #0075FF; --blue-gray: #4d6a8c; --light-gray: #f1f1f1; --gray: #d2d2d2; --dark-gray: #787878; --alt-gray: #767676; --alt-dark-gray: #505050;">
+	<head>
+		<title>Steve Beeblebrox - Home</title>
+		<meta charset="UTF-8">
+		<link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
+		<link rel="manifest" href="assets/images/icons/site.webmanifest">
+		<link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#0075ff">
+		<link rel="shortcut icon" href="assets/images/icons/favicon.ico">
+		<meta name="msapplication-TileColor" content="#2d89ef">
+		<meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+		<meta name="theme-color" content="#ffffff">
+		<meta name="description" content="TODO">
+		<meta name="keywords" content="TODO">
+		<meta name="author" content="Tim Wasinger">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="assets/libs/css/w3-css-4.0.0.css">
+		<link rel="stylesheet" href="assets/libs/css/font-awesome-4.7.0.min.css">
+		<style>
+			a {
+				text-decoration: none;
+			}
+			body {
+				user-select: none;
+				background-color: var(--gray);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			html, body {
+				height: 100%;
+			}
+			.hover-blue-text:hover {
+				color: var(--blue);
+			}
+			.blue-gray-text {
+				color: var(--blue-gray);
+			}
+			.logo {
+				height: 3em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="w3-content w3-center">
+			<div class="w3-hide-medium w3-hide-large"><br><br><br><br><br></div>
+			<h1 class="w3-xxxlarge blue-gray-text w3-padding"><strong><img class="logo w3-grayscale" src="assets/images/logo.png"><font class="w3-hide-small"> SteveBeeblebrox.github.io</font><font class="w3-hide-medium w3-hide-large"><br>Steve Beeblebrox</font></strong></h1>
+			<div class="w3-padding w3-container w3-responsive">
+				<div class="w3-card w3-padding w3-white">
+					<h1 class="w3-xxlarge"><strong>New Home Page Comming Soon<br>（⊙ｏ⊙）</strong></h1>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>
