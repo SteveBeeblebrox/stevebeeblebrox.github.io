@@ -16,6 +16,7 @@
 		<meta name="keywords" content="TODO">
 		<meta name="author" content="Tim Wasinger">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="assets/libs/js/jquery-3.5.1.min.js"></script>
 		<link rel="stylesheet" href="assets/libs/css/w3-css-4.0.0.css">
 		<link rel="stylesheet" href="assets/libs/css/font-awesome-4.7.0.min.css">
 		<style>
@@ -41,17 +42,220 @@
 			.logo {
 				height: 3em;
 			}
+			.confetti {
+				display: block;
+				position: relative;
+				zindex: 1;
+				pointer-events: none;
+				margin: 0;
+				padding: 0;
+			}
+			.main {
+				position: absolute;
+			}
 		</style>
 	</head>
 	<body>
-		<div class="w3-content w3-center">
+		<div class="w3-content w3-center main">
 			<div class="w3-hide-medium w3-hide-large"><br><br><br><br><br></div>
-			<h1 class="w3-xxxlarge blue-gray-text w3-padding"><strong><img class="logo w3-grayscale" src="assets/images/logo.png"><font class="w3-hide-small"> SteveBeeblebrox.github.io</font><font class="w3-hide-medium w3-hide-large"><br>Steve Beeblebrox</font></strong></h1>
+			<h1 class="w3-xxxlarge blue-gray-text w3-padding"><strong><img class="logo w3-grayscale" src="assets/images/logo.png"><span class="w3-hide-small"> SteveBeeblebrox.github.io</span><span class="w3-hide-medium w3-hide-large"><br>Steve Beeblebrox</span></strong></h1>
 			<div class="w3-padding w3-container w3-responsive">
 				<div class="w3-card w3-padding w3-white">
 					<h1 class="w3-xxlarge"><strong>New Home Page Coming Soon<br>（⊙ｏ⊙）</strong></h1>
 				</div>
 			</div>
 		</div>
+		<canvas id="confetti" class="confetti"></canvas>
+		<script>
+			const today = new Date(), bday = new Date('13 October');	
+			bday.setFullYear(today.getFullYear());
+			if(Math.round(Math.abs((today - bday) / (24 * 60 * 60 * 1000))) <= 5)
+				(function () {
+					let canvas;
+					let context;
+					let width, height;
+					let maxParticles = 150;
+					let particles = [];
+					let angle = 0, tiltAngle = 0;
+					let confettiActive = true, animationComplete = true;
+					let deactivationTimerHandler, reactivationTimerHandler, animationHandler;
+
+					let particleColors = {
+						colorOptions: ["DodgerBlue", "OliveDrab", "Gold", "pink", "SlateBlue", "lightblue", "Violet", "PaleGreen", "SteelBlue", "SandyBrown", "Chocolate", "Crimson"],
+						colorIndex: 0,
+						colorIncrementer: 0,
+						colorThreshold: 10,
+						getColor: function () {
+							if (this.colorIncrementer >= 10) {
+								this.colorIncrementer = 0;
+								this.colorIndex++;
+								if (this.colorIndex >= this.colorOptions.length) this.colorIndex = 0;
+							}
+							this.colorIncrementer++;
+							return this.colorOptions[this.colorIndex];
+						}
+					}
+
+					document.querySelector('h1').innerHTML += ' 🎂';
+					document.title = '🎂 ' + document.title;
+
+					function confettiParticle(color) {
+						this.x = Math.random() * width;
+						this.y = (Math.random() * height) - height;
+						this.radius = boundedRandom(10, 30);
+						this.density = (Math.random() * maxParticles) + 10;
+						this.color = color;
+						this.tilt = Math.floor(Math.random() * 10) - 10;
+						this.tiltAngleIncremental = (Math.random() * 0.07) + .05;
+						this.tiltAngle = 0;
+
+						this.draw = function () {
+							context.beginPath();
+							context.lineWidth = this.radius / 2;
+							context.strokeStyle = this.color;
+							context.moveTo(this.x + this.tilt + (this.radius / 4), this.y);
+							context.lineTo(this.x + this.tilt, this.y + this.tilt + (this.radius / 4));
+							return context.stroke();
+						}
+					}
+
+					$(document).ready(function () {
+						setGlobals();
+						initializeConfetti();
+						$(window).resize(function () {
+							width = window.innerWidth;
+							height = window.innerHeight;
+							canvas.width = width;
+							canvas.height = height;
+						});
+					});
+
+					function setGlobals() {
+						canvas = document.getElementById('confetti');
+						context = canvas.getContext('2d');
+						width = window.innerWidth;
+						height = window.innerHeight;
+						canvas.width = width;
+						canvas.height = height;
+					}
+
+					function initializeConfetti() {
+						particles = [];
+						animationComplete = false;
+						for (let i = 0; i < maxParticles; i++) {
+							let particleColor = particleColors.getColor();
+							particles.push(new confettiParticle(particleColor));
+						}
+						startConfetti();
+					}
+
+					function drawConfetti() {
+						context.clearRect(0, 0, width, height);
+						let results = [];
+						for (let i = 0; i < maxParticles; i++) {
+							(function (j) {
+								results.push(particles[j].draw());
+							})(i);
+						}
+						update();
+						return results;
+					}
+
+					function boundedRandom(min, max) {
+						return Math.floor(Math.random() * (max - min + 1) + min);
+					}
+
+
+					function update() {
+						let remainingFlakes = 0;
+						let particle;
+						angle += 0.01;
+						tiltAngle += 0.1;
+
+						for (let i = 0; i < maxParticles; i++) {
+							particle = particles[i];
+							if (animationComplete) return;
+							if (!confettiActive && particle.y < -15) {
+								particle.y = height + 100;
+								continue;
+							}
+							stepParticle(particle, i);
+							if (particle.y <= height) remainingFlakes++;
+							checkForReposition(particle, i);
+						}
+						if (remainingFlakes === 0) stopConfetti();
+					}
+
+					function checkForReposition(particle, index) {
+						if ((particle.x > width + 20 || particle.x < -20 || particle.y > height) && confettiActive) {
+							if (index % 5 > 0 || index % 2 == 0)
+							{
+								repositionParticle(particle, Math.random() * width, -10, Math.floor(Math.random() * 10) - 10);
+							} else {
+								if (Math.sin(angle) > 0) repositionParticle(particle, -5, Math.random() * height, Math.floor(Math.random() * 10) - 10);
+								else repositionParticle(particle, width + 5, Math.random() * height, Math.floor(Math.random() * 10) - 10);
+							}
+						}
+					}
+					function stepParticle(particle, particleIndex) {
+						particle.tiltAngle += particle.tiltAngleIncremental;
+						particle.y += (Math.cos(angle + particle.density) + 3 + particle.radius / 2) / 2;
+						particle.x += Math.sin(angle);
+						particle.tilt = (Math.sin(particle.tiltAngle - (particleIndex / 3))) * 15;
+					}
+
+					function repositionParticle(particle, xCoordinate, yCoordinate, tilt) {
+						particle.x = xCoordinate;
+						particle.y = yCoordinate;
+						particle.tilt = tilt;
+					}
+
+					function startConfetti() {
+						width = window.innerWidth;
+						height = window.innerHeight;
+						canvas.width = width;
+						canvas.height = height;
+						(function animloop() {
+							if (animationComplete) return null;
+							animationHandler = requestAnimFrame(animloop);
+							return drawConfetti();
+						})();
+					}
+
+					function clearTimeouts() {
+						clearTimeout(reactivationTimerHandler);
+						clearTimeout(animationHandler);
+					}
+
+					function deactivateConfetti() {
+						confettiActive = false;
+						clearTimeouts();
+					}
+
+					function stopConfetti() {
+						animationComplete = true;
+						if (context == undefined) return;
+						context.clearRect(0, 0, width, height);
+					}
+
+					function restartConfetti() {
+						clearTimeouts();
+						stopConfetti();
+						reactivationTimerHandler = setTimeout(function () {
+							confettiActive = true;
+							animationComplete = false;
+							initializeConfetti();
+						}, 100);
+					}
+
+					window.requestAnimFrame = (function () {
+						return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+							return window.setTimeout(callback, 1000 / 60);
+						};
+					})();
+					
+					setTimeout(() => confettiActive = false, 3000);
+				})();
+		</script>
 	</body>
 </html>
