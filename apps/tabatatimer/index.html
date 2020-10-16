@@ -433,7 +433,7 @@
 				}
 			}
 			addAudio('../../assets/audio/CrystalForest.mp3', 'Crystal Forest.mp3')
-			JSON.parse(window.localStorage.getItem('savedActivities') ?? '["Burpees", "Jumping Jacks", "Speed Skaters", "Butt Kicks", "Plank to Squat", "High Knees", "Power Jacks", "Mountain Climbers", "Squats", "Jumping Jacks", "Speed Skaters", "Cross Jacks"]').forEach(object => addActivity(object));
+			JSON.parse(window.localStorage?.getItem('savedActivities') ?? '["Burpees", "Jumping Jacks", "Speed Skaters", "Butt Kicks", "Plank to Squat", "High Knees", "Power Jacks", "Mountain Climbers", "Squats", "Jumping Jacks", "Speed Skaters", "Cross Jacks"]').forEach(object => addActivity(object));
 			function nextAudio() {
 				if (currentAudio !== undefined) {
 					currentAudio.pause();
