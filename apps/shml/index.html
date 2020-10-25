@@ -87,6 +87,9 @@
 				styles['.shml-result ' + selector] = value;
 				for(let element of document.querySelectorAll('.shml-result ' + selector)) element.style = styles['.shml-result ' + selector];
 			}
+			function updateBaseCSSRule(value) {
+				for(let element of document.querySelectorAll('.shml-result')) element.style = value;
+			}
 			function expandTextArea(element) {
 				let linecount = 0;
 				element.value.split('\n').forEach(function(line) {
@@ -189,8 +192,8 @@
 			<div class="w3-quarter column w3-card w3-margin">
 				<h2>Styles</h2>
 				<div id="styles" name="styles">
-					<span class="shml-result"><span>*</span></span> <code>{
-						<textarea autocapitalize="none" spellcheck="false" placeholder="color: ..." onkeyup="updateCSSRule('*', this.value), expandTextArea(this)" class="css-rule"></textarea>
+					<span class="shml-result"><span>body</span></span> <code>{
+						<textarea autocapitalize="none" spellcheck="false" placeholder="color: ..." onkeyup="updateBaseCSSRule(this.value), expandTextArea(this)" class="css-rule"></textarea>
 					}</code>
 					<br>
 					<span class="shml-result"><strong>strong</strong></span> <code>{
