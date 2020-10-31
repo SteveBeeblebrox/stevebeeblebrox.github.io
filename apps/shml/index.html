@@ -26,6 +26,14 @@
 				text-decoration: none;
 				border-bottom: 1px dotted black;
 			}
+			.doc-link {
+				color: var(--dark-gray);
+				font-size: 0.5em;
+			}
+			.doc-link a {
+				text-decoration: none;
+				border-bottom: 1px dotted black;
+			}
 			body {
 				user-select: none;
 			}
@@ -131,7 +139,7 @@
 			SOFTWARE.
 			*/
 			SHML = {
-			  parseInlineMarkup: function(str) {
+			  parseInlineMarkup: function(str, config = {}) {
 				let array = str.split(/(`|\$\$)([\S\s]*?)(\1)/g), result = {toHTML: () => result._value, _value: ''}, code = false, escaped = false;
 				array.forEach(object => {
 				  if(object === '`') code = !code, object = '';
@@ -147,13 +155,14 @@
 					  .replace(/(\|)(.*?)\1/g, '<mark>$2</mark>')
 					  .replace(/(\S)--(\S)/g, '$1<wbr>$2')
 					  .replace(/(`)(.*?)\1/g, '<code>$2</code>')
-					  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_blank">$1</a>')
+					  .replace(/\+\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_blank">$1</a>')
+					  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_self">$1</a>')
 					  .replace(/%%/g, '<br>')
 					: object === '' ? '' :  code ? '<code>'+object+'</code>' : object;
 				})
 				return result;
 			  },
-			  parseMarkup: function(markdown = '', properties = []) {
+			  parseMarkup: function(markdown = '', config = {properties: [], inline: {}}) {
 				let data = {
 				  _properties: {},
 				  _value: [],
@@ -162,17 +171,17 @@
 				  getProperties: () => ({...data._properties})
 				};
 				let push = object => data._value.push(object);
-				let parseForSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + ':(.*)', 'g'), (str, match) => (push('<' + tag + '>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</' + tag + '>'), ''));
+				let parseForSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + ':(.*)', 'g'), (str, match) => (push('<' + tag + '>' + SHML.parseInlineMarkup(match.trim(), config.inline ?? {}).toHTML() + '</' + tag + '>'), ''));
 				markdown.split(/\n/g).forEach((object, index, array) => {
 				  if(object.trim().startsWith('<') && object.trim().endsWith('>')) push(object);
 				  else {
-					for(var property of properties)
+					for(var property of (config.properties ?? []))
 					  if(data._properties[property] === undefined)
 						object.replace(new RegExp('^\\s*?!' + property + ':(.*)'), (str, match) => (data._properties[property] = match.trim(), ''));
 
 					for(var i = 1; i < 7; i++) parseForSection('h' + i, object);
 					parseForSection('p', object);
-					object.replace(/^\s*?(?:bull:|\+)(.*)/g, (str, match) => (push('<ul><li>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</li></ul>'), ''));
+					object.replace(/^\s*?(?:bull:|\+)(.*)/g, (str, match) => (push('<ul><li>' + SHML.parseInlineMarkup(match.trim(), config.inline ?? {}).toHTML() + '</li></ul>'), ''));
 					object.replace(/\s*---+\s*/, () => (push('<hr>'), ''));
 					object.replace(/\s*%%\s*/, () => (push('<br>'), ''));
 				  }
@@ -182,10 +191,10 @@
 			}
 		</script>
 		<h1 class="w3-center w3-xxlarge">SHML <i class="fa fa-code blue-text"></i> Demo</h1>
-		<h2 class="w3-center w3-large blue-text">Simplified HTML Markup Language (<a href="https://github.com/SteveBeeblebrox/SHML/blob/master/README.md" target="_blank">Docs</a>)</h2>
+		<h2 class="w3-center w3-large blue-text">Simplified HTML Markup Language</h2>
 		<div class="w3-row-margin column-container">
 			<div class="w3-quarter column w3-card w3-margin">
-				<h2>Markup</h2>
+				<h2>Markup <span class="doc-link">(<a href="https://github.com/SteveBeeblebrox/SHML/blob/master/README.md" target="_blank">Docs</a>)</span></h2>
 				<textarea autofocus style="height: 93%;" autocapitalize="none" spellcheck="false" placeholder="***Hello*** __World__" onkeyup="updateResult(this.value)" class="markup-input"></textarea>
 			</div>
 
