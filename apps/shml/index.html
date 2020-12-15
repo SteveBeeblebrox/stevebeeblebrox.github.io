@@ -138,52 +138,82 @@
 			OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 			SOFTWARE.
 			*/
-			SHML = {
-			  parseInlineMarkup: function(str, config = {}) {
-				let array = str.split(/(`|\$\$)([\S\s]*?)(\1)/g), result = {toHTML: () => result._value, _value: ''}, code = false, escaped = false;
-				array.forEach(object => {
+			class SHML {
+			  constructor() {return {};}
+			  static getStyleSheet() {
+				  return `<style>
+					@media (min-width:601px) {
+					  .shml-internal-half {width: 50%; float: left;}
+					  .shml-internal-third {width: 33.33333%; float: left;}
+					  .shml-internal-two-third {width: 66.66666%; float: left;}
+					  .shml-internal-quarter {width: 25%; float: left;}
+					  .shml-internal-three-quarter {width: 75%; float: left;}
+					}
+				  </style>`;
+			  }
+			  static parseInlineMarkup(str) {
+				let result = {__proto__: null, toHTML: () => result._value, _value: ''}, code = false, escaped = false;
+				str.split(/(`|\$\$)([\S\s]*?)(\1)/g).forEach(object => {
 				  if(object === '`') code = !code, object = '';
 				  if(object === '$$') escaped = !escaped, object = '';
 				  result._value += !code && !escaped ? object
 					  .replace(/(\*\*\*)(.*?)\1/gs, '<strong><em>$2</em></strong>')
 					  .replace(/(\*\*)(.*?)\1/gs, '<strong>$2</strong>')
-					  .replace(/(\*)(.*?)\1/g, '<em>$2</em>')
-					  .replace(/(__)(.*?)\1/g, '<u>$2</u>')
-					  .replace(/(~~)(.*?)\1/g, '<del>$2</del>')
-					  .replace(/(\^)(.*?)\1/g, '<sup>$2</sup>')
-					  .replace(/(,,)(.*?)\1/g, '<sub>$2</sub>')
-					  .replace(/(\|)(.*?)\1/g, '<mark>$2</mark>')
+					  .replace(/(\*)(.*?)\1/gs, '<em>$2</em>')
+					  .replace(/(__)(.*?)\1/gs, '<u>$2</u>')
+					  .replace(/(~~)(.*?)\1/gs, '<del>$2</del>')
+					  .replace(/(\^)(.*?)\1/gs, '<sup>$2</sup>')
+					  .replace(/(,,)(.*?)\1/gs, '<sub>$2</sub>')
+					  .replace(/(\|)(.*?)\1/gs, '<mark>$2</mark>')
 					  .replace(/(\S)--(\S)/g, '$1<wbr>$2')
 					  .replace(/(`)(.*?)\1/g, '<code>$2</code>')
 					  .replace(/\+\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_blank">$1</a>')
 					  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_self">$1</a>')
 					  .replace(/%%/g, '<br>')
 					: object === '' ? '' :  code ? '<code>'+object+'</code>' : object;
-				})
+				});
 				return result;
-			  },
-			  parseMarkup: function(markdown = '', config = {properties: [], inline: {}}) {
+			  }
+			  static parseMarkup(markdown = '') {
 				let data = {
+				  __proto__: null,
 				  _properties: {},
 				  _value: [],
 				  toHTML: () => data._value.join(''),
-				  getProperty: (property) => data._properties[property],
-				  getProperties: () => ({...data._properties})
+				  getProperty: (property) => data._properties[Symbol.for(property)],
+				  getProperties: () => new Proxy({__proto__: null, ...data._properties},
+				  {
+					get: function(target, name, receiver) {
+					  if (name === Symbol.iterator) return (function*() {
+						for(let prop of Object.getOwnPropertySymbols(target).filter(object => object !== Symbol.iterator)) yield [prop, target[prop]]
+					  }).bind(target);
+					  else return target[Symbol.for(name)];
+					}
+				  })
 				};
 				let push = object => data._value.push(object);
-				let parseForSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + ':(.*)', 'g'), (str, match) => (push('<' + tag + '>' + SHML.parseInlineMarkup(match.trim(), config.inline ?? {}).toHTML() + '</' + tag + '>'), ''));
+				let parseForHeader = (header, str) => str.replace(new RegExp('^\\s*?' + '#'.repeat(header) + '(.*)', 'g'), (str, match) => (push('<h' + header + '>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</h' + header + '>'), ''));
+				let parseForSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + ':(.*)', 'g'), (str, match) => (push('<' + tag + '>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</' + tag + '>'), ''));
+				let escaped = false;
 				markdown.split(/\n/g).forEach((object, index, array) => {
+				  if(object.trim() === '$$') return void (escaped = !escaped);
+				  if(escaped) return void push(object);
 				  if(object.trim().startsWith('<') && object.trim().endsWith('>')) push(object);
 				  else {
-					for(var property of (config.properties ?? []))
-					  if(data._properties[property] === undefined)
-						object.replace(new RegExp('^\\s*?!' + property + ':(.*)'), (str, match) => (data._properties[property] = match.trim(), ''));
-
-					for(var i = 1; i < 7; i++) parseForSection('h' + i, object);
-					parseForSection('p', object);
-					object.replace(/^\s*?(?:bull:|\+)(.*)/g, (str, match) => (push('<ul><li>' + SHML.parseInlineMarkup(match.trim(), config.inline ?? {}).toHTML() + '</li></ul>'), ''));
-					object.replace(/\s*---+\s*/, () => (push('<hr>'), ''));
-					object.replace(/\s*%%\s*/, () => (push('<br>'), ''));
+					for(let i = 6; i > 0; i--) object = parseForHeader(i, object);
+					for(let i = 1; i < 7; i++) object = parseForSection('h' + i, object);
+					object = parseForSection('p', object);
+					object = object
+					.replace(/^\s*?!!(.*)/g, (str, match) => '')
+					.replace(/^\s*?!(.*?):(.*)/g, (str, match1, match2) => (data._properties[Symbol.for(match1)] ??= match2.trim(), ''))
+					.replace(/^\s*?>>(.*)/g, (str, match) => (push('<blockquote>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</blockquote>'), ''))
+					.replace(/^\s*?(?:bull:|\+)(.*)/g, (str, match) => (push('<ul><li>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</li></ul>'), ''))
+					.replace(/^\s*?\[(.*)\((.*?) ([0-9]*)[xX]([0-9]*)\)\]/g, (str, match1, match2, match3, match4) => (push('<img src="' + match2 + '" alt="' + match1.trim() + '" width="' + (parseInt(match3) === 0 ? 'auto' : match3) + '" height="' + (parseInt(match4) === 0 ? 'auto' : match4) + '">'), ''))
+					.replace(/^\s*?\[(.*)\((.*)\)\]/g, (str, match1, match2) => (push('<img src="' + match2 + '" alt="' + match1.trim() + '">'), ''))
+					.replace(/^\s*?\[(.*?) ([0-9]*)[xX]([0-9]*)\]/g, (str, match1, match2, match3) => (push('<img src="' + match1 + '" width="' + (parseInt(match2) === 0 ? 'auto' : match2) + '" height="' + (parseInt(match3) === 0 ? 'auto' : match3) + '">'), ''))
+					.replace(/^\s*?\[(.*)\]/g, (str, match) => (push('<img src="' + match + '">'), ''))
+					.replace(/\s*---+\s*/, () => (push('<hr>'), ''))
+					.replace(/\s*%%\s*/, () => (push('<br>'), ''));
 				  }
 				});
 				return data;
