@@ -69,6 +69,7 @@
 		<script>
 			const today = new Date(), bday = new Date('13 October'), xmas = new Date('25 December');	
 			bday.setFullYear(today.getFullYear());
+			xmas.setFullYear(today.getFullYear());
 			if(Math.round(Math.abs((today - bday) / (24 * 60 * 60 * 1000))) <= 5)
 				(function () {
 					let canvas;
