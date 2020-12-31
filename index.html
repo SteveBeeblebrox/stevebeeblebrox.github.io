@@ -67,9 +67,10 @@
 		</div>
 		<canvas id="confetti" class="confetti"></canvas>
 		<script>
-			const today = new Date(), bday = new Date('13 October'), xmas = new Date('25 December');	
+			const today = new Date(), bday = new Date('13 October'), xmas = new Date('25 December'), nyears = new Date('1 January');
 			bday.setFullYear(today.getFullYear());
 			xmas.setFullYear(today.getFullYear());
+			nyears.setFullYear(today.getFullYear());
 			if(Math.round(Math.abs((today - bday) / (24 * 60 * 60 * 1000))) <= 5)
 				(function () {
 					let canvas;
@@ -261,6 +262,11 @@
 				(function() {
 					document.querySelector('h1').innerHTML += ' 🎄';
 					document.title = '🎄 ' + document.title;
+				})();
+			else if(Math.round(Math.abs((today - nyears) / (24 * 60 * 60 * 1000))) <= 5)
+				(function() {
+					document.querySelector('h1').innerHTML += ' ✨';
+					document.title = '✨ ' + document.title;
 				})();
 		</script>
 	</body>
