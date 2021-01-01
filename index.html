@@ -263,7 +263,7 @@
 					document.querySelector('h1').innerHTML += ' 🎄';
 					document.title = '🎄 ' + document.title;
 				})();
-			else if(Math.round(Math.abs((today - nyears) / (24 * 60 * 60 * 1000))) <= 5)
+			else if(Math.round(Math.abs((today - nyears) / (24 * 60 * 60 * 1000))) <= 5 || Math.round(Math.abs((today - nyears) / (24 * 60 * 60 * 1000))) - 365 <= 5)
 				(function() {
 					document.querySelector('h1').innerHTML += ' ✨';
 					document.title = '✨ ' + document.title;
