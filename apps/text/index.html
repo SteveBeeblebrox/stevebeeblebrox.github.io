@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Text Editor</title>
+		<meta charset="UTF-8"/>
+        <meta name="description" content="TODO">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
+		<meta name="keywords" content="TODO"/>
+		<meta name="author" content="Tim Wasinger"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<link rel="stylesheet" href="../../assets/libs/css/w3-css-4.0.0.css"/>
+		<link rel="stylesheet" href="../../assets/libs/css/font-awesome-4.7.0.min.css">
+        <script type="text/javascript" src="../../assets/libs/js/jquery-3.5.1.min.js"></script>
+        <script type="text/javascript" src="../../assets/libs/js/shml.js"></script>
+        <script type="text/javascript">
+            function updateText() {
+                let r = SHML.parseMarkup($('#editor').html());
+                $('#view').html(r.toHTML())
+            }
+        </script>
+    </head>
+    <body>
+        <div class="w3-bar w3-black">
+            <button class="w3-bar-item w3-button" onclick="openTab('view')">View</button>
+            <button class="w3-bar-item w3-button" onclick="openTab('editor')">Editor</button>
+            <button class="w3-bar-item w3-button" onclick="openTab('styles')">Styles</button>
+            </div>
+            
+            <div id="tab-editor" class="w3-container tab">
+            <h2>Editor</h2>
+            <div id="editor" name="editor" contenteditable="plaintext-only" onkeyup="updateText()"></div>
+            </div>
+            
+            <div id="tab-view" class="w3-container tab" style="display:none">
+            <h2>View</h2>
+            <div id="view" name="view"></div>
+            </div>
+            
+            <div id="tab-styles" class="w3-container tab" style="display:none">
+            <h2>Styles</h2>
+            </div>
+          
+        <script>
+          function openTab(name) {
+            var i;
+            var x = document.getElementsByClassName('tab');
+            for (i = 0; i < x.length; i++) {
+              x[i].style.display = 'none';  
+            }
+            document.getElementById('tab-' + name).style.display = 'block';  
+          }
+        </script>
+        
+    </body>
+</html>
