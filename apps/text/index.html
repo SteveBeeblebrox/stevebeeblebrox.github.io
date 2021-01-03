@@ -21,33 +21,31 @@
     </head>
     <body>
         <div class="w3-bar w3-black">
-            <button class="w3-bar-item w3-button" onclick="openTab('view')">View</button>
-            <button class="w3-bar-item w3-button" onclick="openTab('editor')">Editor</button>
-            <button class="w3-bar-item w3-button" onclick="openTab('styles')">Styles</button>
-            </div>
+            <button id="tab-header-view" name="tab-header-view" class="w3-bar-item w3-button tab-header" onclick="openTab('view')">View</button>
+            <button id="tab-header-editor" name="tab-header-editor" class="w3-bar-item w3-button tab-header" onclick="openTab('editor')">Editor</button>
+            <button id="tab-header-styles" name="tab-header-styles" class="w3-bar-item w3-button tab-header" onclick="openTab('styles')">Styles</button>
+        </div>
             
-            <div id="tab-editor" class="w3-container tab">
-            <h2>Editor</h2>
-            <div id="editor" name="editor" contenteditable="plaintext-only" onkeyup="updateText()"></div>
-            </div>
-            
-            <div id="tab-view" class="w3-container tab" style="display:none">
+        <div id="tab-view" class="w3-container tab">
             <h2>View</h2>
             <div id="view" name="view"></div>
-            </div>
-            
-            <div id="tab-styles" class="w3-container tab" style="display:none">
+        </div>
+
+        <div id="tab-editor" class="w3-container tab"  style="display:none">
+            <h2>Editor</h2>
+            <div id="editor" name="editor" contenteditable="plaintext-only" onkeyup="updateText()"></div>
+        </div>
+        
+        <div id="tab-styles" class="w3-container tab" style="display:none">
             <h2>Styles</h2>
-            </div>
-          
+        </div>
+        
         <script>
-          function openTab(name) {
-            var i;
-            var x = document.getElementsByClassName('tab');
-            for (i = 0; i < x.length; i++) {
-              x[i].style.display = 'none';  
-            }
-            document.getElementById('tab-' + name).style.display = 'block';  
+            function openTab(name) {
+                $('.tab-header:not(#tab-header-'+name+')').css('background-color', 'black');
+                $('#tab-header-'+name).css('background-color', 'cyan');
+                $('.tab:not(#tab-'+name+')').css('display', 'none');
+                $('#tab-'+name).css('display', 'block');
           }
         </script>
         
