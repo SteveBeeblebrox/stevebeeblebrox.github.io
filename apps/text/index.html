@@ -14,40 +14,171 @@
         <script type="text/javascript" src="../../assets/libs/js/shml.js"></script>
         <script type="text/javascript">
             function updateText() {
-                let r = SHML.parseMarkup($('#editor').html());
-                $('#view').html(r.toHTML())
+                let emptyToUndefinded = str => str === '' ? undefined : str;
+                let v = $('#view');
+                let result = SHML.parseMarkup($('#editor').val());
+                v.html(result.toHTML());
+                let title = 
+                    result.getProperty('title') ??
+                    emptyToUndefinded(v.find('h1').first().text()) ??
+                    emptyToUndefinded(v.find('h2').first().text()) ??
+                    emptyToUndefinded(v.find('h3').first().text()) ??
+                    emptyToUndefinded(v.find('h4').first().text()) ??
+                    emptyToUndefinded(v.find('h5').first().text()) ??
+                    emptyToUndefinded(v.find('h6').first().text()) ??
+                    ('Untitled (Last edited on ' + new Date().toDateString() + ')')
+                console.log(title)
+            }
+            function openTab(name) {
+                $('.tab-header:not(#tab-header-'+name+')').removeClass('theme-active');//css('background-color', 'inherit');
+                $('#tab-header-'+name).addClass('theme-active');
+                $('.tab:not(#tab-'+name+')').css('display', 'none');
+                $('#tab-'+name).css('display', 'inherit');
+            }
+            function updateRule(selector, property, value, input) {
+                $('#view').find(selector).css(property, `${value}`);
+            }
+            function updateRootRule(property, value) {
+                $('#view').css(property, `${value}`);
             }
         </script>
+        <style>
+            :root {
+                --theme-gray: #e0e0e0;
+                --theme-blue: #0288d1;
+                --theme-white: whitesmoke;
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            html, body, .tab-section {
+                height: 100%;
+            }
+            .tab-section, .tab {
+                display: flex;
+                flex-direction: column;
+            }
+            .tab {
+                background-color: var(--theme-gray);
+                flex-grow: 1;
+                padding: 0px;
+                flex: 1;
+            }
+            .tab-header {
+                min-width: 25%;
+                border: none;
+                padding: 8px 16px;
+                vertical-align: middle;
+                overflow: hidden;
+                text-decoration: none;
+                color: inherit;
+                background-color: inherit;
+                text-align: center;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            .tab-headers {
+                display: flex;
+                align-items: stretch;
+            }
+            .tab-region {
+                background-color: var(--theme-white);
+                margin: 8px;
+                flex: 1;
+                padding: 8px;
+                overflow-y: scroll;
+                resize: none;
+                outline: none;
+                border: none;
+                overflow: auto;
+ 
+                background:
+                    /* Shadow covers */
+                    linear-gradient(var(--theme-white) 30%, rgba(255,255,255,0)),
+                    linear-gradient(rgba(255,255,255,0), var(--theme-white) 70%) 0 100%,
+                    
+                    /* Shadows */
+                    radial-gradient(50% 0, farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)),
+                    radial-gradient(50% 100%,farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+                background:
+                    /* Shadow covers */
+                    linear-gradient(var(--theme-white) 30%, rgba(255,255,255,0)),
+                    linear-gradient(rgba(255,255,255,0), var(--theme-white) 70%) 0 100%,
+                    
+                    /* Shadows */
+                    radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
+                    radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+                background-repeat: no-repeat;
+                background-color: var(--theme-white);
+                background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+                background-attachment: local, local, scroll, scroll;
+            }
+            .style-group summary {
+                font-size: large;
+                outline: none;
+            }
+            .style-setting label {
+                font-size: smaller;
+                display: block;
+            }
+            .style-setting input {
+                display: block;
+            }
+            .theme-strong {
+                background-color: var(--theme-blue);
+                color: var(--theme-white);
+            }
+            .theme-light-text {
+                color: gray;
+            }
+            .theme-active {
+                background-color: var(--theme-gray) !important;
+                color: black;
+            }
+            .theme-active:hover {
+                background-color: var(--theme-gray) !important;
+                color: black;
+            }
+            input[type="color"] {
+                border: none;
+                background-color: var(--theme-white);
+                width: 100%;
+                height: 40px;
+            }
+        </style>
     </head>
     <body>
-        <div class="w3-bar w3-black">
-            <button id="tab-header-view" name="tab-header-view" class="w3-bar-item w3-button tab-header" onclick="openTab('view')">View</button>
-            <button id="tab-header-editor" name="tab-header-editor" class="w3-bar-item w3-button tab-header" onclick="openTab('editor')">Editor</button>
-            <button id="tab-header-styles" name="tab-header-styles" class="w3-bar-item w3-button tab-header" onclick="openTab('styles')">Styles</button>
-        </div>
-            
-        <div id="tab-view" class="w3-container tab">
-            <h2>View</h2>
-            <div id="view" name="view"></div>
-        </div>
+        <div class="tab-section">
+            <div class="theme-strong tab-headers">
+                <a id="tab-header-docs" name="tab-header-docs" class="tab-header" onclick="openTab('docs')" title="Documents"><i class="fa fa-files-o" aria-disabled="true"></i><span class="w3-hide-small"> Docs</span></a>
+                <a id="tab-header-view" name="tab-header-view" class="tab-header" onclick="openTab('view')" title="View"><i class="fa fa-file-text-o" aria-disabled="true"></i><span class="w3-hide-small"> View</span></a>
+                <a id="tab-header-edit" name="tab-header-edit" class="tab-header" onclick="openTab('edit')" title="Edit"><i class="fa fa-pencil-square-o" aria-disabled="true"></i><span class="w3-hide-small"> Edit</span></a>
+                <a id="tab-header-style" name="tab-header-style" class="tab-header" onclick="openTab('style')" title="Styles"><i class="fa fa-paint-brush" aria-disabled="true"></i><span class="w3-hide-small"> Style</span></a>
+            </div>
+            <div id="tab-docs" class="w3-container tab">
+                <div id="docs" name="docs" class="tab-region">Docs here...</div>
+            </div>
+            <div id="tab-view" class="w3-container tab" style="display:none">
+                <div id="view" name="view" class="tab-region"><h1>Hello World</h1></div>
+            </div>
 
-        <div id="tab-editor" class="w3-container tab"  style="display:none">
-            <h2>Editor</h2>
-            <div id="editor" name="editor" contenteditable="plaintext-only" onkeyup="updateText()"></div>
+            <div id="tab-edit" class="w3-container tab"  style="display:none">
+                <textarea id="editor" name="editor" class="tab-region" contenteditable="plaintext-only" onkeyup="updateText()"># Hello World</textarea>
+            </div>
+            
+            <div id="tab-style" class="w3-container tab" style="display:none">
+                <div class="tab-region">
+                    <p><em>Coming Soon</em></p>
+                    <!--
+                    <details class="style-group">
+                        <summary>Headers</summary>
+                        <div>
+                            <span class="style-setting"><label class="theme-light-text w3-center">Color</label><input type="color" onchange="updateRule('h1, h2, h3, h4, h5, h6', 'color', this.value)" id="header-color" name="header-color"></span>
+                        </div>
+                    </details>
+                    -->
+                </div>
+            </div>
         </div>
-        
-        <div id="tab-styles" class="w3-container tab" style="display:none">
-            <h2>Styles</h2>
-        </div>
-        
-        <script>
-            function openTab(name) {
-                $('.tab-header:not(#tab-header-'+name+')').css('background-color', 'black');
-                $('#tab-header-'+name).css('background-color', 'cyan');
-                $('.tab:not(#tab-'+name+')').css('display', 'none');
-                $('#tab-'+name).css('display', 'block');
-          }
-        </script>
-        
     </body>
 </html>
