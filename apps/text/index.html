@@ -132,6 +132,45 @@
                 --theme-gray: #e0e0e0;
                 --theme-blue: #0288d1;
                 --theme-white: whitesmoke;
+                --theme-alt-gray:  #6F6F6F;
+                --theme-black: black;
+            }
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --theme-white: black;
+                    --theme-gray:#393939;/* #6c717a*/;
+                    --theme-black: whitesmoke;
+                    --theme-blue: #03a5fc;
+                }
+                .tab-region {
+                    background:
+                        /* Shadow covers */
+                        linear-gradient(var(--theme-alt-gray) 30%, rgba(255,255,255,0)),
+                        linear-gradient(rgba(255,255,255,0), var(--theme-alt-gray) 70%) 0 100%,
+                        
+                        /* Shadows */
+                        radial-gradient(50% 0, farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)),
+                        radial-gradient(50% 100%,farthest-side, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+                    background:
+                        /* Shadow covers */
+                        linear-gradient(var(--theme-alt-gray) 30%, rgba(255,255,255,0)),
+                        linear-gradient(rgba(255,255,255,0), var(--theme-alt-gray) 70%) 0 100%,
+                        
+                        /* Shadows */
+                        radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
+                        radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100% !important;
+                    background-repeat: no-repeat !important;
+                    background-color: var(--theme-alt-gray) !important;
+                    background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px !important;
+                    background-attachment: local, local, scroll, scroll !important;
+                }
+                .document {
+                    color: var(--theme-black) !important;
+                    border-bottom: 2px dotted var(--theme-blue) !important;
+                }
+            }
+            body, textarea {
+                color: var(--theme-black);
             }
             body {
                 font-family: Arial, Helvetica, sans-serif;
@@ -175,7 +214,6 @@
                 resize: none;
                 outline: none;
                 border: none;
-                
 
                 background:
                     /* Shadow covers */
@@ -218,11 +256,11 @@
             }
             .theme-active {
                 background-color: var(--theme-gray) !important;
-                color: black;
+                color: var(--theme-black);
             }
             .theme-active:hover {
                 background-color: var(--theme-gray) !important;
-                color: black;
+                color: var(--theme-black);
             }
             input[type="color"] {
                 border: none;
@@ -233,8 +271,11 @@
             .document {
                 color: var(--theme-blue);
                 text-decoration: none;
-                border-bottom: 2px dotted black;
+                border-bottom: 2px dotted var(--theme-black);
                 cursor: pointer;
+            }
+            #docs a {
+                font-size: x-large;
             }
             .theme-action:hover {
                 color: var(--theme-blue);
