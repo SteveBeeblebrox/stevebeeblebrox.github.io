@@ -13,24 +13,72 @@
         <script type="text/javascript" src="../../assets/libs/js/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="../../assets/libs/js/shml.js"></script>
         <script type="text/javascript">
+            let properties, currentTitle;
+            function saveDocument() {
+                localStorage.setItem(currentTitle, $('#editor').val());
+            }
+            function makeNewDocument() {
+                currentTitle = prompt('What would you like to call this document?', new Date().getTime());
+                $('#editor').val('#Hello World');
+                updateText();
+                saveDocument();
+                updateDocList();
+                openTab('edit');
+            }
+            function getDocument(title) {
+                return localStorage.getItem(title);
+            }
+            function deleteDocument(title) {
+                localStorage.removeItem(title)
+            }
+            function deleteAllDocuments() {
+                if (prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.')) {
+                    localStorage.clear();
+                    alert('All documents deleted.');
+                    openTab('docs');
+                    currentTitle = undefined;
+                    $('#editor').val('#Hello World');
+                    updateText();
+                    updateDocList();
+                }
+            }
+            function loadDocument(index) {
+                currentTitle = localStorage.key(index);
+                $('#editor').val(getDocument(currentTitle));
+                updateText();
+                openTab('view');
+            }
+            function listAllDocuments(index) {
+                let result = [];
+                for (let i = 0; i < localStorage.length; i++)
+                    result[i] = [i, localStorage.key(i)];
+                return result;
+            }
             function updateText() {
-                let emptyToUndefinded = str => str === '' ? undefined : str;
                 let v = $('#view');
                 let result = SHML.parseMarkup($('#editor').val());
+                properties = result.getProperties();
                 v.html(result.toHTML());
-                let title = 
-                    result.getProperty('title') ??
-                    emptyToUndefinded(v.find('h1').first().text()) ??
-                    emptyToUndefinded(v.find('h2').first().text()) ??
-                    emptyToUndefinded(v.find('h3').first().text()) ??
-                    emptyToUndefinded(v.find('h4').first().text()) ??
-                    emptyToUndefinded(v.find('h5').first().text()) ??
-                    emptyToUndefinded(v.find('h6').first().text()) ??
-                    ('Untitled (Last edited on ' + new Date().toDateString() + ')')
-                console.log(title)
+            }
+            function updateDocList() {
+                let docs = $('#docs');
+                docs.html('');
+                for (let x of listAllDocuments())
+                    docs.html(docs.html() + '<div><a class="document" title="Open" onclick="loadDocument('+x[0]+')">' + x[1] + '</a><a class="theme-action w3-right" onclick="confirmDeleteDocument('+x[0]+')"><i class="fa fa-trash" aria-disabled="true"></i></a></div>');
+                if (localStorage.length === 0)
+                    docs.html(docs.html() + '<div><a>You don\'t have any documents yet.</a></div>')
+                docs.html(docs.html() + '<hr><div><a class="theme-action" onclick="makeNewDocument()"><i class="fa fa-plus" aria-disabled="true"></i><strong> New</strong></a></div><div><a class="theme-action" onclick="deleteAllDocuments()"><i class="fa fa-trash" aria-disabled="true"></i><strong> Delete All</strong></a></div>')
             }
             function openTab(name) {
-                $('.tab-header:not(#tab-header-'+name+')').removeClass('theme-active');//css('background-color', 'inherit');
+                if (currentTitle === undefined && name === 'edit') return void alert('Please create a new document or open an existing one before editing.')
+                if (currentTitle === undefined && name === 'view') return void alert('Please create a new document or open an existing one before viewing.')
+                if (name === 'edit')
+                    document.title = 'Text Editor (Editing ' + currentTitle + ')';
+                else if (name === 'view')
+                    document.title = 'Text Editor (Viewing ' + currentTitle + ')';
+                else
+                    document.title = 'Text Editor';
+                $('.tab-header:not(#tab-header-'+name+')').removeClass('theme-active');
                 $('#tab-header-'+name).addClass('theme-active');
                 $('.tab:not(#tab-'+name+')').css('display', 'none');
                 $('#tab-'+name).css('display', 'inherit');
@@ -40,6 +88,38 @@
             }
             function updateRootRule(property, value) {
                 $('#view').css(property, `${value}`);
+            }
+            let viewTapedTwice = false;
+            function doubleTapView(event) {
+                if (!viewTapedTwice) {
+                    viewTapedTwice = true;
+                    setTimeout( function() { viewTapedTwice = false; }, 300 );
+                    return false;
+                }
+                event.preventDefault();
+                openTab('edit');
+            }
+            let editTapedTwice = false;
+            function doubleTapEdit(event) {
+                if (!editTapedTwice) {
+                    editTapedTwice = true;
+                    setTimeout( function() { editTapedTwice = false; }, 300 );
+                    return false;
+                }
+                event.preventDefault();
+                openTab('view');
+            }
+            function confirmDeleteDocument(id) {
+                let title = listAllDocuments()[id][1];
+                if (prompt('Are you sure you want to delete ' + title + '? To confirm, type "ok" in the box below.')) {
+                    deleteDocument(title);
+                    alert(title + ' deleted.');
+                    openTab('docs');
+                    currentTitle = undefined;
+                    $('#editor').val('#Hello World');
+                    updateText();
+                    updateDocList();
+                }
             }
         </script>
         <style>
@@ -90,8 +170,8 @@
                 resize: none;
                 outline: none;
                 border: none;
-                overflow: auto;
- 
+                
+
                 background:
                     /* Shadow covers */
                     linear-gradient(var(--theme-white) 30%, rgba(255,255,255,0)),
@@ -145,25 +225,44 @@
                 width: 100%;
                 height: 40px;
             }
+            .document {
+                color: var(--theme-blue);
+                text-decoration: none;
+                border-bottom: 2px dotted black;
+            }
+            .theme-action:hover {
+                color: var(--theme-blue);
+                cursor: pointer;
+            }
+            hr {
+                border-top: 1px solid var(--theme-gray);
+            }
+            #docs {
+                font-size: larger;
+            }
         </style>
     </head>
     <body>
         <div class="tab-section">
             <div class="theme-strong tab-headers">
-                <a id="tab-header-docs" name="tab-header-docs" class="tab-header" onclick="openTab('docs')" title="Documents"><i class="fa fa-files-o" aria-disabled="true"></i><span class="w3-hide-small"> Docs</span></a>
+                <a id="tab-header-docs" name="tab-header-docs" class="tab-header theme-active" onclick="openTab('docs')" title="Documents"><i class="fa fa-files-o" aria-disabled="true"></i><span class="w3-hide-small"> Docs</span></a>
                 <a id="tab-header-view" name="tab-header-view" class="tab-header" onclick="openTab('view')" title="View"><i class="fa fa-file-text-o" aria-disabled="true"></i><span class="w3-hide-small"> View</span></a>
                 <a id="tab-header-edit" name="tab-header-edit" class="tab-header" onclick="openTab('edit')" title="Edit"><i class="fa fa-pencil-square-o" aria-disabled="true"></i><span class="w3-hide-small"> Edit</span></a>
                 <a id="tab-header-style" name="tab-header-style" class="tab-header" onclick="openTab('style')" title="Styles"><i class="fa fa-paint-brush" aria-disabled="true"></i><span class="w3-hide-small"> Style</span></a>
             </div>
             <div id="tab-docs" class="w3-container tab">
-                <div id="docs" name="docs" class="tab-region">Docs here...</div>
+                <div id="docs" name="docs" class="tab-region">
+                    <script>
+                        updateDocList();
+                    </script>
+                </div>
             </div>
             <div id="tab-view" class="w3-container tab" style="display:none">
-                <div id="view" name="view" class="tab-region"><h1>Hello World</h1></div>
+                <div id="view" name="view" class="tab-region" ondblclick="openTab('edit')" ontouchstart="doubleTapView(event)"></div>
             </div>
 
             <div id="tab-edit" class="w3-container tab"  style="display:none">
-                <textarea id="editor" name="editor" class="tab-region" contenteditable="plaintext-only" onkeyup="updateText()"># Hello World</textarea>
+                <textarea id="editor" name="editor" class="tab-region" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" ondblclick="openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
             </div>
             
             <div id="tab-style" class="w3-container tab" style="display:none">
@@ -177,6 +276,7 @@
                         </div>
                     </details>
                     -->
+                    <!--TODO: dark theme, swipe to other tab, styles, metadata-->
                 </div>
             </div>
         </div>
