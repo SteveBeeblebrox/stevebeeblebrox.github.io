@@ -19,6 +19,7 @@
             }
             function makeNewDocument() {
                 currentTitle = prompt('What would you like to call this document?', new Date().getTime());
+                if(currentTitle === null || currentTitle === undefined) return void (currentTitle = undefined);
                 $('#editor').val('#Hello World');
                 updateText();
                 saveDocument();
@@ -29,7 +30,7 @@
                 return localStorage.getItem(title);
             }
             function deleteDocument(title) {
-                localStorage.removeItem(title)
+                localStorage.removeItem(title);
             }
             function deleteAllDocuments() {
                 if (prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.')) {
@@ -42,13 +43,13 @@
                     updateDocList();
                 }
             }
-            function loadDocument(index) {
+            function loadDocument(index, updateTab = true) {
                 currentTitle = localStorage.key(index);
                 $('#editor').val(getDocument(currentTitle));
                 updateText();
-                openTab('view');
+                if(updateTab) openTab('view');
             }
-            function listAllDocuments(index) {
+            function listAllDocuments() {
                 let result = [];
                 for (let i = 0; i < localStorage.length; i++)
                     result[i] = [i, localStorage.key(i)];
@@ -66,12 +67,12 @@
                 for (let x of listAllDocuments())
                     docs.html(docs.html() + '<div><a class="document" title="Open" onclick="loadDocument('+x[0]+')">' + x[1] + '</a><a class="theme-action w3-right" onclick="confirmDeleteDocument('+x[0]+')"><i class="fa fa-trash" aria-disabled="true"></i></a></div>');
                 if (localStorage.length === 0)
-                    docs.html(docs.html() + '<div><a>You don\'t have any documents yet.</a></div>')
-                docs.html(docs.html() + '<hr><div><a class="theme-action" onclick="makeNewDocument()"><i class="fa fa-plus" aria-disabled="true"></i><strong> New</strong></a></div><div><a class="theme-action" onclick="deleteAllDocuments()"><i class="fa fa-trash" aria-disabled="true"></i><strong> Delete All</strong></a></div>')
+                    docs.html(docs.html() + '<div><a>You don\'t have any documents yet.</a></div>');
+                docs.html(docs.html() + '<hr><div><a class="theme-action" onclick="makeNewDocument()"><i class="fa fa-plus" aria-disabled="true"></i><strong> New</strong></a></div><div><a class="theme-action" onclick="deleteAllDocuments()"><i class="fa fa-trash" aria-disabled="true"></i><strong> Delete All</strong></a></div>');
             }
             function openTab(name) {
-                if (currentTitle === undefined && name === 'edit') return void alert('Please create a new document or open an existing one before editing.')
-                if (currentTitle === undefined && name === 'view') return void alert('Please create a new document or open an existing one before viewing.')
+                if (currentTitle === undefined && name === 'edit') return void alert('Please create a new document or open an existing one before editing.');
+                if (currentTitle === undefined && name === 'view') return void alert('Please create a new document or open an existing one before viewing.');
                 if (name === 'edit')
                     document.title = 'Text Editor (Editing ' + currentTitle + ')';
                 else if (name === 'view')
@@ -121,6 +122,10 @@
                     updateDocList();
                 }
             }
+            window.addEventListener('storage', () => {
+                let lst = listAllDocuments().filter(o => o[1] === currentTitle);
+                if(currentTitle !== undefined && lst.length > 0) loadDocument(lst[0], false);
+            });
         </script>
         <style>
             :root {
@@ -229,6 +234,7 @@
                 color: var(--theme-blue);
                 text-decoration: none;
                 border-bottom: 2px dotted black;
+                cursor: pointer;
             }
             .theme-action:hover {
                 color: var(--theme-blue);
