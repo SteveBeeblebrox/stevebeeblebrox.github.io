@@ -2,5 +2,4 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.0.2/workbox
 workbox.routing.registerRoute(
     ({request}) => true,
     new workbox.strategies.NetworkFirst()
-
 )
