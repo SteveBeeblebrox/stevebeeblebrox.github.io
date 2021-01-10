@@ -140,6 +140,7 @@
                 let [start, end] = [element.selectionStart, element.selectionEnd];
                 element.setRangeText(newText, start, end, 'end');
                 element.focus();
+                updateText();
             }
             function insertTextWrapperInEditor(startText, endText) {
                 let element = document.querySelector('#editor');
@@ -147,6 +148,7 @@
                 element.setRangeText(startText, start, end, 'end');
                 element.setRangeText(endText, start+endText.length, end+endText.length, 'start');
                 element.focus();
+                updateText();
             }
         </script>
         <style>
