@@ -74,10 +74,10 @@
                 let docs = $('#docs');
                 docs.html('');
                 for (let x of listAllDocuments())
-                    docs.html(docs.html() + '<div><a class="document" title="Open" onclick="loadDocument('+x[0]+')">' + x[1] + '</a><a class="theme-action w3-right" onclick="confirmDeleteDocument('+x[0]+')"><i class="fa fa-trash" aria-disabled="true"></i></a></div>');
+                    docs.html(docs.html() + '<div><span class="document" title="Open" onclick="loadDocument('+x[0]+')">' + x[1] + '</span><span class="theme-action w3-right" onclick="confirmDeleteDocument('+x[0]+')"><i class="fa fa-trash" aria-disabled="true"></i></span></div>');
                 if (localStorage.length === 0)
-                    docs.html(docs.html() + '<div><a>You don\'t have any documents yet.</a></div>');
-                docs.html(docs.html() + '<hr><div><a class="theme-action" onclick="makeNewDocument()"><i class="fa fa-plus" aria-disabled="true"></i><strong> New</strong></a></div><div><a class="theme-action" onclick="deleteAllDocuments()"><i class="fa fa-trash" aria-disabled="true"></i><strong> Delete All</strong></a></div>');
+                    docs.html(docs.html() + '<div><span>You don\'t have any documents yet.</span></div>');
+                docs.html(docs.html() + '<hr><div><span class="theme-action" onclick="makeNewDocument()"><i class="fa fa-plus" aria-disabled="true"></i><strong> New</strong></span></div><div><span class="theme-action" onclick="deleteAllDocuments()"><i class="fa fa-trash" aria-disabled="true"></i><strong> Delete All</strong></span></div>');
             }
             function openTab(name) {
                 if (currentTitle === undefined && name === 'edit') return void alert('Please create a new document or open an existing one before editing.');
