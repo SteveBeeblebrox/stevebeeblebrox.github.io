@@ -16,7 +16,7 @@
 		{
 			"src": "splash.png",
             "sizes": "512x512",
-            "type": "image/png
+            "type": "image/png"
 		}
     ],
     "theme_color": "#f5f5f5",
