@@ -232,6 +232,10 @@
                 white-space: nowrap;
                 font-weight: bold;
             }
+            .tab-header:hover {
+                background-color: var(--theme-white) !important;
+                color: var(--theme-blue);
+            }
             .tab-headers {
                 display: flex;
                 align-items: stretch;
@@ -360,18 +364,18 @@
                 <span id="tab-header-style" name="tab-header-style" class="tab-header" onclick="openTab('style')" title="Styles"><i class="fa fa-paint-brush" aria-disabled="true"></i><span class="w3-hide-small"> Style</span></span>
             </div>
             <div id="tab-docs" class="w3-container tab">
-                <div id="docs" name="docs" class="tab-region">
+                <div id="docs" name="docs" class="tab-region w3-card">
                     <script>
                         updateDocList();
                     </script>
                 </div>
             </div>
             <div id="tab-view" class="w3-container tab" style="display:none">
-                <div id="view" name="view" class="tab-region" ondblclick="openTab('edit')" ontouchstart="doubleTapView(event)"></div>
+                <div id="view" name="view" class="tab-region w3-card" ondblclick="openTab('edit')" ontouchstart="doubleTapView(event)"></div>
             </div>
 
             <div id="tab-edit" class="w3-container tab"  style="display:none">
-                <div class="shorthand-keyboard w3-hide-medium w3-hide-large">
+                <div class="shorthand-keyboard w3-hide-medium w3-hide-large w3-card">
                     <button onclick="insertTextInEditor('!')">!</button>
                     <button onclick="insertTextInEditor('#')">#</button>
                     <button onclick="insertTextInEditor('$')">$</button>
@@ -390,11 +394,11 @@
                     <button onclick="insertTextWrapperInEditor('(', ')')">(&nbsp;)</button>
                     <button onclick="insertTextInEditor('/')">/</button>
                 </div>
-                <textarea id="editor" name="editor" class="tab-region" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" ondblclick="openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
+                <textarea id="editor" name="editor" class="tab-region w3-card" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" ondblclick="openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
             </div>
             
             <div id="tab-style" class="w3-container tab" style="display:none">
-                <div class="tab-region">
+                <div class="tab-region w3-card">
                     <p><em>Coming Soon</em></p>
                     <!--
                     <details class="style-group">
@@ -404,7 +408,7 @@
                         </div>
                     </details>
                     -->
-                    <!--TODO: swipe to other tab, styles, metadata-->
+                    <!--TODO: swipe to other tab, styles, metadata, link to control tab and open doc or make new (and pwa shortcut)-->
                 </div>
             </div>
         </div>
