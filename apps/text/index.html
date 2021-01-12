@@ -42,15 +42,16 @@
                 localStorage.removeItem(title);
             }
             function deleteAllDocuments() {
-                if (prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.')) {
+                if ((prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
                     localStorage.clear();
-                    alert('All documents deleted.');
+                    alert('All documents have been deleted.');
                     openTab('docs');
                     currentTitle = undefined;
                     $('#editor').val('#Hello World');
                     updateText();
                     updateDocList();
                 }
+                else alert('Deletion canceled.');
             }
             function loadDocument(index, updateTab = true) {
                 currentTitle = localStorage.key(index);
@@ -121,15 +122,16 @@
             }
             function confirmDeleteDocument(id) {
                 let title = listAllDocuments()[id][1];
-                if (prompt('Are you sure you want to delete ' + title + '? To confirm, type "ok" in the box below.')) {
+                if ((prompt('Are you sure you want to delete ' + title + '? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
                     deleteDocument(title);
-                    alert(title + ' deleted.');
+                    alert(title + ' has been deleted.');
                     openTab('docs');
                     currentTitle = undefined;
                     $('#editor').val('#Hello World');
                     updateText();
                     updateDocList();
                 }
+                else alert('Deletion canceled.');
             }
             window.addEventListener('storage', () => {
                 let lst = listAllDocuments().filter(o => o[1] === currentTitle);
@@ -343,11 +345,14 @@
                 background-color: var(--theme-white);
                 color: var(--theme-blue);
             }
+            #tab-view {
+                overflow-y: scroll;
+            }
             /* Start View Styles */
             #view a:after {
                 content: "\00a0\f08e";
                 font: normal normal normal 14px/1 FontAwesome;
-                font-size: 0.75em;;
+                font-size: 0.75em;
             }
             #view a {
                 text-decoration: none;
@@ -361,7 +366,7 @@
                 <span id="tab-header-docs" name="tab-header-docs" class="tab-header theme-active" onclick="openTab('docs')" title="Documents"><i class="fa fa-files-o" aria-disabled="true"></i><span class="w3-hide-small"> Docs</span></span>
                 <span id="tab-header-view" name="tab-header-view" class="tab-header" onclick="openTab('view')" title="View"><i class="fa fa-file-text-o" aria-disabled="true"></i><span class="w3-hide-small"> View</span></span>
                 <span id="tab-header-edit" name="tab-header-edit" class="tab-header" onclick="openTab('edit')" title="Edit"><i class="fa fa-pencil-square-o" aria-disabled="true"></i><span class="w3-hide-small"> Edit</span></span>
-                <span id="tab-header-style" name="tab-header-style" class="tab-header" onclick="openTab('style')" title="Styles"><i class="fa fa-paint-brush" aria-disabled="true"></i><span class="w3-hide-small"> Style</span></span>
+                <span id="tab-header-settings" name="tab-header-settings" class="tab-header" onclick="openTab('settings')" title="Styles"><i class="fa fa-gears" aria-disabled="true"></i><span class="w3-hide-small"> Settings</span></span>
             </div>
             <div id="tab-docs" class="w3-container tab">
                 <div id="docs" name="docs" class="tab-region w3-card">
@@ -397,7 +402,7 @@
                 <textarea id="editor" name="editor" class="tab-region w3-card" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" ondblclick="openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
             </div>
             
-            <div id="tab-style" class="w3-container tab" style="display:none">
+            <div id="tab-settings" class="w3-container tab" style="display:none">
                 <div class="tab-region w3-card">
                     <p><em>Coming Soon</em></p>
                     <!--
