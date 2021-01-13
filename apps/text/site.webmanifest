@@ -19,6 +19,15 @@
             "type": "image/png"
 		}
     ],
+    "shortcuts": [
+        {
+          "name": "New",
+          "short_name": "New",
+          "description": "Open a new document...",
+          "url": "/apps/text/index.html?new",
+          "icons": [{ "src": "new.png", "sizes": "192x192" }]
+        }
+    ],
     "theme_color": "#f5f5f5",
     "background_color": "#f5f5f5",
     "display": "standalone"

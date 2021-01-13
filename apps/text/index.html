@@ -26,8 +26,9 @@
             function saveDocument() {
                 localStorage.setItem(currentTitle, $('#editor').val());
             }
-            function makeNewDocument() {
-                currentTitle = prompt('What would you like to call this document?', new Date().getTime());
+            function makeNewDocument(title) {
+                if(title === '' || title === undefined || title === null) currentTitle = prompt('What would you like to call this document?', new Date().getTime());
+                else currentTitle = title;
                 if(currentTitle === null || currentTitle === undefined) return void (currentTitle = undefined);
                 $('#editor').val('#Hello World');
                 updateText();
@@ -152,6 +153,10 @@
                 element.focus();
                 updateText();
             }
+            $(document).ready(function() {
+                let newParam = new URLSearchParams(window.location.search).get('new');
+                if(newParam !== null && newParam !== undefined) makeNewDocument(decodeURIComponent(newParam));
+            });
         </script>
         <style>
             :root {
