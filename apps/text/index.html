@@ -197,9 +197,11 @@
                 .shorthand-keyboard button {
                     color: var(--theme-black) !important;
                 }
+                /*
                 .shorthand-keyboard button:hover {
                     background-color: var(--theme-alt-gray) !important;
                 }
+                */
             }
             body, textarea {
                 color: var(--theme-black);
@@ -233,10 +235,6 @@
                 cursor: pointer;
                 white-space: nowrap;
                 font-weight: bold;
-            }
-            .tab-header:hover {
-                background-color: var(--theme-white) !important;
-                color: var(--theme-blue);
             }
             .tab-headers {
                 display: flex;
@@ -295,10 +293,6 @@
                 background-color: var(--theme-gray) !important;
                 color: var(--theme-black);
             }
-            .theme-active:hover {
-                background-color: var(--theme-gray) !important;
-                color: var(--theme-black);
-            }
             input[type="color"] {
                 border: none;
                 background-color: var(--theme-white);
@@ -313,10 +307,6 @@
             }
             #docs span {
                 font-size: x-large;
-            }
-            .theme-action:hover {
-                color: var(--theme-blue);
-                cursor: pointer;
             }
             hr {
                 border-top: 1px solid var(--theme-gray);
@@ -341,12 +331,28 @@
                 border: none;
                 color: var(--theme-white)
             }
-            .shorthand-keyboard button:hover {
-                background-color: var(--theme-white);
-                color: var(--theme-blue);
-            }
             #tab-view {
                 overflow-y: scroll;
+            }
+            @media (hover:hover) {
+                .theme-action:hover {
+                    color: var(--theme-blue);
+                    cursor: pointer;
+                }
+                .theme-active:hover {
+                    background-color: var(--theme-gray) !important;
+                    color: var(--theme-black);
+                }
+                .tab-header:hover {
+                    background-color: var(--theme-white) !important;
+                    color: var(--theme-blue);
+                }
+                /*
+                .shorthand-keyboard button:hover {
+                    background-color: var(--theme-white);
+                    color: var(--theme-blue);
+                }
+                */
             }
             /* Start View Styles */
             #view a:after {
@@ -413,7 +419,7 @@
                         </div>
                     </details>
                     -->
-                    <!--TODO: swipe to other tab, styles, metadata, link to control tab and open doc or make new (and pwa shortcut)-->
+                    <!--TODO: swipe to other tab, styles, metadata, link to control tab and open doc or make new (and pwa shortcut), keyboard feedback on small screens-->
                 </div>
             </div>
         </div>
