@@ -27,14 +27,18 @@
                 localStorage.setItem(currentTitle, $('#editor').val());
             }
             function makeNewDocument(title) {
-                if(title === '' || title === undefined || title === null) currentTitle = prompt('What would you like to call this document?', new Date().getTime());
-                else currentTitle = title;
+                if(title === '' || title === undefined || title === null) title = prompt('What would you like to call this document?', new Date().getTime());
+                if(documentExist(title) && (prompt('A document with the name ' + title + ' already exists. To replace it, type "ok" in the box below.') ?? '').toLowerCase().trim() !== 'ok') return;
+                currentTitle = title;
                 if(currentTitle === null || currentTitle === undefined) return void (currentTitle = undefined);
                 $('#editor').val('#Hello World');
                 updateText();
                 saveDocument();
                 updateDocList();
                 openTab('edit');
+            }
+            function documentExist(title) {
+                return localStorage.getItem(title) !== null;
             }
             function getDocument(title) {
                 return localStorage.getItem(title);
