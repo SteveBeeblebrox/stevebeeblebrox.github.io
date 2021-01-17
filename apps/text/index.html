@@ -47,7 +47,7 @@
                 localStorage.removeItem(title);
             }
             function deleteAllDocuments() {
-                if ((prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
+                if((prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
                     localStorage.clear();
                     alert('All documents have been deleted.');
                     openTab('docs');
@@ -66,7 +66,7 @@
             }
             function listAllDocuments() {
                 let result = [];
-                for (let i = 0; i < localStorage.length; i++)
+                for(let i = 0; i < localStorage.length; i++)
                     result[i] = [i, localStorage.key(i)];
                 return result;
             }
@@ -79,18 +79,18 @@
             function updateDocList() {
                 let docs = $('#docs');
                 docs.html('');
-                for (let x of listAllDocuments())
+                for(let x of listAllDocuments())
                     docs.html(docs.html() + '<div><span class="document" title="Open" onclick="loadDocument('+x[0]+')">' + x[1] + '</span><span class="theme-action w3-right" onclick="confirmDeleteDocument('+x[0]+')"><i class="fa fa-trash" aria-disabled="true"></i></span></div>');
-                if (localStorage.length === 0)
+                if(localStorage.length === 0)
                     docs.html(docs.html() + '<div><span>You don\'t have any documents yet.</span></div>');
                 docs.html(docs.html() + '<hr><div><span class="theme-action" onclick="makeNewDocument()"><i class="fa fa-plus" aria-disabled="true"></i><strong> New</strong></span></div><div><span class="theme-action" onclick="deleteAllDocuments()"><i class="fa fa-trash" aria-disabled="true"></i><strong> Delete All</strong></span></div>');
             }
             function openTab(name) {
-                if (currentTitle === undefined && name === 'edit') return void alert('Please create a new document or open an existing one before editing.');
-                if (currentTitle === undefined && name === 'view') return void alert('Please create a new document or open an existing one before viewing.');
-                if (name === 'edit')
+                if(currentTitle === undefined && name === 'edit') return void alert('Please create a new document or open an existing one before editing.');
+                if(currentTitle === undefined && name === 'view') return void alert('Please create a new document or open an existing one before viewing.');
+                if(name === 'edit')
                     document.title = 'Text Editor (Editing ' + currentTitle + ')';
-                else if (name === 'view')
+                else if(name === 'view')
                     document.title = 'Text Editor (Viewing ' + currentTitle + ')';
                 else
                     document.title = 'Text Editor';
@@ -107,7 +107,7 @@
             }
             let viewTapedTwice = false;
             function doubleTapView(event) {
-                if (!viewTapedTwice) {
+                if(!viewTapedTwice) {
                     viewTapedTwice = true;
                     setTimeout( function() { viewTapedTwice = false; }, 300 );
                     return false;
@@ -117,7 +117,7 @@
             }
             let editTapedTwice = false;
             function doubleTapEdit(event) {
-                if (!editTapedTwice) {
+                if(!editTapedTwice) {
                     editTapedTwice = true;
                     setTimeout( function() { editTapedTwice = false; }, 300 );
                     return false;
@@ -127,7 +127,7 @@
             }
             function confirmDeleteDocument(id) {
                 let title = listAllDocuments()[id][1];
-                if ((prompt('Are you sure you want to delete ' + title + '? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
+                if((prompt('Are you sure you want to delete ' + title + '? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
                     deleteDocument(title);
                     alert(title + ' has been deleted.');
                     openTab('docs');
@@ -433,7 +433,7 @@
             </div>
         </div>
         <script>
-            if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+            if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
         </script>
     </body>
 </html>
