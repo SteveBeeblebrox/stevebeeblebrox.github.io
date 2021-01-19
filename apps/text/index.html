@@ -46,6 +46,11 @@
             function deleteDocument(title) {
                 localStorage.removeItem(title);
             }
+            function renameDocument(title) {
+                localStorage.setItem(title, $('#editor').val());
+                deleteDocument(currentTitle);
+                updateDocList();
+            }
             function deleteAllDocuments() {
                 if((prompt('Are you sure you want to delete all documents? To confirm, type "ok" in the box below.') ?? '').toLowerCase().trim() === 'ok') {
                     localStorage.clear();
