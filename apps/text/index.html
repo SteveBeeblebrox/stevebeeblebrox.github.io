@@ -211,11 +211,9 @@
                 .shorthand-keyboard button {
                     color: var(--theme-black) !important;
                 }
-                /*
-                .shorthand-keyboard button:hover {
+                .shorthand-keyboard button:active {
                     background-color: var(--theme-alt-gray) !important;
                 }
-                */
             }
             body, textarea {
                 color: var(--theme-black);
@@ -348,6 +346,11 @@
             #tab-view {
                 overflow-y: scroll;
             }
+            .shorthand-keyboard button:active {
+                background-color: var(--theme-white);
+                color: var(--theme-blue);
+                outline: none;
+            }
             @media (hover:hover) {
                 /*.theme-action:hover {
                     color: var(--theme-blue);
@@ -433,7 +436,7 @@
                         </div>
                     </details>
                     -->
-                    <!--TODO: swipe to other tab, styles, metadata, link to control tab and open doc or make new (and pwa shortcut), keyboard feedback on small screens-->
+                    <!--TODO: swipe to other tab, styles, metadata, link to control tab and open doc, keyboard feedback on small screens-->
                 </div>
             </div>
         </div>
