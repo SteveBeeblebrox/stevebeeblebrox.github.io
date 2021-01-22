@@ -181,7 +181,7 @@
                     }
                 });
 
-                function addSwipeListener(element, callback, deltaMin = 180) {
+                function addSwipeListener(element, callback, deltaMin = 120) {
                     const swipe_det = {sX: 0, sY: 0, eX: 0, eY: 0};
                     const directions = Object.freeze({UP: 'up', DOWN: 'down', RIGHT: 'right', LEFT: 'left'});
                     let direction = null;
