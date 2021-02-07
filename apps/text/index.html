@@ -462,7 +462,7 @@
                 </div>
             </div>
             <div id="tab-view" class="w3-container tab" style="display:none">
-                <div id="view" name="view" class="tab-region w3-card" ondblclick="openTab('edit')" ontouchstart="doubleTapView(event)"></div>
+                <div id="view" name="view" class="tab-region w3-card" onclick="if(event.detail === 3) openTab('edit')" ontouchstart="doubleTapView(event)"></div>
             </div>
 
             <div id="tab-edit" class="w3-container tab"  style="display:none">
@@ -486,7 +486,7 @@
                     <button onclick="insertTextWrapperInEditor('(', ')')">(&nbsp;)</button>
                     <button onclick="insertTextInEditor('/')">/</button>
                 </div>
-                <textarea id="editor" name="editor" class="tab-region w3-card" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" ondblclick="openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
+                <textarea id="editor" name="editor" class="tab-region w3-card" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" onclick="if(event.detail === 3) openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
             </div>
             
             <div id="tab-settings" class="w3-container tab" style="display:none">
