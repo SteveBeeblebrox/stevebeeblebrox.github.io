@@ -213,6 +213,15 @@
             });
         </script>
         <style>
+            .tab-region::-webkit-scrollbar {
+                width: 4px;
+            }
+            .tab-region::-webkit-scrollbar-track {
+                background-color: var(--theme-white);
+            }
+            .tab-region::-webkit-scrollbar-thumb {
+                background-color: var(--theme-blue);
+            }
             :root {
                 --theme-gray: #e0e0e0;
                 --theme-blue: #0288d1;
@@ -226,6 +235,9 @@
                     --theme-gray:#393939;/* #6c717a*/;
                     --theme-black: whitesmoke;
                     --theme-blue: #03a5fc;
+                }
+                .tab-region::-webkit-scrollbar-track {
+                    background-color: var(--theme-alt-gray);
                 }
                 .tab-region {
                     background:
@@ -461,6 +473,7 @@
                     <button onclick="insertTextInEditor('%')">%</button>
                     <button onclick="insertTextInEditor('^')">^</button>
                     <button onclick="insertTextInEditor('*')">*</button>
+                    <button onclick="insertTextInEditor('+')">+</button>
                     <button onclick="insertTextInEditor('_')">_</button>
                     <button onclick="insertTextInEditor('-')">-</button>
                     <button onclick="insertTextInEditor('~')">~</button>
