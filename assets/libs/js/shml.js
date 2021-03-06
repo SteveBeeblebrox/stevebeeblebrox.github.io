@@ -61,6 +61,7 @@ class SHML {
       __proto__: null,
       _properties: {},
       _value: [],
+      _ids: [],
       toHTML: () => data._value.join(''),
       getProperty: (property) => data._properties[Symbol.for(property)],
       getProperties: () => new Proxy({__proto__: null, ...data._properties},
@@ -70,12 +71,24 @@ class SHML {
             for(let prop of Object.getOwnPropertySymbols(target).filter(object => object !== Symbol.iterator)) yield [prop, target[prop]]
           }).bind(target);
           else return target[Symbol.for(name)];
+        },
+        set: function() {
+            return false;
+        }
+      }),
+      getIds: () => new Proxy([...data._ids],
+      {
+        set: function() {
+            return false;
         }
       })
     };
     let push = object => data._value.push(object);
+    let pushId = object => data._ids.push(object);
     let parseForHeader = (header, str) => str.replace(new RegExp('^\\s*?' + '#'.repeat(header) + '(.*)', 'g'), (str, match) => (push('<h' + header + '>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</h' + header + '>'), ''));
+    let parseForIdHeader = (header, str) => str.replace(new RegExp('^\\s*?' + '#'.repeat(header) + '\\[(.*?)\\]\\s*?(.*)', 'g'), (str, match1, match2) => (pushId('h' + header + ':' + match1), push('<a href="#h' + header + ':' + match1 + '"><h' + header + ' id="h' + header + ':' + match1 + '">' + SHML.parseInlineMarkup(match2.trim()).toHTML() + '</h' + header + '></a>'), ''));
     let parseForSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + ':(.*)', 'g'), (str, match) => (push('<' + tag + '>' + SHML.parseInlineMarkup(match.trim()).toHTML() + '</' + tag + '>'), ''));
+    let parseForIdSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + '\\[(.*?)\\]:(.*)', 'g'), (str, match1, match2) => (pushId(tag + ':' + match1), push('<a href="#' + tag + ':' + match1 + '"><' + tag + ' id="' + tag + ':' + match1 + '">' + SHML.parseInlineMarkup(match2.trim()).toHTML() + '</' + tag + '></a>'), ''));
     let escaped = false, table = false, tableHeader = true;
     markdown.split(/\n/g).forEach((object, index, array) => {
       if(object.trim() === '$$') return void (escaped = !escaped);
@@ -88,6 +101,10 @@ class SHML {
         if(tableHeader) return void (tableHeader = false, push(makeRow('h')));
         else return void push(makeRow('d'));
       }
+      
+      
+      for(let i = 6; i > 0; i--) object = parseForIdHeader(i, object);
+      for(let i = 1; i < 7; i++) object = parseForIdSection('h' + i, object);
       
       for(let i = 6; i > 0; i--) object = parseForHeader(i, object);
       for(let i = 1; i < 7; i++) object = parseForSection('h' + i, object);
@@ -102,7 +119,7 @@ class SHML {
       .replace(/^\s*?\[(.*?) ([0-9]*)[xX]([0-9]*)\]/g, (str, match1, match2, match3) => (push('<br><img src="' + match1 + '" width="' + (parseInt(match2) === 0 ? 'auto' : match2) + '" height="' + (parseInt(match3) === 0 ? 'auto' : match3) + '"><br>'), ''))
       .replace(/^\s*?\[(.*)\]/g, (str, match) => (push('<br><img src="' + match + '"><br>'), ''))
       .replace(/\s*---+\s*/, () => (push('<hr>'), ''))
-      .replace(/\s*%%\s*/, () => (push('<br>'), ''));
+      .replace(/^\s*%%\s*/, () => (push('<br>'), ''));
       push(SHML.parseInlineMarkup(object.trim()).toHTML());
     });
     return data;
