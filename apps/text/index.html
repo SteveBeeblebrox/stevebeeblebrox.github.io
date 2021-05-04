@@ -112,21 +112,21 @@
             function updateRootRule(property, value) {
                 $('#view').css(property, `${value}`);
             }
-            let viewTapedTwice = false;
-            function doubleTapView(event) {
-                if(!viewTapedTwice) {
-                    viewTapedTwice = true;
-                    setTimeout( function() { viewTapedTwice = false; }, 300 );
+            let viewTapCount = 0;
+            function tripleTapView(event) {
+                if(viewTapCount >= 3) {
+                    viewTapCount++;
+                    setTimeout( function() { viewTapCount = 0; }, 300 );
                     return false;
                 }
                 event.preventDefault();
                 openTab('edit');
             }
-            let editTapedTwice = false;
-            function doubleTapEdit(event) {
-                if(!editTapedTwice) {
-                    editTapedTwice = true;
-                    setTimeout( function() { editTapedTwice = false; }, 300 );
+            let editTapCount = 0;
+            function tripleTapEdit(event) {
+                if(editTapCount >= 3) {
+                    editTapCount++;
+                    setTimeout( function() { editTapCount = 0; }, 300 );
                     return false;
                 }
                 event.preventDefault();
@@ -465,7 +465,7 @@
                 </div>
             </div>
             <div id="tab-view" class="w3-container tab" style="display:none">
-                <div id="view" name="view" class="tab-region w3-card" onclick="if(event.detail === 3) openTab('edit')" ontouchstart="doubleTapView(event)"></div>
+                <div id="view" name="view" class="tab-region w3-card" onclick="if(event.detail === 3) openTab('edit')" ontouchstart="tripleTapView(event)"></div>
             </div>
 
             <div id="tab-edit" class="w3-container tab"  style="display:none">
@@ -489,7 +489,7 @@
                     <button onclick="insertTextWrapperInEditor('(', ')')">(&nbsp;)</button>
                     <button onclick="insertTextInEditor('/')">/</button>
                 </div>
-                <textarea id="editor" name="editor" class="tab-region w3-card" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" onclick="if(event.detail === 3) openTab('view')" ontouchstart="doubleTapEdit(event)"></textarea>
+                <textarea id="editor" name="editor" class="tab-region w3-card" contenteditable="plaintext-only" onkeyup="updateText(), saveDocument()" onclick="if(event.detail === 3) openTab('view')" ontouchstart="tripleTapEdit(event)"></textarea>
             </div>
             
             <div id="tab-settings" class="w3-container tab" style="display:none">
