@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <title>Text Editor</title>
-		<meta charset="UTF-8"/>
+        <meta charset="UTF-8"/>
         <meta name="description" content="Text Editor with support for SHML markup"/>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
 		<meta name="keywords" content="Text Editor, SHML, Text, Editor, Markup"/>
@@ -116,7 +116,7 @@
             function tripleTapView(event) {
                 if(viewTapCount < 3) {
                     viewTapCount++;
-                    setTimeout( function() { viewTapCount = 0; }, 300 );
+                    setTimeout( function() { viewTapCount = 0; }, 1750 );
                     return false;
                 }
                 event.preventDefault();
@@ -126,7 +126,7 @@
             function tripleTapEdit(event) {
                 if(editTapCount < 3) {
                     editTapCount++;
-                    setTimeout( function() { editTapCount = 0; }, 300 );
+                    setTimeout( function() { editTapCount = 0; }, 1750 );
                     return false;
                 }
                 event.preventDefault();
@@ -182,7 +182,7 @@
                 });
 
                 function addSwipeListener(element, callback, deltaMin = 120) {
-                    const swipe_det = {sX: 0, sY: 0, eX: 0, eY: 0};
+                    const swipe_det = {sX: 0, sY: 0, eX: 0, eY: 0, active: false};
                     const directions = Object.freeze({UP: 'up', DOWN: 'down', RIGHT: 'right', LEFT: 'left'});
                     let direction = null;
                     element.addEventListener('touchstart', function(e) {
@@ -194,11 +194,12 @@
                         const t = e.touches[0];
                         swipe_det.eX = t.screenX;
                         swipe_det.eY = t.screenY;
+                        swipe_det.active = true;
                     }, false);
                     element.addEventListener('touchend', function(e) {
                         const deltaX = swipe_det.eX - swipe_det.sX;
                         const deltaY = swipe_det.eY - swipe_det.sY;
-                        if (deltaX ** 2 + deltaY ** 2 < deltaMin ** 2) return;
+                        if (deltaX ** 2 + deltaY ** 2 < deltaMin ** 2 || !swipe_det.active) return;
                         
                         if (deltaY === 0 || Math.abs(deltaX / deltaY) > 1)
                             direction = deltaX > 0 ? directions.RIGHT : directions.LEFT;
@@ -208,6 +209,7 @@
                         if (direction && typeof callback === 'function') callback(element, direction);
 
                         direction = null;
+                        swipe_det.active = false;
                     }, false);
                 }
             });
