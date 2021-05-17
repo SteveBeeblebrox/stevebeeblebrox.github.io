@@ -114,7 +114,7 @@
             }
             let viewTapCount = 0;
             function tripleTapView(event) {
-                if(viewTapCount >= 3) {
+                if(viewTapCount < 3) {
                     viewTapCount++;
                     setTimeout( function() { viewTapCount = 0; }, 300 );
                     return false;
@@ -124,7 +124,7 @@
             }
             let editTapCount = 0;
             function tripleTapEdit(event) {
-                if(editTapCount >= 3) {
+                if(editTapCount < 3) {
                     editTapCount++;
                     setTimeout( function() { editTapCount = 0; }, 300 );
                     return false;
