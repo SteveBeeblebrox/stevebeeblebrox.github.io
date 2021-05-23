@@ -6,7 +6,7 @@
         <meta name="author" content="Tim Wasinger"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <meta name="description" content="HSL based color theme builder."/>
-		<meta name="keywords" content="HSL, Color, Picker, Theme, Generator"/>
+        <meta name="keywords" content="HSL, Color, Picker, Theme, Generator"/>
         <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
         <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"/>
         <style>
@@ -221,8 +221,8 @@
                     <p class="rgb-render"><strong>RGB:</strong></p>
                     <label><strong>Hue:</strong> </label><input type="range" oninput="updateColorRegion(this.closest('.color-region'), this.value)" value="0" min="0" max="360"/>
                     <span>
-                        <button class="action-btn" style="visibility: hidden;" disabled>Delete</button>
-                        <button class="action-btn" onclick="duplicateRegion(this.closest('.color-region'), true)">Duplicate</button>
+                        <button class="action-btn" onclick="deleteRegion(this.closest('.color-region'))" style="visibility: hidden;" disabled>Delete</button>
+                        <button class="action-btn" onclick="duplicateRegion(this.closest('.color-region'), this.closest('span').querySelector('.action-btn[disabled]'))">Duplicate</button>
                     </span>
                 </div>
             </div>
