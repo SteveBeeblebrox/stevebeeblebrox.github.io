@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Notebook</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="../../assets/libs/js/shml.js"></script>
+        <script>
+            function ElementArrayProxy(elements) {
+                return new Proxy(elements, {
+                    set: function(target, property, value) {
+                        return target.forEach(o => o[property] = value), false;
+                    },
+                    get: function(target, property, reciever) {
+                        if(typeof property === 'symbol') return [...elements][property];
+                        if(property.startsWith('$') && property !== '$')
+                            if(typeof [...elements][property.substr(1)] === 'function') return function() {return [...elements][property.substr(1)](...arguments)}
+                            else return [...elements][property.substring(1)]
+
+                        return [...elements].some(o => typeof o[property] === 'function') ? function() {return [...elements].map(o => typeof o[property] === 'function' ? o[property](...arguments) : o[property])} : new ElementArrayProxy([...elements].map(o => o[property]));
+                    }
+                });
+            }
+
+            $ = (selector, startNode = document) => startNode.querySelector(selector);
+            HTMLElement.prototype.$ = function(selector) { return $(selector, this); }
+            HTMLElement.prototype.$$ = function(selector) { return $$(selector, this); }
+            $$ = (selector, startNode = document) => new ElementArrayProxy(startNode.querySelectorAll(selector));
+            
+            function New(type, data = {}) {
+                const element = document.createElement(type)
+                for(const key in data)
+                    element[key] = data[key]
+
+                if('children' in data && data.children instanceof Array)
+                    for(const child of data.children)
+                        element.appendChild(child)
+
+                return element
+            }
+
+            window.onload = function() {
+                const display = $`#display`, notepad = $`#notepad`, properties = $`#properties`
+                let data
+
+                const symbolLengths = ['Symbol('.length, ')'.length]
+
+                notepad.oninput = () => {
+                    data = SHML.parseMarkup(notepad.value)
+                    display.srcdoc = data.toHTML()
+                    
+                    properties.innerHTML = ''
+                    properties.appendChild(New('th', {
+                        children: [
+                            New('td', {textContent: 'Key'}),
+                            New('td', {textContent: 'Value'})
+                        ]
+                    }))
+
+                    for(let property of data.getProperties()) {
+                        let str = property[0].toString()
+                        
+                        properties.appendChild(New('tr', {
+                            children: [
+                                New('td', {textContent: str.substr(symbolLengths[0], str.length-symbolLengths[0]-symbolLengths[1])}),
+                                New('td', {textContent: property[1]})
+                            ]
+                        }))
+                        
+                    }
+                }
+            }
+        </script>
+
+    </head>
+    <body>
+        <iframe title="Notes" id="display" sandbox="allow-popups"></iframe>
+        <table id="properties">   
+        </table>
+        <textarea id="notepad"></textarea>
+    </body>
+</html>
