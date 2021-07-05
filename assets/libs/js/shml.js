@@ -23,41 +23,55 @@ SOFTWARE.
 */
 class SHML {
   constructor() {return {};}
+  
+  static #specialCharacters = {
+    '~': {'A': 'Ã', 'I': 'Ĩ', 'N': 'Ñ', 'O': 'Õ', 'U': 'Ũ', 'a': 'ã', 'i': 'ĩ', 'n': 'ñ', 'o': 'õ', 'u': 'ũ'},
+    ':': {'A': 'Ä', 'E': 'Ë', 'I': 'Ï', 'O': 'Ö', 'U': 'Ü', 'Y': 'Ÿ', 'a': 'ä', 'e': 'ë', 'i': 'ï', 'o': 'ö', 'u': 'ü', 'y': 'ÿ'},
+    '\'': {'A': 'Á', 'C': 'Ć', 'E': 'É', 'I': 'Í', 'L': 'Ĺ', 'N': 'Ń', 'O': 'Ó', 'R': 'Ŕ', 'S': 'Ś', 'U': 'Ú', 'Y': 'Ý', 'Z': 'Ź', 'a': 'á', 'c': 'ć', 'e': 'é', 'g': 'ǵ', 'i': 'í', 'l': 'ĺ', 'n': 'ń', 'o': 'ó', 'r': 'ŕ', 's': 'ś', 'u': 'ú', 'y': 'ý', 'z': 'ź'},
+    '"': {'O': 'Ő', 'U': 'Ű', 'o': 'ő', 'u': 'ű'},
+    '`': {'A': 'À', 'E': 'È', 'I': 'Ì', 'O': 'Ò', 'U': 'Ù', 'a': 'à', 'e': 'è', 'i': 'ì', 'o': 'ò', 'u': 'ù'},
+    '^': {'A': 'Â', 'C': 'Ĉ', 'E': 'Ê', 'G': 'Ĝ', 'H': 'Ĥ', 'I': 'Î', 'J': 'Ĵ', 'O': 'Ô', 'S': 'Ŝ', 'U': 'Û', 'W': 'Ŵ', 'Y': 'Ŷ', 'a': 'â', 'c': 'ĉ', 'e': 'ê', 'g': 'ĝ', 'h': 'ĥ', 'i': 'î', 'j': 'ĵ', 'o': 'ô', 's': 'ŝ', 'u': 'û', 'w': 'ŵ', 'x': '◯', 'y': 'ŷ'},
+    'o': {'A': 'Å', 'U': 'Ů', 'a': 'å', 'u': 'ů'},
+    '/': {'O': 'Ø', 'h': 'ℏ', 'o': 'ø'},
+    ',': {'C': 'Ç', 'G': 'Ģ', 'K': 'Ķ', 'L': 'Ļ', 'N': 'Ņ', 'R': 'Ŗ', 'S': 'Ş', 'T': 'Ţ', 'c': 'ç', 'k': 'ķ', 'l': 'ļ', 'n': 'ņ', 'r': 'ŗ', 's': 'ş', 't': 'ţ'},
+    '-': {'A': 'Ā', 'E': 'Ē', 'I': 'Ī', 'O': 'Ō', 'U': 'Ū', 'a': 'ā', 'e': 'ē', 'i': 'ī', 'o': 'ō', 'u': 'ū'},
+    'u': {'A': 'Ă', 'G': 'Ğ', 'U': 'Ŭ', 'a': 'ă', 'g': 'ğ', 'u': 'ŭ'},
+    '.': {'C': 'Ċ', 'E': 'Ė', 'G': 'Ġ', 'I': 'İ', 'Z': 'Ż', 'c': 'ċ', 'e': 'ė', 'g': 'ġ', 'o': '⊙', 's': '⋅', 't': '⃛', 'z': 'ż'},
+    '?': {'A': 'Ą', 'E': 'Ę', 'I': 'Į', 'U': 'Ų', 'a': 'ą', 'e': 'ę', 'i': 'į', 'u': 'ų'},
+    'v': {'C': 'Č', 'D': 'Ď', 'E': 'Ě', 'L': 'Ľ', 'N': 'Ň', 'R': 'Ř', 'S': 'Š', 'T': 'Ť', 'Z': 'Ž', 'c': 'č', 'd': 'ď', 'e': 'ě', 'l': 'ľ', 'n': 'ň', 'r': 'ř', 's': 'š', 't': 'ť', 'z': 'ž'},
+    '_': {'D': 'Đ', 'H': 'Ħ', 'L': 'Ł', 'T': 'Ŧ', 'd': 'đ', 'h': 'ħ', 'l': 'ł', 't': 'ŧ'}
+  }
+  
+  static #cyrb64(str, seed = 0) {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+    return (h2>>>0).toString(16).padStart(8,0)+(h1>>>0).toString(16).padStart(8,0);
+  }
+
   static getStyleSheet() {
-      return `<style>
-        @media (min-width:601px) {
-          .shml-internal-half {width: 50%; float: left;}
-          .shml-internal-third {width: 33.33333%; float: left;}
-          .shml-internal-two-third {width: 66.66666%; float: left;}
-          .shml-internal-quarter {width: 25%; float: left;}
-          .shml-internal-three-quarter {width: 75%; float: left;}
-        }
-      </style>`;
+    return `<style>
+      @media (min-width:601px) {
+        .shml-internal-half {width: 50%; float: left;}
+        .shml-internal-third {width: 33.33333%; float: left;}
+        .shml-internal-two-third {width: 66.66666%; float: left;}
+        .shml-internal-quarter {width: 25%; float: left;}
+        .shml-internal-three-quarter {width: 75%; float: left;}
+      }
+    </style>`;
   }
   static parseInlineMarkup(markup, customTokens = {}) {
-    let characterVariants = {
-      '~': 'tilde',
-      ':': 'uml',
-      '\'': 'acute',
-      '"': 'dblac',
-      '`': 'grave',
-      '^': 'circ',
-      'o': 'ring',
-      '/': 'slash',
-      ',': 'cedil',
-      '-': 'macr',
-      'u': 'breve',
-      '.': 'dot',
-      '?': 'ogon',
-      'v': 'caron',
-      '_': 'stroke'
-    }
-    let result = {__proto__: null, toHTML: () => result._value, _value: ''}, code = false, escaped = false;
+    let value = '', result = {__proto__: null, toHTML: () => value}, code = false, escaped = false;
     markup.split(/(`|\$\$)([\S\s]*?)(\1)/g).forEach(object => {
       if(object === '`') code = !code, object = '';
       if(object === '$$') escaped = !escaped, object = '';
-      result._value += !code && !escaped ? object
-          .replace(new RegExp('\\/([' + Object.keys(characterVariants).join('').replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&') + '])([a-zA-Z])\\/', 'g'), (string, match1, match2) => '&' + match2 + characterVariants[match1] + ';')
+      value += !code && !escaped ? object
+          .replace(new RegExp('\\/([' + Object.keys(SHML.#specialCharacters).join('').replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&') + '])([a-zA-Z])\\/', 'g'), (string, match1, match2) => SHML.#specialCharacters[match1][match2] ?? '/' + match1 + match2 + '/')
           .replace(/\/!\//g, '&iexcl;')
           .replace(/\/\?\//g, '&iquest;')  
           .replace(/(\*\*\*)(.*?)\1/gs, '<strong><em>$2</em></strong>')
@@ -68,6 +82,7 @@ class SHML {
           .replace(/(\^)(.*?)\1/gs, '<sup>$2</sup>')
           .replace(/(,,)(.*?)\1/gs, '<sub>$2</sub>')
           .replace(/(&&)\[(#[a-fA-F0-9]{6})\](.*?)\1/gs, '<span style="color: $2;">$3</span>')
+          .replace(/(\&\&)(.*?)\1/gs, '<span style="color: red;">$2</span>')
           .replace(/(\|)\[(#[a-fA-F0-9]{6})\](.*?)\1/gs, '<mark style="background-color: $2;">$3</mark>')
           .replace(/(\|)(.*?)\1/gs, '<mark>$2</mark>')
           .replace(/(:)(\S*?)\1/gs, (string, match1, match2) => customTokens[match2] ?? (':' + match2 + ':'))
@@ -75,7 +90,7 @@ class SHML {
           .replace(/\+\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_blank">$1</a>')
           .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" title="$1" target="_self">$1</a>')
           .replace(/%%/g, '<br>')
-        : object === '' ? '' :  code ? '<code>'+object+'</code>' : object;
+        : object === '' ? '' : code ? '<code>' + object + '</code>' : object;
     });
     return result;
   }
@@ -108,10 +123,10 @@ class SHML {
     };
     let push = object => data._value.push(object);
     let pushId = object => data._ids.push(object);
-    let parseForHeader = (header, str) => str.replace(new RegExp('^\\s*?' + '#'.repeat(header) + '(.*)', 'g'), (str, match) => (push('<h' + header + '>' + SHML.parseInlineMarkup(match.trim(), customTokens).toHTML() + '</h' + header + '>'), ''));
+    let parseForHeader = (header, str, hash = true) => str.replace(new RegExp('^\\s*?' + '#'.repeat(header) + '(.*)', 'g'), (str, match) => (push('<h' + header + (hash && ' id="h' + header + ':' + SHML.#cyrb64(match.trim()) + '"' || '') + '>' + SHML.parseInlineMarkup(match.trim(), customTokens).toHTML() + '</h' + header + '>'), ''));
     let parseForIdHeader = (header, str) => str.replace(new RegExp('^\\s*?' + '#'.repeat(header) + '\\[(.*?)\\]\\s*?(.*)', 'g'), (str, match1, match2) => (pushId('h' + header + ':' + match1), push('<a href="#h' + header + ':' + match1 + '"><h' + header + ' id="h' + header + ':' + match1 + '">' + SHML.parseInlineMarkup(match2.trim(), customTokens).toHTML() + '</h' + header + '></a>'), ''));
-    let parseForSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + ':(.*)', 'g'), (str, match) => (push('<' + tag + '>' + SHML.parseInlineMarkup(match.trim(), customTokens).toHTML() + '</' + tag + '>'), ''));
-    let parseForIdSection = (tag, str, key = tag) => str.replace(new RegExp('^\\s*?' + key + '\\[(.*?)\\]:(.*)', 'g'), (str, match1, match2) => (pushId(tag + ':' + match1), push('<a href="#' + tag + ':' + match1 + '"><' + tag + ' id="' + tag + ':' + match1 + '">' + SHML.parseInlineMarkup(match2.trim(), customTokens).toHTML() + '</' + tag + '></a>'), ''));
+    let parseForSection = (tag, str, hash = true) => str.replace(new RegExp('^\\s*?' + tag + ':(.*)', 'g'), (str, match) => (push('<' + tag + (hash && ' id="' + tag + ':' + SHML.#cyrb64(match.trim()) + '"' || '') + '>' + SHML.parseInlineMarkup(match.trim(), customTokens).toHTML() + '</' + tag + '>'), ''));
+    let parseForIdSection = (tag, str) => str.replace(new RegExp('^\\s*?' + tag + '\\[(.*?)\\]:(.*)', 'g'), (str, match1, match2) => (pushId(tag + ':' + match1), push('<a href="#' + tag + ':' + match1 + '"><' + tag + ' id="' + tag + ':' + match1 + '">' + SHML.parseInlineMarkup(match2.trim(), customTokens).toHTML() + '</' + tag + '></a>'), ''));
     let escaped = false, table = false, tableHeader = true;
     markup.split(/\n/g).forEach((object, index, array) => {
       if(object.trim() === '$$') return void (escaped = !escaped);
@@ -131,7 +146,7 @@ class SHML {
       
       for(let i = 6; i > 0; i--) object = parseForHeader(i, object);
       for(let i = 1; i < 7; i++) object = parseForSection('h' + i, object);
-      object = parseForSection('p', object);
+      object = parseForSection('p', object, false);
       object = object
       .replace(/^\s*?!!(.*)/g, (str, match) => '')
       .replace(/^\s*?!(.*?):(.*)/g, (str, match1, match2) => (data._properties[Symbol.for(match1)] ??= match2.trim(), ''))
