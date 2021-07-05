@@ -40,8 +40,8 @@
             }
 
             window.onload = function() {
-                const display = $`#display`, notepad = $`#notepad`, properties = $`#properties`
-                let data
+                const display = $`#display`, notepad = $`#notepad`, properties = $`#properties`, encryptionReadKey = $`#encryptionReadKey`, encryptionWriteKey = $`#encryptionWriteKey`
+                let data, lastReadKey
 
                 const symbolLengths = ['Symbol('.length, ')'.length]
 
@@ -54,7 +54,8 @@
                         children: [
                             New('td', {textContent: 'Key'}),
                             New('td', {textContent: 'Value'})
-                        ]
+                        ],
+                        style: 'visibility: hidden;'
                     }))
 
                     for(let property of data.getProperties()) {
@@ -69,14 +70,121 @@
                         
                     }
                 }
+
+                $`#syncWriteKey`.onclick = () => {
+                    encryptionWriteKey.value = encryptionReadKey.value
+                }
+
+                (self => {
+                    self.oninput = () => {
+                        if(encryptionWriteKey.value === lastReadKey) encryptionWriteKey.value = self.value
+                    }
+
+                    self.onchange = () => {
+                        if(self.value === '') self.value = '0'
+                    }
+
+                    self.addEventListener('beforeinput' , () => {
+                        lastReadKey = self.value
+                    })
+                })(encryptionReadKey);
+
+                (self => {
+                    self.onchange = () => {
+                        if(self.value === '') self.value = '0'
+                    }
+                })(encryptionWriteKey);
             }
         </script>
+        <style>
+            
+            :root {
+                --theme-background-primary: white;
+                --theme-background-secondary: whitesmoke;
+                --theme-text-primary: darkslategray;
+                --theme-text-secondary: black;
+                --theme-callout: yellow;
+            }
 
+            
+            .theme-background-primary { background-color: var(--theme-background-primary); }
+            .theme-background-secondary { background-color: var(--theme-background-secondary); }
+            .theme-text-primary { color: var(--theme-text-primary); }
+            .theme-text-secondary { color: var(--theme-text-secondary); }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+
+                }
+            }
+
+            @media (prefers-color-scheme: light) {
+                :root {
+
+                }
+            }
+
+
+            html, body {
+                height: 100vh;
+                margin: 0;
+            }
+
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            
+            textarea, iframe {
+                resize: none;
+                border: none;
+                outline: none;
+            }
+
+            .flex-fill { flex-grow: 1; }
+            .flex-fill-quarter { flex-grow: 0.25; }
+            .max-height { height: 100%; }
+            .flex { display: flex; }
+            .flex-horizontal {flex-direction: row;}
+        </style>
     </head>
-    <body>
-        <iframe title="Notes" id="display" sandbox="allow-popups"></iframe>
-        <table id="properties">   
-        </table>
-        <textarea id="notepad"></textarea>
+    <body class="theme-background-primary">
+        <header class="theme-background-primary">Foo</header>
+        <main class="flex max-height">
+            <div id="sidebar" class="flex-fill-quarter theme-background-secondary">
+                <h1>About</h1>
+                <section>
+                    <h2>Details</h2>
+                </section>
+                <section>
+                    <h2>Encryption</h2>
+                    <fieldset>
+                        <legend>Keys</legend>
+                        <div>
+                            <label for="encryptionReadKey">Read:</label>
+                            <input type="text" id="encryptionReadKey" value="0">
+                        </div>
+                        <div>
+                            <label for="encryptionWriteKey">Write:</label>
+                            <input type="text" id="encryptionWriteKey" value="0">
+                        </div>
+                        <div>
+                            <button id="syncWriteKey">Sync Write Key</button>
+                        </div>
+                    </fieldset>
+                </section>
+                <section>
+                    <h2>Properties</h2>
+                    <table>
+                        <tr><th>Key</th><th>Value</th></tr>
+                    </table>
+                    <table id="properties">
+                    </table>
+                </section>
+            </div>
+            <div id="editor" class="flex flex-horizontal max-height flex-fill">
+                <textarea id="notepad" class="flex-fill"></textarea>
+                <iframe title="Notes" id="display" sandbox="allow-popups" class="flex-fill"></iframe>
+            </div>
+        </main>
     </body>
 </html>
