@@ -40,14 +40,16 @@
             }
 
             window.onload = function() {
-                const display = $`#display`, notepad = $`#notepad`, properties = $`#properties`, encryptionReadKey = $`#encryptionReadKey`, encryptionWriteKey = $`#encryptionWriteKey`
-                let data, lastReadKey
+                const display = $`#display`, notepad = $`#notepad`, properties = $`#properties`
+                let data
 
                 const symbolLengths = ['Symbol('.length, ')'.length]
 
-                notepad.oninput = () => {
+                function notepadChanged() {
+                    window.sessionStorage.setItem('notebook', notepad.value)
                     data = SHML.parseMarkup(notepad.value)
                     display.srcdoc = data.toHTML()
+                    display.onload = () => display.contentWindow.document.body.style.fontFamily = 'Arial, Helvetica, sans-serif'
                     
                     properties.innerHTML = ''
                     properties.appendChild(New('th', {
@@ -71,46 +73,77 @@
                     }
                 }
 
-                $`#syncWriteKey`.onclick = () => {
-                    encryptionWriteKey.value = encryptionReadKey.value
+                notepad.value = sessionStorage.getItem('notebook') || notepad.value
+                notepadChanged()
+                notepad.oninput = notepadChanged
+
+                notepad.onkeydown = function(event) {
+                    
+                    const autocompleteCharacters = {
+                        '(': ')',
+                        '[': ']',
+                        '{': '}',
+                        '|': '|'
+                    }
+
+                    let insertString = (string, numberToMoveBack = 0) => {
+                        const start = this.selectionStart, end = this.selectionEnd;
+
+                        const target = event.target;
+                        const value = target.value;
+
+                        target.value = value.substring(0, start) + string + value.substring(end);
+
+                        this.selectionStart = this.selectionEnd = start + string.length - numberToMoveBack;
+
+                        event.preventDefault();
+                    }
+
+                    if(event.key === 'Tab') {
+                        const start = this.selectionStart, end = this.selectionEnd;
+                        const target = event.target;
+                        const value = target.value;
+                        if(event.shiftKey) {
+                            if(start === end) {
+                                let x = 0;
+                                target.value = value.substring(0, start).replace(/( {1,2})$/, (string, match) => (x = match.length, '')) + value.substring(end);
+                                this.selectionStart = this.selectionEnd = start - x;
+                            }
+                            else {
+                                let x = 0;
+                                target.value = value.substring(0, start) + value.substring(start, end).replace(/^( {1,2})/gm, (string, match) => (x += match.length, '')) + value.substring(end)
+                                this.setSelectionRange(start, start - x)
+                            }
+                            
+                        }
+                        else {
+                            if(start === end) {
+                                insertString('  ')
+                            } else {
+                                let x = 0;
+                                target.value = value.substring(0, start) + value.substring(start, end).replace(/^/gm, (string, match) => (x += 2, '  ')) + value.substring(end)
+                                this.setSelectionRange(start, end + x);
+                            }
+                        }
+
+                        event.preventDefault();
+                    }
+                    else if(event.key in autocompleteCharacters)
+                        insertString(event.key + autocompleteCharacters[event.key], 1)
                 }
-
-                (self => {
-                    self.oninput = () => {
-                        if(encryptionWriteKey.value === lastReadKey) encryptionWriteKey.value = self.value
-                    }
-
-                    self.onchange = () => {
-                        if(self.value === '') self.value = '0'
-                    }
-
-                    self.addEventListener('beforeinput' , () => {
-                        lastReadKey = self.value
-                    })
-                })(encryptionReadKey);
-
-                (self => {
-                    self.onchange = () => {
-                        if(self.value === '') self.value = '0'
-                    }
-                })(encryptionWriteKey);
             }
         </script>
         <style>
             
             :root {
-                --theme-background-primary: white;
-                --theme-background-secondary: whitesmoke;
-                --theme-text-primary: darkslategray;
-                --theme-text-secondary: black;
-                --theme-callout: yellow;
+                --theme-light-background: white;
+                --theme-dark-background: lightgray;
+                --theme-color: #bc00dc;
             }
 
-            
-            .theme-background-primary { background-color: var(--theme-background-primary); }
-            .theme-background-secondary { background-color: var(--theme-background-secondary); }
-            .theme-text-primary { color: var(--theme-text-primary); }
-            .theme-text-secondary { color: var(--theme-text-secondary); }
+            .theme-light-background { background-color: var(--theme-light-background);}
+            .theme-dark-background { background-color: var(--theme-dark-background);}
+            .theme-color-background { background-color: var(--theme-color);}
 
             @media (prefers-color-scheme: dark) {
                 :root {
@@ -123,7 +156,6 @@
 
                 }
             }
-
 
             html, body {
                 height: 100vh;
@@ -140,51 +172,83 @@
                 outline: none;
             }
 
-            .flex-fill { flex-grow: 1; }
-            .flex-fill-quarter { flex-grow: 0.25; }
+            .flex-grow { flex-grow: 1; }
+            .flex-grow-quarter { flex-grow: 0.25; }
+            .flex-grow-half { flex-grow: 0.25; }
+            .flex-grow-three-quarter { flex-grow: 0.75; }
             .max-height { height: 100%; }
-            .flex { display: flex; }
-            .flex-horizontal {flex-direction: row;}
+            .max-width { width: 100%; }
+            .flex, .flex-column { display: flex; }
+            .flex-column {flex-direction: column;}
+            
+            .small-margin { margin: 0.5em; }
+            .small-padding { padding: 1em; }
+
+            .card { box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%); }
+
+            header {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .divider {
+                width: 96%;
+                border: none;
+                border-bottom: 0.5em dotted var(--theme-color);
+            }
+
+            .scroll-shadow {
+                --background: var(--theme-light-background);
+                overflow: auto;
+                background:
+                    linear-gradient(var(--background) 30%, rgba(255, 255, 255, 0)), linear-gradient(rgba(255, 255, 255, 0), var(--background) 70%) 0 100%, /* Shadows */
+                    radial-gradient(50% 0, farthest-side, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)), radial-gradient(50% 100%, farthest-side, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)) 0 100%;
+                background:
+                    linear-gradient(var(--background) 30%, rgba(255, 255, 255, 0)), linear-gradient(rgba(255, 255, 255, 0), var(--background) 70%) 0 100%, /* Shadows */
+                    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)), radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)) 0 100%;
+                background-repeat: no-repeat;
+                background-color: var(--background);
+                background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+                background-attachment: local, local, scroll, scroll;
+            }
         </style>
     </head>
-    <body class="theme-background-primary">
-        <header class="theme-background-primary">Foo</header>
-        <main class="flex max-height">
-            <div id="sidebar" class="flex-fill-quarter theme-background-secondary">
-                <h1>About</h1>
-                <section>
-                    <h2>Details</h2>
-                </section>
-                <section>
-                    <h2>Encryption</h2>
-                    <fieldset>
-                        <legend>Keys</legend>
-                        <div>
-                            <label for="encryptionReadKey">Read:</label>
-                            <input type="text" id="encryptionReadKey" value="0">
-                        </div>
-                        <div>
-                            <label for="encryptionWriteKey">Write:</label>
-                            <input type="text" id="encryptionWriteKey" value="0">
-                        </div>
-                        <div>
-                            <button id="syncWriteKey">Sync Write Key</button>
-                        </div>
-                    </fieldset>
-                </section>
-                <section>
-                    <h2>Properties</h2>
-                    <table>
-                        <tr><th>Key</th><th>Value</th></tr>
-                    </table>
-                    <table id="properties">
-                    </table>
-                </section>
-            </div>
-            <div id="editor" class="flex flex-horizontal max-height flex-fill">
-                <textarea id="notepad" class="flex-fill"></textarea>
-                <iframe title="Notes" id="display" sandbox="allow-popups" class="flex-fill"></iframe>
-            </div>
-        </main>
+    <body class="theme-dark-background">
+        <div class="flex-column max-height">
+            <header class="card theme-color-background">
+                <span class="small-padding">Document</span>
+                <div style="display: none"><h2>Properties</h2>
+                <table>
+                    <tr><th>Key</th><th>Value</th></tr>
+                </table>
+                <table id="properties">
+                </table></div>
+            </header>
+            <main class="flex-column max-height theme-light-background small-margin card">                
+                <iframe title="Notes" id="display" sandbox="allow-popups allow-same-origin" class="flex-grow"></iframe>
+                <hr class="divider">
+                <textarea id="notepad" class="flex-grow small-padding theme-background-front scroll-shadow" placeholder="Source...">
+# Hi $$╰(*°▽°*)╯$$
+This editor supports a version of markup. Here is a list of some basic formatting patterns to get you started:
+%%
+[[
+    Style, Format, Example
+    Italics, $$*Text*$$ , *Text*
+    Bold, $$**Text**$$ , **Text**
+    Underline, $$__Text__$$ , __Text__
+    Highlighted, $$|Text|$$ , |Text|
+    Alternate Highlighted, $$|[#ff00ff]Text|$$ , |[#ff00ff]Text|
+    Colored Text, $$&&Text&&$$ , &&Text&&
+    Alternate Colored Text, $$&&[#00cfcf]Text&&$$ , &&[#00cfcf]Text&&
+    Superscript, $$Text^2^$$ , Text^2^
+    Subscript, $$Text$,$,2$,$,$$ , Text$,$,2$,$,
+    Strikethrough, $$~~Text~~$$ , ~~Text~~,
+    Links, $$+[Example](https://example.com)$$ , +[Example](https://example.com)
+]]
+                </textarea>
+            </main>
+        </div>
     </body>
 </html>
