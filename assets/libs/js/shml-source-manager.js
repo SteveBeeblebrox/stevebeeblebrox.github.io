@@ -22,15 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 "use strict";
-class SHMLFileInfo {
-    constructor(flavor, version, contents, compression = SHMLManager.NONE, encryption = SHMLManager.NONE, hashbang) {
+class SHMLFileInfoBase {
+    constructor(flavor, version, compression = SHMLManager.NONE, encryption = SHMLManager.NONE, hashbang) {
         this.flavor = flavor;
         this.version = version;
-        this.contents = contents;
         this.compression = compression;
         this.encryption = encryption;
         this.hashbang = hashbang;
-        const word = /^[A-Z-]*$/;
+        const word = /^[A-Z0-9-]*$/;
         if (!word.test(flavor))
             throw 'Invalid flavor.';
         if (!word.test(compression))
@@ -39,6 +38,12 @@ class SHMLFileInfo {
             throw 'Invalid encryption type.';
         if (hashbang && !/^#!.*?\n$/.test(hashbang))
             throw 'Invalid hashbang.';
+    }
+}
+class SHMLFileInfo extends SHMLFileInfoBase {
+    constructor(flavor, version, contents, compression, encryption, hashbang) {
+        super(flavor, version, compression, encryption, hashbang);
+        this.contents = contents;
     }
 }
 class ParseableSHMLFileInfo extends SHMLFileInfo {
@@ -97,6 +102,17 @@ class SHMLManager {
             transform: SHMLManager.NO_TRANSFORM,
             detransform: SHMLManager.NO_TRANSFORM
         };
+    }
+    getInfo(source) {
+        var _a, _b;
+        const match = SHMLManager.PATTERN.exec(source);
+        if (match === null)
+            throw 'Invalid file.';
+        const compressionType = (_a = match.groups.compression) !== null && _a !== void 0 ? _a : SHMLManager.NONE;
+        const encryptionType = (_b = match.groups.encryption) !== null && _b !== void 0 ? _b : SHMLManager.NONE;
+        const flavor = match.groups.flavor;
+        const version = new Version(match.groups.major, match.groups.minor, match.groups.patch, match.groups.prerelease, match.groups.buildmetadata);
+        return new SHMLFileInfoBase(flavor, version, compressionType, encryptionType, match.groups.hashbang);
     }
     async read(source, passwordSupplier) {
         var _a, _b;
@@ -157,6 +173,6 @@ class SHMLManager {
         return `${header}\n${contents}`;
     }
 }
-SHMLManager.PATTERN = /^(?<hashbang>#!.*?\n)?:(?<flavor>[A-Z-]*?):(?:(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?):(?:(?<compression>[A-Z-]*?):)?(?:(?<encryption>[A-Z-]*?):)?\n(?<contents>[\s\S]*)/;
+SHMLManager.PATTERN = /^(?<hashbang>#!.*?\n)?:(?<flavor>[A-Z0-9-]*?):(?:(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?):(?:(?<compression>[A-Z0-9-]*?):)?(?:(?<encryption>[A-Z0-9-]*?):)?\n(?<contents>[\s\S]*)/;
 SHMLManager.NONE = 'NONE';
 SHMLManager.NO_TRANSFORM = ((a) => a);
