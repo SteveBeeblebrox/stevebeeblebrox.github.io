@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>SHML Encryption</title>
+        <noscript><meta http-equiv="refresh" content="0; url=../../noscript.html?refferer=apps/shmldemo/index.html"/></noscript>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" sizes="180x180" href="../../assets/images/icons/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="../../assets/images/icons/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="../../assets/images/icons/favicon-16x16.png">
+		<link rel="manifest" href="../../assets/images/icons/site.webmanifest">
+		<link rel="mask-icon" href="/assets/images/icons/safari-pinned-tab.svg" color="#0075ff">
+		<link rel="shortcut icon" href="/assets/images/icons/favicon.ico">
+		<meta name="msapplication-TileColor" content="#2d89ef">
+		<meta name="msapplication-config" content="../../assets/images/icons/browserconfig.xml">
+		<meta name="theme-color" content="#ffffff">
+		<meta name="description" content="SHML Encryption Tool">
+		<meta name="keywords" content="SHML, Encryption, Markup, HTML">
+        <script src="https://stevebeeblebrox.github.io/assets/libs/js/compression.js"></script>
+        <script src="https://stevebeeblebrox.github.io/assets/libs/js/encryption.js"></script>
+        <script src="https://stevebeeblebrox.github.io/assets/libs/js/shml.js"></script>
+        <script src="https://stevebeeblebrox.github.io/assets/libs/js/shml-source-manager.js"></script>
+        <script>
+            window.onerror = arg => alert('Unexpected Error: ' + arg)
+        </script>
+        <script>
+            let filename
+            const warn = arg => console.error(arg) & alert('Error: ' + (arg.message ?? arg))
+            const $ = arg => document.querySelector(arg)
+            const MANAGER = new SHMLManager(function(flavor, version) {
+                return flavor === 'SHML' && version.major === 1 ? SHML.parseMarkup : null
+            }, {}, {
+                'AES-GCM': {
+                    transform: AESGCMEncryption.encrypt,
+                    detransform: AESGCMEncryption.decrypt
+                }
+            })
+
+            async function encrypt() {
+                try {
+                    const result = await MANAGER.read($`textarea`.value, () => prompt('Enter a password to decrypt this file with:'))
+                    const shml = result.toSHML() 
+                    result.encryption = 'AES-GCM'
+                    $`textarea`.value = await MANAGER.write(result, () => prompt('Enter a password to encrypt this file with:'))
+                    $`iframe`.srcdoc = ''
+                } catch(e) {
+                    warn(e)
+                }
+            }
+            async function decrypt() {
+                try {
+                    const result = await MANAGER.read($`textarea`.value, () => prompt('Enter a password to decrypt this file with:'))
+                    result.encryption = 'NONE'
+                    $`textarea`.value =  await MANAGER.write(result)
+                } catch(e) {
+                    warn(e?.toString?.() === 'OperationError' ? 'Invalid password.' : e)
+                }
+            }
+            async function preview() {
+                try {
+                    const result = await MANAGER.read($`textarea`.value, () => prompt('Enter a password to decrypt this file with:'))
+                    $`iframe`.srcdoc = result.toSHML().toHTML()
+                } catch(e) {
+                    warn(e?.toString?.() === 'OperationError' ? 'Invalid password.' : e)
+                }
+            }
+            function keydown(element, event) {
+                if(event.key === 'Enter') {
+                    if(event.altKey) {
+                        event.preventDefault()
+                        decrypt()
+                    }
+                    else if(event.ctrlKey) {
+                        event.preventDefault()
+                        encrypt()
+                    }
+                    else if(event.shiftKey) {
+                        event.preventDefault()
+                        preview()
+                    }
+                }
+                else if(event.key === 's' && event.ctrlKey) {
+                    event.preventDefault()
+                    download($`textarea`.value, filename)
+                }
+                else if(event.key === 'o' && event.ctrlKey) {
+                    event.preventDefault()
+                    $`input[type=file]`.click()
+                }
+            }
+            function upload(element, event) {
+                try 
+                {
+                    const file = element.files[0]
+                    if(!file) return
+                    filename = file.name
+                    const reader = new FileReader()
+                    reader.onload = function() {
+                        $`textarea`.value = reader.result
+                    }
+                
+                    reader.readAsText(file)
+                } catch(e) {
+                    warn('Unable to upload file')
+                }
+            }
+            function download(contents, filename = 'Untitled.shml') {
+                try {
+                    const blob = new Blob([contents]);
+                    if (navigator.msSaveBlob) {
+                        navigator.msSaveBlob(blob, filename);
+                    } else {
+                        const link = document.createElement('a');
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute('href', url);
+                        link.setAttribute('download', filename);
+                        link.style.visibility = 'hidden';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                } catch (e) {
+                    warn('Unable to save file.')
+                }
+            }
+        </script>
+        <style>
+            html, body, main {
+                height: 100%;
+            }
+            body, main {
+                display: flex;
+                flex-direction: column;
+            }
+            body {
+                background-color: gray;
+                font-family: Arial, Helvetica, sans-serif;
+                padding: 0;
+                margin: 0;
+                align-items: center;
+                justify-content: center;
+                padding: 0 0.5em;
+            }
+            .card {
+                background-color: white;
+                box-shadow:0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+            }
+            h1 {
+                color: teal;
+                text-align: center;
+                margin: 0;
+            }
+            header {
+                width: 50%;
+                padding: 0.5em;
+                margin: 0.5em;
+            }
+            main {
+                margin: 0.5em;
+                margin-top: 0;
+                width: 100%;
+            }
+            main > div {
+                display: flex;
+            }
+            main > .areas {
+                flex-grow: 1;
+            }
+            main > .areas > div {
+                display: flex;
+                margin: 0.5em;
+            }
+            main > div > * {
+                width: 100%;
+                flex-grow: 1;
+            }
+            button {
+                border: none;
+                background-color: teal;
+                color: white;
+                cursor: pointer;
+                padding: 0.5em;
+                border-radius: 0;
+            }
+            button:hover {
+                filter: brightness(90%);
+            }
+            textarea, iframe {
+                border: none;
+                width: 50%;
+            }
+            textarea {
+                resize: none;
+                background-color: whitesmoke;
+                color: rgba(0, 0, 0, 0.75);
+                outline: none;
+            }
+            input[type=file] {
+                display: none;
+            }
+            @media screen and (max-width: 600px) {
+                main > .areas > div {
+                    flex-direction: column;
+                }
+                iframe, textarea {
+                    padding: 0;
+                    width: 100%;
+                    height: 50%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="card">
+            <h1>SHML Encryption</h1>
+        </header>
+        <main class="card">
+            <div>
+                <button onclick="encrypt()"><strong>Encrypt</strong> <i>(Ctrl + Enter)</i></button>
+                <button onclick="decrypt()"><strong>Decrypt</strong> <i>(Alt + Enter)</i></button>
+                <button onclick="preview()"><strong>Preview</strong> <i>(Shift + Enter)</i></button>
+            </div>
+            <div class="areas">
+                <div>
+                    <textarea onkeydown="keydown(this, event)" placeholder="Type here...">:SHML:1.0.0:
+# &amp;&amp;[#008080]Hello World&amp;&amp;</textarea>
+                    <iframe></iframe>
+                </div>
+            </div>
+            <div>
+                <button class="half" onclick="$`input[type=file]`.click()"><strong>Upload File</strong> <i>(Ctrl + O)</i></button>
+                <button class="half" onclick="download($`textarea`.value, filename)"><strong>Download File</strong> <i>(Ctrl + S)</i></button>
+                <input type="file" accept=".shml" onchange="upload(this, event)">
+            </div>
+        </main>
+    <body>
+</html>
