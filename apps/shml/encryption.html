@@ -30,7 +30,12 @@
             const $ = arg => document.querySelector(arg)
             const MANAGER = new SHMLManager(function(flavor, version) {
                 return flavor === 'SHML' && version.major === 1 ? SHML.parseMarkup : null
-            }, {}, {
+            }, {
+                'LZW': {
+                    transform: LZWCompression.zip,
+                    detransform: LZWCompression.unzip
+                }
+            }, {
                 'AES-GCM': {
                     transform: AESGCMEncryption.encrypt,
                     detransform: AESGCMEncryption.decrypt
@@ -42,6 +47,7 @@
                     const result = await MANAGER.read($`textarea`.value, () => prompt('Enter a password to decrypt this file with:'))
                     const shml = result.toSHML() 
                     result.encryption = 'AES-GCM'
+                    result.compression = shml.getProperty('compress') === 'true' ? 'LZW' : 'NONE'
                     $`textarea`.value = await MANAGER.write(result, () => prompt('Enter a password to encrypt this file with:'))
                     $`iframe`.srcdoc = ''
                 } catch(e) {
@@ -52,6 +58,7 @@
                 try {
                     const result = await MANAGER.read($`textarea`.value, () => prompt('Enter a password to decrypt this file with:'))
                     result.encryption = 'NONE'
+                    result.compression = 'NONE'
                     $`textarea`.value =  await MANAGER.write(result)
                 } catch(e) {
                     warn(e?.toString?.() === 'OperationError' ? 'Invalid password.' : e)
