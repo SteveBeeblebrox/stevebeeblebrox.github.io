@@ -26,6 +26,7 @@
         </script>
         <script>
             let filename
+            let isDirty = false
             const warn = arg => console.error(arg) & alert('Error: ' + (arg.message ?? arg))
             const $ = arg => document.querySelector(arg)
             const MANAGER = new SHMLManager(function(flavor, version) {
@@ -53,6 +54,7 @@
                 } catch(e) {
                     warn(e?.toString?.() === 'OperationError' ? 'Invalid password.' : e)
                 }
+                isDirty = true
             }
             async function decrypt() {
                 try {
@@ -63,6 +65,7 @@
                 } catch(e) {
                     warn(e?.toString?.() === 'OperationError' ? 'Invalid password.' : e)
                 }
+                isDirty = true
             }
             async function preview() {
                 try {
@@ -111,6 +114,7 @@
                 } catch(e) {
                     warn('Unable to upload file')
                 }
+                isDirty = true
             }
             function download(contents, filename = 'Untitled.shml') {
                 try {
@@ -130,7 +134,11 @@
                 } catch (e) {
                     warn('Unable to save file.')
                 }
+                isDirty = false
             }
+
+
+            window.onbeforeunload = () => isDirty ? true : undefined
         </script>
         <style>
             html, body, main {
@@ -230,7 +238,7 @@
             </div>
             <div class="areas">
                 <div>
-                    <textarea onkeydown="keydown(this, event)" placeholder="Type here...">:SHML:1.0.0:
+                    <textarea onkeydown="keydown(this, event)" oninput="isDirty = true" placeholder="Type here...">:SHML:1.0.0:
 # &amp;&amp;[#008080]Hello World&amp;&amp;</textarea>
                     <iframe title="SHML Document Preview"></iframe>
                 </div>
