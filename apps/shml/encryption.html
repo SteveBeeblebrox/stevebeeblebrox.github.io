@@ -51,7 +51,7 @@
                     $`textarea`.value = await MANAGER.write(result, () => prompt('Enter a password to encrypt this file with:'))
                     $`iframe`.srcdoc = ''
                 } catch(e) {
-                    warn(e)
+                    warn(e?.toString?.() === 'OperationError' ? 'Invalid password.' : e)
                 }
             }
             async function decrypt() {
