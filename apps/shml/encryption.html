@@ -118,6 +118,13 @@
             }
             function download(contents, filename = 'Untitled.shml') {
                 try {
+                    if(MANAGER.getInfo(contents).encryption === 'NONE' && !confirm('Are you sure you want to save this file without encrypting it?')) return
+                } catch(e) {
+                    warn(e)
+                    return
+                }         
+                
+                try {
                     const blob = new Blob([contents]);
                     if (navigator.msSaveBlob) {
                         navigator.msSaveBlob(blob, filename);
@@ -131,12 +138,11 @@
                         link.click();
                         document.body.removeChild(link);
                     }
-                } catch (e) {
+                } catch(e) {
                     warn('Unable to save file.')
                 }
                 isDirty = false
             }
-
 
             window.onbeforeunload = () => isDirty ? true : undefined
         </script>
