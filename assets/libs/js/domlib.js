@@ -90,3 +90,6 @@ function SvgNode(type, data = {}) {
    
 	return element
 }
+function TextNode(content) {
+	return document.createTextNode(content)  
+}
