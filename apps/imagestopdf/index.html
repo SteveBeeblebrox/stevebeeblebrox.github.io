@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../../assets/libs/js/domlib.js"></script>
+        <title>Combine Image into a PDF</title>
+        <style>
+            html {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            iframe {
+                width: 100%;
+            }
+        </style>
+        <script>
+            onload = function() {
+                const input = $`input[type=file]`, target = $`iframe`.contentWindow.document.body
+                input.onchange = function() {
+                    target.replaceChildren()
+                    target.appendChild(new HtmlNode('style', {
+                        innerHTML: `img {width: 100%; height: auto;}`
+                    }))
+                    for(const file of this.files) {
+                        const img = new HtmlNode('img', {
+                            onload: function() { URL.revokeObjectURL(this.src) },
+                            src: URL.createObjectURL(file)
+                        })
+                        target.appendChild(img)
+                      }
+                }
+                $`button`.onclick = function() {
+                    $`iframe`.contentWindow.print()
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <label for="files">Upload Images:</label>
+        <br>
+        <input id="files" name="files" type="file" accept="image/png, image/jpeg" multiple>
+        <br>
+        <iframe srcdoc="&lt;html&gt;&lt;/html&gt;"></iframe>
+        <br>
+        <button>Convert</button> 
+    </body>
+</html>
