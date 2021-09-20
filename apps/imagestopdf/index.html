@@ -14,6 +14,8 @@
             body {
                 height: 80%;
                 padding: 1em;
+                display: flex;
+                flex-direction: column;
             }
             iframe {
                 width: 100%;
@@ -22,9 +24,8 @@
             div:nth-child(2) {
                 flex-grow: 1;
             }
-            body {
-                display: flex;
-                flex-direction: column;
+            div {
+                margin: 1em 0;
             }
         </style>
         <script>
@@ -51,6 +52,7 @@
     </head>
     <body>
         <div>
+            <h1>Combine Images into a PDF</h1>
             <label for="files">Upload Images:</label>
             <br>
             <input id="files" name="files" type="file" accept="image/png, image/jpeg" multiple>
@@ -59,7 +61,8 @@
             <iframe srcdoc="&lt;html&gt;&lt;/html&gt;"></iframe>
         </div>
         <div>
-            <button>Convert</button> 
+            <button>Convert</button>
+            <p><em>(Change destination to "Save as PDF")</em></p>
         </div>
     </body>
 </html>
