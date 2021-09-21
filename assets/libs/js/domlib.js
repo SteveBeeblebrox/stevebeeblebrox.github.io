@@ -77,6 +77,9 @@ function HtmlNode(type, data = {}) {
 
 function SvgNode(type, data = {}) {
 	const element = document.createElementNS('http://www.w3.org/2000/svg', type)
+	
+	if(type === 'svg') element.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+	
 	for(const key in data)
 		element.setAttribute(key, data[key])
 
