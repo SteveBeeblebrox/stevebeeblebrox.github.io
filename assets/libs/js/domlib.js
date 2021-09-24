@@ -34,7 +34,7 @@ $ = function(selector, startNode = document) {
 
 _$ = $;
 
-SVGElement.prototype.$ = HTMLElement.prototype.$ = function(selector) {
+ShadowRoot.prototype.$ = SVGElement.prototype.$ = HTMLElement.prototype.$ = function(selector) {
 	if(selector instanceof Array) {
 		selector = interpolate(selector, [...arguments].slice(1))
 	}
@@ -52,7 +52,7 @@ $$ = function(selector, startNode = document) {
 
 _$$ = $$;
 
-SVGElement.prototype.$$ = HTMLElement.prototype.$$ = function(selector) {
+ShadowRoot.prototype.$$ = SVGElement.prototype.$$ = HTMLElement.prototype.$$ = function(selector) {
 	if(selector instanceof Array) {
 		selector = interpolate(selector, [...arguments].slice(1))
 	}
