@@ -62,7 +62,10 @@ ShadowRoot.prototype.$$ = SVGElement.prototype.$$ = HTMLElement.prototype.$$ = f
 function HtmlNode(type, data = {}) {
 	const element = document.createElement(type)
 	for(const key in data)
-		element[key] = data[key]
+		if(key in element) 
+			element[key] = data[key]
+		else 
+			element.setAttribute(key, data[key])
 
 	if('children' in data && data.children instanceof Array)
 		for(const child of data.children)
