@@ -109,6 +109,8 @@
     for(const key in data)
       if((key === 'children' && data[key] instanceof Array) || (key === 'style' && typeof(data[key]) === 'object'))
           continue
+      else if(key in element && typeof key === 'function')
+        element[key] = data[key]
       else 
         element.setAttribute(key, data[key])
 
