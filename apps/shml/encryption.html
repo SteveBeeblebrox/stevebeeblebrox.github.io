@@ -250,9 +250,10 @@
                 </div>
             </div>
             <div>
-                <button class="half" onclick="$`input[type=file]`.click()"><strong>Upload File</strong> <i>(Ctrl + O)</i></button>
-                <button class="half" onclick="download($`textarea`.value, filename)"><strong>Download File</strong> <i>(Ctrl + S)</i></button>
+                <button onclick="$`input[type=file]`.click()"><strong>Upload File</strong> <i>(Ctrl + O)</i></button>
+                <button onclick="download($`textarea`.value, filename)"><strong>Download File</strong> <i>(Ctrl + S)</i></button>
                 <input type="file" accept=".shml" onchange="upload(this, event)">
+	    	<button onclick=""><strong>Share File</strong></button>
             </div>
         </main>
     <body>
