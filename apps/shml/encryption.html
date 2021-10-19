@@ -143,6 +143,26 @@
                 }
                 isDirty = false
             }
+	    function share(contents) {
+		try {
+			if(MANAGER.getInfo(contents).encryption === 'NONE' && !confirm('Are you sure you want to share this file without encrypting it?')) return
+		} catch(e) {
+			warn(e)
+			return
+		}         
+
+		try {
+			const a = document.createElement('a')
+			a.href = window.location
+			a.search = `sharetext=${encodeURIComponent(contents)}`
+
+			window.navigator.clipboard.writeText(a.href)
+			
+			alert('Sharable URL copied to clipboard.')
+		} catch(e) {
+			warn('Unable to share file.')
+		}
+	    }
 
             window.onbeforeunload = () => isDirty ? true : undefined
         </script>
@@ -253,7 +273,7 @@
                 <button onclick="$`input[type=file]`.click()"><strong>Upload File</strong> <i>(Ctrl + O)</i></button>
                 <button onclick="download($`textarea`.value, filename)"><strong>Download File</strong> <i>(Ctrl + S)</i></button>
                 <input type="file" accept=".shml" onchange="upload(this, event)">
-	    	<button onclick=""><strong>Share File</strong></button>
+	    	<button onclick="share($`textarea`.value)"><strong>Share File</strong></button>
             </div>
         </main>
     <body>
