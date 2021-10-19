@@ -164,6 +164,10 @@
 		}
 	    }
 
+	    window.onload = () => {
+		const shareText = new URLSearchParams(window.location.search).get('sharetext')
+		if(shareText) $`textarea`.value = shareText
+	    }
             window.onbeforeunload = () => isDirty ? true : undefined
         </script>
         <style>
