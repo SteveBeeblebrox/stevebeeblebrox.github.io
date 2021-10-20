@@ -143,33 +143,33 @@
                 }
                 isDirty = false
             }
-	    function share(contents) {
-		try {
-			if(MANAGER.getInfo(contents).encryption === 'NONE' && !confirm('Are you sure you want to share this file without encrypting it?')) return
-		} catch(e) {
-			warn(e)
-			return
-		}         
+            function share(contents) {
+                try {
+                    if(MANAGER.getInfo(contents).encryption === 'NONE' && !confirm('Are you sure you want to share this file without encrypting it?')) return
+                } catch(e) {
+                    warn(e)
+                    return
+                }         
 
-		try {
-			const a = document.createElement('a')
-			a.href = window.location
-			a.search = `sharetext=${encodeURIComponent(contents)}`
+                try {
+                    const a = document.createElement('a')
+                    a.href = window.location
+                    a.search = `sharetext=${encodeURIComponent(contents)}`
 
-			window.navigator.clipboard.writeText(a.href)
-			
-			alert('Sharable URL copied to clipboard.')
+                    window.navigator.clipboard.writeText(a.href)
+                    
+                    alert('Sharable URL copied to clipboard.')
 
-                        if(confirm("Do you want to open the link?")) window.location  = a.href
-		} catch(e) {
-			warn('Unable to share file.')
-		}
-	    }
+                                if(confirm("Do you want to open the link?")) window.location  = a.href
+                } catch(e) {
+                    warn('Unable to share file.')
+                }
+            }
 
-	    window.onload = () => {
-		const shareText = new URLSearchParams(window.location.search).get('sharetext')
-		if(shareText) $`textarea`.value = shareText
-	    }
+            window.onload = () => {
+                const shareText = new URLSearchParams(window.location.search).get('sharetext')
+                if(shareText) $`textarea`.value = shareText
+            }
             window.onbeforeunload = () => isDirty ? true : undefined
         </script>
         <style>
