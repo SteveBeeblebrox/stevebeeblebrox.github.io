@@ -1,6 +1,6 @@
 (function() {
     const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
-    const all = 'all' in options || Object.keys(options).length === 0
+    const all = 'all' in options || Object.keys(options).filter(k => k !== 'exports').length === 0
   
     options.exports ??= 'Utils'
 
