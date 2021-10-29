@@ -1,9 +1,12 @@
-var Utils;
-(function(Utils) {
+(function() {
     const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
     const all = 'all' in options || Object.keys(options).length === 0
   
-    if('include' in options || all) Utils.include = function(src) {
+    options.exports ??= 'Utils'
+
+    const exports = options.exports ? (globalThis[options.exports] || (globalThis[options.exports] = {})) : globalThis;
+
+    if('include' in options || all) exports.include = function(src) {
         return new Promise(resolve => document.head.appendChild(Object.assign(document.createElement('script'), {src, onload: resolve})));
     }
     
@@ -11,13 +14,12 @@ var Utils;
         throw e;
     }
     
-    if('R' in options || all) R = function(template, ...substitutions) {
+    if('R' in options || all) exports.R = function(template, ...substitutions) {
         return new RegExp(...(String.raw(template, ...substitutions).match(/^\/(.*)\/(.*)$/) ?? ['','','']).slice(1,3));
     }
 
     if('JSION' in options || all) {
         "use strict";
-        var JSION;
         (function (JSION) {
             const SINGLE_QUOTE_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|'([\S\s]*?(?<!\\)(?:\\\\)*)'/g, COMMENT_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|(\([\S\s]*?(?<!\\)(?:\\\\)*\))/g, KEY_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|([a-zA-Z_$][0-9a-zA-Z_$]*)(?=\s*?:)/g, TRAILING_COMMA_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|(,)(?=\s*?[}\]])/g, NUMBER_SEPERATOR = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|(?<=\d)(_)(?=\d)/g;
             function parse(text, reviver) {
@@ -45,7 +47,7 @@ var Utils;
             }
             JSION.parse = parse;
             JSION.stringify = JSON.stringify;
-        })(JSION || (JSION = {}));
+        })(globalThis.JSION || (globalThis.JSION = {}));
     }
 
     function ElementArrayProxy(elements) {
@@ -111,7 +113,7 @@ var Utils;
         return result;
     }
 
-    if('interpolate' in options || all) Utils.interpolate = interpolate
+    if('interpolate' in options || all) exports.interpolate = interpolate
 
     if('DomLib' in options || '$' in options || all) {
         $ = function(selector, startNode = document) {
@@ -204,7 +206,7 @@ var Utils;
         globalThis.SVGNode = globalThis.SvgNode = SvgNode
     }
 
-    if('rasterizeSVG' in options || all) Utils.rasterizeSVG = function(svg, callback) {
+    if('rasterizeSVG' in options || all) exports.rasterizeSVG = function(svg, callback) {
         const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
         const img = HtmlNode('img', {
             style: {
@@ -226,4 +228,4 @@ var Utils;
         document.body.appendChild(img)
         img.src = url
     }
-})(Utils || (Utils = {}));
+})();
