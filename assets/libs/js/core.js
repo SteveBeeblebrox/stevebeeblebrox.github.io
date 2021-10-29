@@ -1,8 +1,6 @@
 (function() {
     const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
     
-    const Util = {}
-
     if('include' in options) include = function(src) {
         return new Promise(resolve => document.head.appendChild(Object.assign(document.createElement('script'), {src, onload: resolve})));
     }
@@ -110,7 +108,7 @@
         return result;
     }
 
-    if('interpolate' in options) Util.interpolate = interpolate
+    if('interpolate' in options) globalThis.interpolate = interpolate
 
     if('DomLib' in options || '$' in options) {
         $ = function(selector, startNode = document) {
@@ -203,7 +201,7 @@
         globalThis.SVGNode = globalThis.SvgNode = SvgNode
     }
 
-    if('rasterizeSVG' in options) Util.rasterizeSVG = function(svg, callback) {
+    if('rasterizeSVG' in options) globalThis.rasterizeSVG = function(svg, callback) {
         const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
         const img = HtmlNode('img', {
             style: {
@@ -225,6 +223,4 @@
         document.body.appendChild(img)
         img.src = url
     }
-
-    if(Object.keys(Util).length !== 0) globalThis.Util = Util
 })();
