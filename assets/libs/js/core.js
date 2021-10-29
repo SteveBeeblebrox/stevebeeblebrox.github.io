@@ -1,12 +1,10 @@
 (function() {
     const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
-    const all = 'all' in options || Object.keys(options).filter(k => k !== 'exports').length === 0
+    const all = 'all' in options || Object.keys(options).length === 0
   
-    options.exports ??= 'Utils'
+    const Util = {}
 
-    const exports = options.exports ? (globalThis[options.exports] || (globalThis[options.exports] = {})) : globalThis;
-
-    if('include' in options || all) exports.include = function(src) {
+    if('include' in options || all) include = function(src) {
         return new Promise(resolve => document.head.appendChild(Object.assign(document.createElement('script'), {src, onload: resolve})));
     }
     
@@ -14,7 +12,7 @@
         throw e;
     }
     
-    if('R' in options || all) exports.R = function(template, ...substitutions) {
+    if('R' in options || all) R = function(template, ...substitutions) {
         return new RegExp(...(String.raw(template, ...substitutions).match(/^\/(.*)\/(.*)$/) ?? ['','','']).slice(1,3));
     }
 
@@ -67,7 +65,7 @@
         });
     }
 
-    if('ElementArrayProxy' in options) ElementArrayProxy = ElementArrayProxy
+    if('ElementArrayProxy' in options) globalThis.ElementArrayProxy = ElementArrayProxy
     
     function ChildNodeArrayProxy(element) {
         const getChildren = target => [...target.childNodes].filter(n => !(n instanceof Text) || n.wholeText.trim() !== '' || n.parentElement instanceof HTMLPreElement || n.parentElement.closest('pre'));
@@ -113,7 +111,7 @@
         return result;
     }
 
-    if('interpolate' in options || all) exports.interpolate = interpolate
+    if('interpolate' in options || all) Util.interpolate = interpolate
 
     if('DomLib' in options || '$' in options || all) {
         $ = function(selector, startNode = document) {
@@ -206,7 +204,7 @@
         globalThis.SVGNode = globalThis.SvgNode = SvgNode
     }
 
-    if('rasterizeSVG' in options || all) exports.rasterizeSVG = function(svg, callback) {
+    if('rasterizeSVG' in options || all) Util.rasterizeSVG = function(svg, callback) {
         const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
         const img = HtmlNode('img', {
             style: {
@@ -228,4 +226,6 @@
         document.body.appendChild(img)
         img.src = url
     }
+
+    if(Object.keys(Util).length !== 0) globalThis.Util = Util
 })();
