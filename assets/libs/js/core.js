@@ -114,7 +114,7 @@
 
     if('interpolate' in options) globalThis.interpolate = interpolate
 
-    if('DomLib' in options || '$' in options) {
+    if('DOMLib' in options || 'DomLib' in options || '$' in options) {
         $ = function(selector, startNode = document) {
             if(selector instanceof Array) {
                 selector = interpolate(selector, [...arguments].slice(1))
@@ -131,7 +131,7 @@
         }
     }
     
-    if('DomLib' in options || '$$' in options) {
+    if('DOMLib' in options || 'DomLib' in options || '$$' in options) {
         $$ = function(selector, startNode = document) {
             if(selector instanceof Array) {
                 selector = interpolate(selector, [...arguments].slice(1))
@@ -172,7 +172,7 @@
         return document.createTextNode(content)  
     }
 
-    if('DomLib' in options || 'HTMLNode' in options || 'HtmlNode' in options) {
+    if('DOMLib' in options || 'DomLib' in options || 'HTMLNode' in options || 'HtmlNode' in options) {
         globalThis.HTMLNode = globalThis.HtmlNode = HtmlNode
         globalThis.TextNode = TextNode
     }
@@ -201,7 +201,7 @@
         return element
     }
 
-    if('DomLib' in options || 'SVGNode' in options || 'SVGNode' in options) {
+    if('DOMLib' in options || 'DomLib' in options || 'SVGNode' in options || 'SVGNode' in options) {
         globalThis.SVGNode = globalThis.SvgNode = SvgNode
     }
 
