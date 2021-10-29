@@ -1,22 +1,21 @@
 (function() {
     const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
-    const all = 'all' in options || Object.keys(options).length === 0
-  
+    
     const Util = {}
 
-    if('include' in options || all) include = function(src) {
+    if('include' in options) include = function(src) {
         return new Promise(resolve => document.head.appendChild(Object.assign(document.createElement('script'), {src, onload: resolve})));
     }
     
-    if('throws' in options || all) throws = function(e) {
+    if('throws' in options) throws = function(e) {
         throw e;
     }
     
-    if('R' in options || all) R = function(template, ...substitutions) {
+    if('R' in options) R = function(template, ...substitutions) {
         return new RegExp(...(String.raw(template, ...substitutions).match(/^\/(.*)\/(.*)$/) ?? ['','','']).slice(1,3));
     }
 
-    if('JSION' in options || all) {
+    if('JSION' in options) {
         "use strict";
         (function (JSION) {
             const SINGLE_QUOTE_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|'([\S\s]*?(?<!\\)(?:\\\\)*)'/g, COMMENT_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|(\([\S\s]*?(?<!\\)(?:\\\\)*\))/g, KEY_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|([a-zA-Z_$][0-9a-zA-Z_$]*)(?=\s*?:)/g, TRAILING_COMMA_PATTERN = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|(,)(?=\s*?[}\]])/g, NUMBER_SEPERATOR = /(?<!\\)(?:\\{2})*"(?:(?<!\\)(?:\\{2})*\\"|[^"])+(?<!\\)(?:\\{2})*"|(?<=\d)(_)(?=\d)/g;
@@ -111,9 +110,9 @@
         return result;
     }
 
-    if('interpolate' in options || all) Util.interpolate = interpolate
+    if('interpolate' in options) Util.interpolate = interpolate
 
-    if('DomLib' in options || '$' in options || all) {
+    if('DomLib' in options || '$' in options) {
         $ = function(selector, startNode = document) {
             if(selector instanceof Array) {
                 selector = interpolate(selector, [...arguments].slice(1))
@@ -130,7 +129,7 @@
         }
     }
     
-    if('DomLib' in options || '$$' in options || all) {
+    if('DomLib' in options || '$$' in options) {
         $$ = function(selector, startNode = document) {
             if(selector instanceof Array) {
                 selector = interpolate(selector, [...arguments].slice(1))
@@ -171,7 +170,7 @@
         return document.createTextNode(content)  
     }
 
-    if('DomLib' in options || 'HTMLNode' in options || 'HtmlNode' in options || all) {
+    if('DomLib' in options || 'HTMLNode' in options || 'HtmlNode' in options) {
         globalThis.HTMLNode = globalThis.HtmlNode = HtmlNode
         globalThis.TextNode = TextNode
     }
@@ -200,11 +199,11 @@
         return element
     }
 
-    if('DomLib' in options || 'SVGNode' in options || 'SVGNode' in options || all) {
+    if('DomLib' in options || 'SVGNode' in options || 'SVGNode' in options) {
         globalThis.SVGNode = globalThis.SvgNode = SvgNode
     }
 
-    if('rasterizeSVG' in options || all) Util.rasterizeSVG = function(svg, callback) {
+    if('rasterizeSVG' in options) Util.rasterizeSVG = function(svg, callback) {
         const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
         const img = HtmlNode('img', {
             style: {
