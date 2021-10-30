@@ -1,11 +1,7 @@
 (function() {
-    const location = Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')})
-    const options = Object.fromEntries(new URLSearchParams(location.search).entries())
+    const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
 
     if('include' in options) include = function(src) {
-        if(src.startsWith('?'))
-            src = location.href.replace(location.search, src)
-        
         return new Promise(resolve => document.head.appendChild(Object.assign(document.createElement('script'), {src, onload: resolve})));
     }
     
