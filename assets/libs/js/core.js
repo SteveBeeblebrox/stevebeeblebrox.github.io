@@ -1,3 +1,4 @@
+//await new Promise(resolve => document.body.appendChild(Object.assign(document.createElement('script'),{src:'https://stevebeeblebrox.github.io/assets/libs/js/core.js?include',onload(){resolve()}})))
 (function() {
     const options = Object.fromEntries(new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries())
 
