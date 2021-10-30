@@ -80,7 +80,7 @@
                             setChildren(target, array);
                         }
                 }
-                else if(property in Array.prototype)
+                else if(property in Array.prototype || Number(property) > -1)
                     return [...target.childNodes][property];
                 else return target[property];
             },
