@@ -152,7 +152,7 @@
                     return new ChildNodeArrayProxy(this);
                 },
                 set(value) {
-                    return this.replaceChildren(value);
+                    return this.replaceChildren(...value);
                 }
             })
         }
