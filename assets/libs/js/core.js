@@ -145,6 +145,19 @@
         }
     }
 
+    if('DOMLib' in options || 'DomLib' in options || '$' in options || '$$' in options) {
+        for(const type of [ShadowRoot, SVGElement, HTMLElement]) {
+            Object.defineProperties(type.prototype, '$children', {
+                get() {
+                    return new ChildNodeArrayProxy(this);
+                },
+                set(value) {
+                    return this.replaceChildren(value);
+                }
+            })
+        }
+    }
+
     function HtmlNode(type, data = {}) {
         const element = document.createElement(type)
         
