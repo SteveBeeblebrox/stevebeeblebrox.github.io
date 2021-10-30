@@ -147,7 +147,7 @@
 
     if('DOMLib' in options || 'DomLib' in options || '$' in options || '$$' in options) {
         for(const type of [ShadowRoot, SVGElement, HTMLElement]) {
-            Object.defineProperties(type.prototype, '$children', {
+            Object.defineProperty(type.prototype, '$children', {
                 get() {
                     return new ChildNodeArrayProxy(this);
                 },
