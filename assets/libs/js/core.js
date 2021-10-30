@@ -150,21 +150,21 @@
         
         if(typeof data === 'string')
             element.textContent = data
-        else
+        else {
             for(const key in data)
                 if(key in element) 
                     element[key] = data[key]
                 else 
                     element.setAttribute(key, data[key])
-            
-        if('children' in data && data.children instanceof Array)
-            for(const child of data.children)
-               element.appendChild(child)
-    
-        if('style' in data && typeof(data.style) === 'object')
-            for(const property in data.style)
-                element.style[property] = data.style[property]
-    
+                
+            if('children' in data && data.children instanceof Array)
+                for(const child of data.children)
+                element.appendChild(child)
+        
+            if('style' in data && typeof(data.style) === 'object')
+                for(const property in data.style)
+                    element.style[property] = data.style[property]
+        }
         return element
     }
 
