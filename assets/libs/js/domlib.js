@@ -126,7 +126,7 @@
     return $$(selector, this);
   }
 
-  HtmlNode = function(type, data = {}) {
+  HTMLNode = HtmlNode = function(type, data = {}) {
     const element = document.createElement(type)
     
     if(typeof data === 'string')
@@ -149,7 +149,7 @@
     return element
   }
 
-  SvgNode = function(type, data = {}) {
+  SVGNode = SvgNode = function(type, data = {}) {
     const element = document.createElementNS('http://www.w3.org/2000/svg', type)
 
     if(type === 'svg') element.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
@@ -175,5 +175,9 @@
   
   TextNode = function(content) {
     return document.createTextNode(content)  
+  }
+
+  CommentNode = function(content) {
+    return document.createComment(content)
   }
 })();
