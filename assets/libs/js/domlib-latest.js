@@ -140,7 +140,7 @@
   
         if('style' in data && typeof(data.style) === 'object')
           for(const property in data.style)
-              element.style[property] = data.style[property]
+            element.style[property] = data.style[property]
       }
       return element
     }
