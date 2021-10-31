@@ -39,6 +39,50 @@
     });
   }
 
+  function ChildNodeArrayProxy(element) {
+    const getChildren = target => [...target.childNodes].filter(n => !(n instanceof Text) || n.wholeText.trim() !== '' || n.parentElement instanceof HTMLPreElement || n.parentElement.closest('pre'));
+    const setChildren = (target, children) => target.replaceChildren(...children);
+    const mutators = ['push','pop','shift','unshift','splice','reverse','sort'];
+    return new Proxy(element, {
+        get(target, property) {
+          if(mutators.includes(property))
+            return function() {
+              const array = getChildren(target);
+              try {
+                return array[property](...arguments);
+              } finally {
+                setChildren(target, array);
+              }
+          }
+          else if(property in Array.prototype || !isNaN(property))
+            return [...target.childNodes][property];
+          else return target[property];
+        },
+        set(target, property, value) {
+          if(Number(property) > -1) {
+            const array = getChildren(target);
+            try {
+              return array[property] = value;
+            } finally {
+              setChildren(target, array);
+            }
+          }
+          else return target[property] = value;
+      }
+    })
+  }
+
+  for(const type of [ShadowRoot, SVGElement, HTMLElement]) {
+    Object.defineProperty(type.prototype, '$children', {
+      get() {
+        return new ChildNodeArrayProxy(this);
+      },
+      set(value) {
+        return this.replaceChildren(...value);
+      }
+    })
+  }
+
   function interpolate(strings, values) {
     let result = strings[0]
     for(let i = 0; i < values.length; i++) {
