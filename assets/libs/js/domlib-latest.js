@@ -93,7 +93,7 @@
     }
   
     $ = function(selector, startNode = document) {
-      if(selector instanceof Array) {
+      if(Array.isArray(selector)) {
         selector = interpolate(selector, [...arguments].slice(1))
         startNode = document
       }
@@ -101,14 +101,14 @@
     }
   
     ShadowRoot.prototype.$self = SVGElement.prototype.$self = HTMLElement.prototype.$self = function(selector) {
-      if(selector instanceof Array) {
+      if(Array.isArray(selector)) {
         selector = interpolate(selector, [...arguments].slice(1))
       }
       return $(selector, this);
     }
   
     $$ = function(selector, startNode = document) {
-      if(selector instanceof Array) {
+      if(Array.isArray(selector)) {
         selector = interpolate(selector, [...arguments].slice(1))
         startNode = document
       }
@@ -116,7 +116,7 @@
     }
   
     ShadowRoot.prototype.$$self = SVGElement.prototype.$$self = HTMLElement.prototype.$$self = function(selector) {
-      if(selector instanceof Array) {
+      if(Array.isArray(selector)) {
         selector = interpolate(selector, [...arguments].slice(1))
       }
       return $$(selector, this);
@@ -134,7 +134,7 @@
           else 
             element.setAttribute(key, data[key])
   
-        if('children' in data && data.children instanceof Array)
+        if('children' in data && Array.isArray(data.children))
           for(const child of data.children)
             element.appendChild(child)
   
@@ -151,14 +151,14 @@
       if(type === 'svg') element.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
   
       for(const key in data)
-        if((key === 'children' && data[key] instanceof Array) || (key === 'style' && typeof(data[key]) === 'object'))
+        if((key === 'children' && Array.isArray(data[key])) || (key === 'style' && typeof(data[key]) === 'object'))
             continue
         else if(key in element && typeof data[key] === 'function')
           element[key] = data[key]
         else 
           element.setAttribute(key, data[key])
   
-      if('children' in data && data.children instanceof Array)
+      if('children' in data && Array.isArray(data.children))
         for(const child of data.children)
           element.appendChild(child)
   
