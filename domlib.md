@@ -23,4 +23,7 @@ function CommentNode(content: string): Comment
 ## Other
 ### `$children`
 ### `$self`
+```typescript
+function $(selector: string): Element | null
+```
 ### `$$self`
