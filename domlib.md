@@ -19,7 +19,13 @@ function TextNode(content: string): Text
 function CommentNode(content: string): Comment
 ```
 ### `$host`
+```typescript
+var $host?: Element
+```
 ### `$last`
+```typescript
+var $last?: Element
+```
 ## Other
 ### `$children`
 ### `$self`
