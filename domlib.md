@@ -33,6 +33,9 @@ var $last?: Element
 This variable stores a reference to the element most recently added while loading the page. Once the page is fully loaded, this variable will be undefined.
 ## Other
 ### `$children`
+```typescript
+var $children: Node[]
+```
 ### `$self`
 ```typescript
 function $(selector: string): Element | null
