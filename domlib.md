@@ -10,7 +10,13 @@ var $it?: Element = undefined;
 `$` is a shortcut for `Node.prototype.querySelector`. When called, the return value is stored in `$it` for later use. `$it` will be undefined until this function is called.
 ### `$$` & `$$it`
 ### `HTMLNode` (`HtmlNode`)
+```typescript
+function HTMLNode(type: string, data: { children: Node[], style: { [key: string]: string }, [other: string]: any }): HTMLElement
+```
 ### `SVGNode` (`SvgNode`)
+```typescript
+function SVGNode(type: string, data: { children: Node[], style: { [key: string]: string }, [other: string]: any }): SVGElement
+```
 ### `TextNode`
 ```typescript
 function TextNode(content: string): Text
