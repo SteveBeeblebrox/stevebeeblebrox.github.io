@@ -31,7 +31,7 @@ This function is a shortcut for `Document.prototype.createComment`.
 ```typescript
 var $host?: Element
 ```
-When in a script tag, this variable references the parent of the script tag. When in an event listener, this variable is the receiving element. In all other situations, it is undefined.
+When in a script tag, this variable references the parent of the script tag. When in an event listener, this variable is the receiving element. In all other situations, it is undefined. This variable requires `domlib-extra.js`.
 ### `$last`
 ```typescript
 var $last?: Element
