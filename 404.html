@@ -3,6 +3,6 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Redirecting...</title>
-		<script>window.location.replace('/?'+new URLSearchParams(['pathname','search','host'].map(s=>[s,encodeURIComponent(window.location[s])])).toString())</script>
+		<script>window.location.replace('/?'+new URLSearchParams(['pathname','search','hash'].map(s=>[s,encodeURIComponent(window.location[s])])).toString())</script>
 	</head>
 </html>
