@@ -1,61 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" style="--blue: #0075FF; --blue-gray: #4d6a8c; --light-gray: #f1f1f1; --gray: #d2d2d2; --dark-gray: #787878; --alt-gray: #767676; --alt-dark-gray: #505050;">
+<html lang="en">
 	<head>
-		<script>let write = html => document.currentScript.insertAdjacentHTML('beforebegin', html);</script>
-		<title>Steve Beeblebrox - Error: 404 Page Not Found</title>
 		<meta charset="UTF-8">
-		<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/icons/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/icons/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/icons/favicon-16x16.png">
-		<link rel="manifest" href="/assets/images/icons/site.webmanifest">
-		<link rel="mask-icon" href="/assets/images/icons/safari-pinned-tab.svg" color="#0075ff">
-		<link rel="shortcut icon" href="/assets/images/icons/favicon.ico">
-		<meta name="msapplication-TileColor" content="#2d89ef">
-		<meta name="msapplication-config" content="/assets/images/icons/browserconfig.xml">
-		<meta name="theme-color" content="#ffffff">
-		<meta name="description" content="Error: 404 Page Not Found">
-		<meta name="keywords" content="Error, 404, Page Not Found">
-		<meta name="author" content="Tim Wasinger">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="/assets/libs/css/w3-css-4.0.0.css">
-		<link rel="stylesheet" href="/assets/libs/css/font-awesome-4.7.0.min.css">
-		<style>
-			a {
-				text-decoration: none;
-				border-bottom: 1px dotted black;
-			}
-			body {
-				user-select: none;
-				background-color: var(--gray);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
-			html, body {
-				height: 100%;
-			}
-			.hover-blue-text:hover {
-				color: var(--blue);
-			}
-			.blue-gray-text {
-				color: var(--blue-gray);
-			}
-			.logo {
-				height: 3em;
-			}
-		</style>
+		<title>Redirecting...</title>
+		<script>window.location.replace('/?'+new URLSearchParams(['pathname','search','host'].map(s=>[s,encodeURIComponent(window.location[s])])).toString())</script>
 	</head>
-	<body>
-		<div class="w3-content w3-center">
-			<div class="w3-hide-medium w3-hide-large"><br><br><br><br><br><br><br><br><br></div>
-			<h1 class="w3-xxxlarge blue-gray-text w3-padding"><strong><img class="logo w3-grayscale" src="/assets/images/logo.png"><span class="w3-hide-small"> SteveBeeblebrox.github.io</span><span class="w3-hide-medium w3-hide-large"><br>Steve Beeblebrox</span></strong></h1>
-			<div class="w3-padding w3-container w3-responsive">
-				<div class="w3-card w3-padding w3-white">
-					<h1 class="w3-xxlarge"><strong>Error:<br>404 Page Not Found <br class="w3-hide-medium w3-hide-large">¯\_(ツ)_/¯</strong></h1>
-					<script>if(window.location.pathname.includes('404')) write(`<h2 class="w3-medium"><strong><i>This is actually just the 404 error page. False alarm.</i> <br class="w3-hide-medium w3-hide-large">(～￣▽￣)～</strong></h2>`)</script>
-					<h2 class="w3-medium">Sorry, the page you are trying reach can not be found. This is likely due to a broken or misspelled link. You can go to the home page <a class="hover-blue-text" href="/" title="Home">here</a>.</h2>
-				</div>
-			</div>
-		</div>
-	</body>
 </html>
