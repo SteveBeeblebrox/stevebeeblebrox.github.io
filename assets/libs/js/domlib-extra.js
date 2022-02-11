@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 (function() {
+    DOMLIB_EXTRA_VERSION = '1.0.0';
     Object.defineProperty(window, '$host', {get() {return document.currentScript?.parentElement}});
     [HTMLElement, SVGElement, ShadowRoot].forEach(e => Object.defineProperty(e.prototype, '$host', {get() {return this}}));
     const observer = new MutationObserver(mutations => mutations.forEach(mutation => {const node = [...mutation.addedNodes].pop(); if(node instanceof HTMLElement && !(node instanceof HTMLScriptElement)) $last = node}));
