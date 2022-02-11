@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 (function() {
+    DOMLIB_VERSION = '1.0.0';
+    
     function ElementArrayProxy(elements) {
       return new Proxy(elements, {
         set: function(target, property, value) {
@@ -30,11 +32,12 @@
         get: function(target, property, reciever) {
           if(typeof property === 'symbol') return [...elements][property];
           if(property === '$toArray') return function() {return [...elements]}
-          else if(property.startsWith('$') && property !== '$')
+          else if(property === '$any') return elements.length > 0;
+          else if(property.startsWith('$') && property !== '$self')
             if(typeof [...elements][property.substr(1)] === 'function') return function() {return [...elements][property.substr(1)](...arguments)}
             else return [...elements][property.substring(1)]
   
-          return [...elements].some(o => typeof o[property] === 'function') ? function() {return [...elements].map(o => typeof o[property] === 'function' ? o[property](...arguments) : o[property])} : new ElementArrayProxy([...elements].map(o => o[property]));
+          return [...elements].some(o => typeof o[property] === 'function') ? function() {return new ElementArrayProxy([...elements].map(o => typeof o[property] === 'function' ? o[property](...arguments) : o[property]))} : new ElementArrayProxy([...elements].map(o => o[property]));
         }
       });
     }
