@@ -37,6 +37,8 @@ When in a script tag, this variable references the parent of the script tag. Whe
 var $last?: Element
 ```
 This variable stores a reference to the element most recently added while loading the page. Once the page is fully loaded, this variable will be undefined. This variable requires `domlib-extra.js`.
+### `$x`
+An XPath utility, WIP
 ## Other
 ### `$children`
 ```typescript
@@ -47,3 +49,5 @@ var $children: Node[]
 function $(selector: string): Element | null
 ```
 ### `$$self`
+### `$xself`
+An XPath utility scooped too the parent element
