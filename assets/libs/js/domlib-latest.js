@@ -149,10 +149,6 @@
             element.classList.remove(data.classList)
             element.classList.add(...data.classList)
         }
-        
-        if('attributes' in data && typeof(data.attributes) === 'object')
-          for(const property in data.attributes)
-            element.setAttribute(property, data.attributes[property])
       }
       return element
     }
