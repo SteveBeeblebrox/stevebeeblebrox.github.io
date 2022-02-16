@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 (function() {
-    DOMLIB_VERSION = '1.0.0';
+    DOMLIB_VERSION = '1.0.1';
     
     function ElementArrayProxy(elements) {
       return new Proxy(elements, {
