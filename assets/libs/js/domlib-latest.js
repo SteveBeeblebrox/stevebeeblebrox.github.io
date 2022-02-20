@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 (function() {
-    DOMLIB_VERSION = '1.0.0';
+    DOMLIB_VERSION = '1.0.1';
     
     function ElementArrayProxy(elements) {
       return new Proxy(elements, {
@@ -144,6 +144,11 @@
         if('style' in data && typeof(data.style) === 'object')
           for(const property in data.style)
             element.style[property] = data.style[property]
+          
+        if('classList' in data && Array.isArray(data.classList)) {
+            element.classList.remove(data.classList)
+            element.classList.add(...data.classList)
+        }
       }
       return element
     }
@@ -169,6 +174,12 @@
         for(const property in data.style)
           element.style[property] = data.style[property]
   
+        
+      if('classList' in data && Array.isArray(data.classList)) {
+        element.classList.remove(data.classList)
+        element.classList.add(...data.classList)
+      }
+        
       return element
     }
     
