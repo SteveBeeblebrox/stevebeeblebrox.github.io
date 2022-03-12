@@ -1,5 +1,3 @@
-
-
 namespace DomLib {
     // internal type NodeLike
     type NodeLike = {querySelector(selector: string): Node}
@@ -8,7 +6,7 @@ namespace DomLib {
     const options: {[option: string]: string | boolean} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key,value]: [string, string]) => [key, value === 'false' ? false : value])) : {debug: true});
 
     // internal function interpolate
-    function interpolate(strings: TemplateStringsArray, ...values: any[]) {
+    function interpolate(strings: TemplateStringsArray, ...values: any[]): string {
         return values.reduce((acc,cur,i)=>acc+cur+strings[i+1], strings[0]);
     }
 
@@ -19,7 +17,7 @@ namespace DomLib {
     });
 
     // internal let _lastQueryValue
-    let _lastQueryValue: Element | undefined | null = undefined;
+    let _lastQueryValue: Node | undefined | null = undefined;
 
     // export const $it
     export const $it = undefined;
@@ -28,7 +26,7 @@ namespace DomLib {
     }
 
     // internal let _lastQueryAllValue
-    let _lastQueryAllValue: Element | undefined | null = undefined;
+    let _lastQueryAllValue: Node | undefined | null = undefined;
 
     // export const $$it
     export const $$it = undefined;
@@ -36,18 +34,51 @@ namespace DomLib {
         Object.defineProperty(DomLib, '$$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryAllValue}})
     }
 
-
     // export const $
     export const $ = (function() {
-        function $(selector: string, target?: NodeLike): Node;
-        function $(strings: TemplateStringsArray, ...values: any[]): Node;
-        function $(...args: unknown[]): Node {
-            throw 'NYI'
+        function $(selector: string, target?: NodeLike): Node | null;
+        function $(strings: TemplateStringsArray, ...values: any[]): Node | null;
+        function $(selector: string | TemplateStringsArray, target: NodeLike = document): Node | null {
+            if(isTemplateStringsArray(selector)) {
+                selector = interpolate(selector, [...arguments].slice(1))
+                target = document
+            }
+            return _lastQueryValue = target.querySelector(selector);
         }
         return $;
     })();
 
-    //TODO $self
+    // internal function isTemplateStringsArray
+    function isTemplateStringsArray(arg: string | TemplateStringsArray): arg is TemplateStringsArray {
+        return Array.isArray(arg);
+    }
+
+    //define $self on ShadowRoot, Element, Document, DocumentFragment
+    for(const type of [ShadowRoot, Element, Document, DocumentFragment])
+        Object.defineProperty(type.prototype, '$self', {
+            enumerable: true, configurable: !!options.debug,
+            value: function(selector: string | TemplateStringsArray) {
+                if(isTemplateStringsArray(selector)) {
+                    selector = interpolate(selector, [...arguments].slice(1))
+                }
+                return $(selector, this)
+            }
+        });
+
+    //define $$self on ShadowRoot, Element, Document, DocumentFragment
+    for(const type of [ShadowRoot, Element, Document, DocumentFragment])
+        Object.defineProperty(type.prototype, '$$self', {
+            enumerable: true, configurable: !!options.debug,
+            value: function(selector: string | TemplateStringsArray) {
+                if(isTemplateStringsArray(selector)) {
+                    selector = interpolate(selector, [...arguments].slice(1))
+                }
+                return $$(selector, this)
+            }
+        });
+
+    // TODO $x
+    // TODO $xself
 
     // export const $$
     export const $$ = (function() {
@@ -58,8 +89,6 @@ namespace DomLib {
         }
         return $$;
     })();
-
-    //TODO $$self
 
     //TODO $children
 
