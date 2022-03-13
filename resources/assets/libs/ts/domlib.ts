@@ -1,6 +1,6 @@
 namespace DomLib {
     // internal type NodeLike
-    type NodeLike = {querySelector(selector: string): Node}
+    type NodeLike = Node & {querySelector(selector: string): Node, querySelectorAll(selector: string): NodeList}
 
     // internal const options
     const options: {[option: string]: string | boolean} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key,value]: [string, string]) => [key, value === 'false' ? false : value])) : {debug: true});
@@ -20,16 +20,16 @@ namespace DomLib {
     let _lastQueryValue: Node | undefined | null = undefined;
 
     // export const $it
-    export const $it = undefined;
+    export const $it: Node | undefined | null = undefined;
     {
         Object.defineProperty(DomLib, '$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryValue}})
     }
 
     // internal let _lastQueryAllValue
-    let _lastQueryAllValue: Node | undefined | null = undefined;
+    let _lastQueryAllValue: Node[] | undefined = undefined;
 
     // export const $$it
-    export const $$it = undefined;
+    export const $$it: Node[] | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryAllValue}})
     }
@@ -65,7 +65,21 @@ namespace DomLib {
             }
         });
 
-    //define $$self on ShadowRoot, Element, Document, DocumentFragment
+    // export const $$
+    export const $$ = (function() {
+        function $$(selector: string, target?: NodeLike): Node[];
+        function $$(strings: TemplateStringsArray, ...values: any[]): Node[];
+        function $$(selector: string | TemplateStringsArray, target: NodeLike = document): Node[] {
+            if(isTemplateStringsArray(selector)) {
+                selector = interpolate(selector, [...arguments].slice(1))
+                target = document
+            }
+            return _lastQueryAllValue = [...target.querySelectorAll(selector)];
+        }
+        return $$;
+    })();
+
+    // define $$self on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$$self', {
             enumerable: true, configurable: !!options.debug,
@@ -77,28 +91,119 @@ namespace DomLib {
             }
         });
 
-    // TODO $x
-    // TODO $xself
-
-    // export const $$
-    export const $$ = (function() {
-        function $$(selector: string, target?: NodeLike): Node;
-        function $$(strings: TemplateStringsArray, ...values: any[]): Node;
-        function $$(...args: unknown[]): Node {
-            throw 'NYI'
+    // export const $x
+    export const $x = (function() {
+        function $x(query: string, target?: Node): Node | null;
+        function $x(strings: TemplateStringsArray, ...values: any[]): Node | null;
+        function $x(query: string | TemplateStringsArray, target: Node = document): null | number | string | boolean | Node | Node[] {
+            if(isTemplateStringsArray(query)) {
+                query = interpolate(query, [...arguments].slice(1));
+                target = document;
+            }
+            const result = document.evaluate(query, target, null, XPathResult.ANY_TYPE, null);
+            try {
+                switch(result.resultType) {
+                    case 1:
+                        return result.numberValue;
+                    case 2:
+                        return result.stringValue;
+                    case 3:
+                        return result.booleanValue;
+                    case 4:
+                    case 5: {
+                        let node: Node | null, nodes: Node[] = [];
+                        while(node = result.iterateNext()) nodes.push(node);
+                        return nodes;
+                    }
+                    case 6:
+                    case 7: {
+                        return Array.apply(null, {length:result.snapshotLength} as unknown[]).map((_:unknown, i: number) => result.snapshotItem(i)!)
+                    }
+                    case 8:
+                    case 9:
+                        return result.singleNodeValue!;
+                    default:
+                        return null;
+                }
+            } catch(error) {
+                return null;
+            }
         }
-        return $$;
+        return $x;
     })();
 
-    //TODO $children
+    // define $xself on ShadowRoot, Element, Document, DocumentFragment
+    for(const type of [ShadowRoot, Element, Document, DocumentFragment])
+        Object.defineProperty(type.prototype, '$xself', {
+            enumerable: true, configurable: !!options.debug,
+            value: function(query: string | TemplateStringsArray) {
+                if(isTemplateStringsArray(query)) {
+                    query = interpolate(query, [...arguments].slice(1))
+                }
+                return $x(query, this)
+            }
+        });
 
-    // export const HTMLNode
+
+    // internal function ChildArrayProxy
+    function ChildNodeArrayProxy(element: Element): Node[] {
+        const getChildren = (): Node[] & {[key: string]: any} => [...element.childNodes].filter(n => !(n instanceof Text) || n.wholeText.trim() !== '' || n.parentElement instanceof HTMLPreElement || n.parentElement?.closest?.('pre'));
+        const mutators = ['push','pop','shift','unshift','splice','reverse','sort'];
+        return new Proxy([...element.childNodes], {
+            get(target: Node[] & {[key: string]: any}, property: string): unknown {
+                if(mutators.includes(property)) {
+                    return function() {
+                        const children = getChildren();
+                        try {
+                            return children[property](...arguments);
+                        } finally {
+                            element.replaceChildren(...children)
+                        }
+                    }
+                } else {
+                    return target[property];
+                }
+            },
+            set(target: Node[] & {[key: string]: any}, property: string, value: unknown, reciever?: any): boolean {
+                if(+property > -1) {
+                    if(value instanceof Node) {
+                        const children = getChildren();
+                        children[+property] = value;
+                        element.replaceChildren(...children);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                else {
+                    return Reflect.set(target, property, value, reciever);
+                }
+            }
+        });
+    }
+
+    // define $children on ShadowRoot, Element, Document, DocumentFragment
+    for(const type of [ShadowRoot, Element, Document, DocumentFragment])
+        Object.defineProperty(type.prototype, '$xself', {
+            enumerable: true, configurable: !!options.debug,
+            get() {
+                return ChildNodeArrayProxy(this);
+            },
+            set(value) {
+                return this.replaceChildren(...value);
+            }
+        });
+
+
+    //TODO ElementArrayProxy
+
+    //TODO export const HTMLNode
     export const HTMLNode = function HTMLNode() {throw 'NYI'}
     
     // export alias HtmlNode for HTMLNode
     export const HtmlNode = HTMLNode;
 
-    // export const SVGNode
+    //TODO export const SVGNode
     export const SVGNode = function HTMLNode() {throw 'NYI'}
     
     // export alias SvgNode for HTMLNode
@@ -116,10 +221,11 @@ namespace DomLib {
     }
 
     // export const $host
+    // define $host on ShadowRoot, Element, Document, DocumentFragment
     export const $host: HTMLElement | null | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$host', {get() {return document.currentScript?.parentElement}});
-        [HTMLElement, SVGElement, ShadowRoot].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:true,configurable:!!options.debug,get(){return this}}));
+        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:true,configurable:!!options.debug,get(){return this}}));
     }
 
     
