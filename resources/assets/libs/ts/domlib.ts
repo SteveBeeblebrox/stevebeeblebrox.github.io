@@ -198,16 +198,22 @@ namespace DomLib {
     //TODO ElementArrayProxy
 
     //TODO export const HTMLNode
-    export const HTMLNode = function HTMLNode() {throw 'NYI'}
+    export const HTMLNode = function HTMLNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): HTMLElement {throw 'NYI'}
     
     // export alias HtmlNode for HTMLNode
     export const HtmlNode = HTMLNode;
 
     //TODO export const SVGNode
-    export const SVGNode = function HTMLNode() {throw 'NYI'}
+    export const SVGNode = function SVGNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): SVGElement {throw 'NYI'}
     
-    // export alias SvgNode for HTMLNode
-    export const SvgNode = HTMLNode;
+    // export alias SvgNode for SVGNode
+    export const SvgNode = SVGNode;
+
+    //TODO export const SVGNode
+    export const MATHMLNode = function MATHMLNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): MathMLElement {throw 'NYI'}
+    
+    // export alias MathMlNode for MATHMLNode
+    export const MathMlNode = MATHMLNode;
 
 
     // export const TextNode
