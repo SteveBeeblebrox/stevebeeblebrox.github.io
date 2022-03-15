@@ -40,7 +40,7 @@ namespace DomLib {
         function $(strings: TemplateStringsArray, ...values: any[]): Node | null;
         function $(selector: string | TemplateStringsArray, target: NodeLike = document): Node | null {
             if(isTemplateStringsArray(selector)) {
-                selector = interpolate(selector, [...arguments].slice(1))
+                selector = interpolate(selector, ...[...arguments].slice(1))
                 target = document
             }
             return _lastQueryValue = target.querySelector(selector);
@@ -59,7 +59,7 @@ namespace DomLib {
             enumerable: true, configurable: !!options.debug,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
-                    selector = interpolate(selector, [...arguments].slice(1))
+                    selector = interpolate(selector, ...[...arguments].slice(1))
                 }
                 return $(selector, this)
             }
@@ -71,7 +71,7 @@ namespace DomLib {
         function $$(strings: TemplateStringsArray, ...values: any[]): Node[];
         function $$(selector: string | TemplateStringsArray, target: NodeLike = document): Node[] {
             if(isTemplateStringsArray(selector)) {
-                selector = interpolate(selector, [...arguments].slice(1))
+                selector = interpolate(selector, ...[...arguments].slice(1))
                 target = document
             }
             return _lastQueryAllValue = [...target.querySelectorAll(selector)];
@@ -85,7 +85,7 @@ namespace DomLib {
             enumerable: true, configurable: !!options.debug,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
-                    selector = interpolate(selector, [...arguments].slice(1))
+                    selector = interpolate(selector, ...[...arguments].slice(1))
                 }
                 return $$(selector, this)
             }
@@ -97,7 +97,7 @@ namespace DomLib {
         function $x(strings: TemplateStringsArray, ...values: any[]): Node | null;
         function $x(query: string | TemplateStringsArray, target: Node = document): null | number | string | boolean | Node | Node[] {
             if(isTemplateStringsArray(query)) {
-                query = interpolate(query, [...arguments].slice(1));
+                query = interpolate(query, ...[...arguments].slice(1));
                 target = document;
             }
             const result = document.evaluate(query, target, null, XPathResult.ANY_TYPE, null);
@@ -138,7 +138,7 @@ namespace DomLib {
             enumerable: true, configurable: !!options.debug,
             value: function(query: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(query)) {
-                    query = interpolate(query, [...arguments].slice(1))
+                    query = interpolate(query, ...[...arguments].slice(1))
                 }
                 return $x(query, this)
             }
@@ -184,7 +184,7 @@ namespace DomLib {
 
     // define $children on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
-        Object.defineProperty(type.prototype, '$xself', {
+        Object.defineProperty(type.prototype, '$children', {
             enumerable: true, configurable: !!options.debug,
             get() {
                 return ChildNodeArrayProxy(this);
