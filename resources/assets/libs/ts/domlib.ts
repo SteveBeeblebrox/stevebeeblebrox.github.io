@@ -1,6 +1,10 @@
 namespace DomLib {
     // internal type NodeLike
-    type NodeLike = Node & {querySelector(selector: string): Node, querySelectorAll(selector: string): NodeList}
+    type NodeLike = Node & {querySelector(selector: string): Node, querySelectorAll(selector: string): NodeList};
+
+    // internal type XPathQueryValue
+    type XPathQueryValue = null | number | string | boolean | Node |ArrayProxy<Node>;
+
 
     // internal const options
     const options: {[option: string]: string | boolean} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key,value]: [string, string]) => [key, value === 'false' ? false : value])) : {debug: true});
@@ -26,12 +30,21 @@ namespace DomLib {
     }
 
     // internal let _lastQueryAllValue
-    let _lastQueryAllValue: Node[] | undefined = undefined;
+    let _lastQueryAllValue: ArrayProxy<Node> | undefined = undefined;
 
     // export const $$it
-    export const $$it: Node[] | undefined = undefined;
+    export const $$it: ArrayProxy<Node> | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryAllValue}})
+    }
+
+    // internal let _lastQueryAllValue
+    let _lastQueryXValue: ArrayProxy<Node> | undefined = undefined;
+
+    // export const $$it
+    export const $xit: XPathQueryValue | undefined = undefined;
+    {
+        Object.defineProperty(DomLib, '$xit', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryXValue}})
     }
 
     // export const $
@@ -40,8 +53,8 @@ namespace DomLib {
         function $(strings: TemplateStringsArray, ...values: any[]): Node | null;
         function $(selector: string | TemplateStringsArray, target: NodeLike = document): Node | null {
             if(isTemplateStringsArray(selector)) {
-                selector = interpolate(selector, ...[...arguments].slice(1))
-                target = document
+                selector = interpolate(selector, ...[...arguments].slice(1));
+                target = document;
             }
             return _lastQueryValue = target.querySelector(selector);
         }
@@ -59,7 +72,7 @@ namespace DomLib {
             enumerable: true, configurable: !!options.debug,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
-                    selector = interpolate(selector, ...[...arguments].slice(1))
+                    selector = interpolate(selector, ...[...arguments].slice(1));
                 }
                 return $(selector, this)
             }
@@ -67,14 +80,14 @@ namespace DomLib {
 
     // export const $$
     export const $$ = (function() {
-        function $$(selector: string, target?: NodeLike): Node[];
-        function $$(strings: TemplateStringsArray, ...values: any[]): Node[];
-        function $$(selector: string | TemplateStringsArray, target: NodeLike = document): Node[] {
+        function $$(selector: string, target?: NodeLike): ArrayProxy<Node>;
+        function $$(strings: TemplateStringsArray, ...values: any[]): ArrayProxy<Node>;
+        function $$(selector: string | TemplateStringsArray, target: NodeLike = document): ArrayProxy<Node> {
             if(isTemplateStringsArray(selector)) {
-                selector = interpolate(selector, ...[...arguments].slice(1))
-                target = document
+                selector = interpolate(selector, ...[...arguments].slice(1));
+                target = document;
             }
-            return _lastQueryAllValue = [...target.querySelectorAll(selector)];
+            return _lastQueryAllValue = ArrayProxy(...target.querySelectorAll(selector));
         }
         return $$;
     })();
@@ -85,7 +98,7 @@ namespace DomLib {
             enumerable: true, configurable: !!options.debug,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
-                    selector = interpolate(selector, ...[...arguments].slice(1))
+                    selector = interpolate(selector, ...[...arguments].slice(1));
                 }
                 return $$(selector, this)
             }
@@ -93,9 +106,9 @@ namespace DomLib {
 
     // export const $x
     export const $x = (function() {
-        function $x(query: string, target?: Node): Node | null;
-        function $x(strings: TemplateStringsArray, ...values: any[]): Node | null;
-        function $x(query: string | TemplateStringsArray, target: Node = document): null | number | string | boolean | Node | Node[] {
+        function $x(query: string, target?: Node): XPathQueryValue;
+        function $x(strings: TemplateStringsArray, ...values: any[]): XPathQueryValue;
+        function $x(query: string | TemplateStringsArray, target: Node = document): XPathQueryValue {
             if(isTemplateStringsArray(query)) {
                 query = interpolate(query, ...[...arguments].slice(1));
                 target = document;
@@ -113,11 +126,11 @@ namespace DomLib {
                     case 5: {
                         let node: Node | null, nodes: Node[] = [];
                         while(node = result.iterateNext()) nodes.push(node);
-                        return nodes;
+                        return ArrayProxy(...nodes);
                     }
                     case 6:
                     case 7: {
-                        return Array.apply(null, {length:result.snapshotLength} as unknown[]).map((_:unknown, i: number) => result.snapshotItem(i)!)
+                        return ArrayProxy(...Array.apply(null, {length:result.snapshotLength} as unknown[]).map((_:unknown, i: number) => result.snapshotItem(i)!));
                     }
                     case 8:
                     case 9:
@@ -138,15 +151,79 @@ namespace DomLib {
             enumerable: true, configurable: !!options.debug,
             value: function(query: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(query)) {
-                    query = interpolate(query, ...[...arguments].slice(1))
+                    query = interpolate(query, ...[...arguments].slice(1));
                 }
                 return $x(query, this)
             }
         });
 
+    // internal type ArrayProxy
+    export type ArrayProxy<T> = {
+        /*get*/ [key in keyof T]: ArrayProxy<T[key]>
+      ///*set*/ [key in keyof T]: T[key]
+    } & {
+        [key in keyof Array<T> as `\$${Extract<key, string>}`]: 
+            Array<T>[key] extends (...args: any[]) => Array<infer value> ? {(...args: Parameters<Array<T>[key]>): ArrayProxy<value>} : Array<T>[key] extends Array<infer value> ? ArrayProxy<value>: Array<T>[key];
+    } & {
+        [key: `\$${number}`]: T
+    } & {
+        $toArray(): Element[], 
+        $any: boolean,
+    }
 
-    // internal function ChildArrayProxy
-    function ChildNodeArrayProxy(element: Element): Node[] {
+    // internal function ArrayProxy
+    export function ArrayProxy<T extends object>(...items: T[]): ArrayProxy<T> {
+        return new Proxy(items, {
+            set(target: T[], property: string | symbol, value: unknown) {
+                if(typeof property === 'symbol')
+                    return Reflect.set(target, property, value);
+                else if(property.startsWith('$'))
+                    return Reflect.set(target, property.substring(1), value);
+                else
+                    return target.every(item => Reflect.set(item, property, value));
+            },
+            get(target: T[], property: string | symbol, reciever: any): ArrayProxy<T> | {():T[]} | boolean | any {
+                if(typeof property === 'symbol')
+                    return Reflect.get([...target], property);
+                else if(property === '$toArray')
+                    return function $toArray() {return [...target]};
+                else if(property === '$any')
+                    return target.length > 0;
+                else if(property.startsWith('$')) {
+                    const value = Reflect.get([...target], property.substring(1));
+                    if(typeof value === 'function')
+                        return function() {
+                            const result = value.bind([...target])(...arguments);
+                            return Array.isArray(result) ? ArrayProxy(...result) : result;
+                        }
+                    else
+                        return Array.isArray(value) ? ArrayProxy(...value) : value;
+                }
+                else if(target.some(item => typeof Reflect.get(item, property) === 'function'))
+                    return function() {
+                        return ArrayProxy(...target.map(function(item: T) {
+                            const value = Reflect.get(item, property);
+                            return typeof value === 'function' ? value.bind(item)(...arguments) : value;
+                        }))
+                    }    
+                else return ArrayProxy(...target.map(item => Reflect.get(item, property)));
+                
+            },
+            deleteProperty(target: T[], property: string | symbol) {
+                if(typeof property === 'symbol')
+                    return Reflect.deleteProperty(target, property);
+                else if(/^\$\d+/.test(property))
+                        return Reflect.deleteProperty(target, property.substring(1));
+                else if(!property.startsWith('$'))
+                    return target.every(item => Reflect.deleteProperty(item, property));
+                else
+                    return false;
+            }
+        }) as unknown as ArrayProxy<T>;
+    }
+
+    // internal function ChildNodeArray
+    function ChildNodeArray(element: Element): Node[] {
         const getChildren = (): Node[] & {[key: string]: any} => [...element.childNodes].filter(n => !(n instanceof Text) || n.wholeText.trim() !== '' || n.parentElement instanceof HTMLPreElement || n.parentElement?.closest?.('pre'));
         const mutators = ['push','pop','shift','unshift','splice','reverse','sort'];
         return new Proxy([...element.childNodes], {
@@ -187,15 +264,12 @@ namespace DomLib {
         Object.defineProperty(type.prototype, '$children', {
             enumerable: true, configurable: !!options.debug,
             get() {
-                return ChildNodeArrayProxy(this);
+                return ChildNodeArray(this);
             },
             set(value) {
                 return this.replaceChildren(...value);
             }
         });
-
-
-    //TODO ElementArrayProxy
 
     //TODO export const HTMLNode
     export const HTMLNode = function HTMLNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): HTMLElement {throw 'NYI'}
