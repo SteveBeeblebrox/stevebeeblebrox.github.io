@@ -1,6 +1,9 @@
 namespace DomLib {
     // internal type NodeLike
-    type NodeLike = Node & {querySelector(selector: string): Node, querySelectorAll(selector: string): NodeList};
+    type NodeLike = Node & {
+        querySelector(selectors: string): Element | null,
+        querySelectorAll(selectors: string): NodeListOf<Element>
+    };
 
     // internal type XPathQueryValue
     type XPathQueryValue = null | number | string | boolean | Node |ArrayProxy<Node>;
@@ -21,19 +24,19 @@ namespace DomLib {
     });
 
     // internal let _lastQueryValue
-    let _lastQueryValue: Node | undefined | null = undefined;
+    let _lastQueryValue: Element | undefined | null = undefined;
 
     // export const $it
-    export const $it: Node | undefined | null = undefined;
+    export const $it: Element | undefined | null = undefined;
     {
         Object.defineProperty(DomLib, '$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryValue}})
     }
 
     // internal let _lastQueryAllValue
-    let _lastQueryAllValue: ArrayProxy<Node> | undefined = undefined;
-
+    let _lastQueryAllValue: ArrayProxy<Element> | undefined = undefined;
+    
     // export const $$it
-    export const $$it: ArrayProxy<Node> | undefined = undefined;
+    export const $$it: ArrayProxy<Element> | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryAllValue}})
     }
@@ -49,11 +52,12 @@ namespace DomLib {
 
     // export const $
     export const $ = (function() {
-        function $(selector: string, target?: NodeLike): Node | null;
-        function $(strings: TemplateStringsArray, ...values: any[]): Node | null;
-        function $(selector: string | TemplateStringsArray, target: NodeLike = document): Node | null {
+        function $<K extends keyof HTMLElementTagNameMap>(selector: K, target?: NodeLike): HTMLElementTagNameMap[K] | null;
+        function $(selector: string, target?: NodeLike): Element | null;
+        function $(strings: TemplateStringsArray, ...values: any[]): Element | null;
+        function $<K extends keyof HTMLElementTagNameMap>(selector: string | K | TemplateStringsArray, target: NodeLike = document): Element | HTMLElementTagNameMap[K] | null {
             if(isTemplateStringsArray(selector)) {
-                selector = interpolate(selector, ...[...arguments].slice(1));
+                selector = interpolate(selector, ...[...arguments].slice(1)) as K;
                 target = document;
             }
             return _lastQueryValue = target.querySelector(selector);
@@ -74,20 +78,21 @@ namespace DomLib {
                 if(isTemplateStringsArray(selector)) {
                     selector = interpolate(selector, ...[...arguments].slice(1));
                 }
-                return $(selector, this)
+                return $(selector, this);
             }
         });
 
     // export const $$
     export const $$ = (function() {
-        function $$(selector: string, target?: NodeLike): ArrayProxy<Node>;
-        function $$(strings: TemplateStringsArray, ...values: any[]): ArrayProxy<Node>;
-        function $$(selector: string | TemplateStringsArray, target: NodeLike = document): ArrayProxy<Node> {
+        function $$<K extends keyof HTMLElementTagNameMap>(selector: K, target?: NodeLike): ArrayProxy<HTMLElementTagNameMap[K]>;
+        function $$(selector: string, target?: NodeLike): ArrayProxy<Element>;
+        function $$(strings: TemplateStringsArray, ...values: any[]): ArrayProxy<Element>;
+        function $$<K extends keyof HTMLElementTagNameMap>(selector: string | K | TemplateStringsArray, target: NodeLike = document): ArrayProxy<Element> | ArrayProxy<HTMLElementTagNameMap[K]> {
             if(isTemplateStringsArray(selector)) {
-                selector = interpolate(selector, ...[...arguments].slice(1));
+                selector = interpolate(selector, ...[...arguments].slice(1)) as K;
                 target = document;
             }
-            return _lastQueryAllValue = ArrayProxy(...target.querySelectorAll(selector));
+            return (_lastQueryAllValue = ArrayProxy(target.querySelectorAll(selector) as NodeListOf<Element>)) as ArrayProxy<Element> | ArrayProxy<HTMLElementTagNameMap[K]>;
         }
         return $$;
     })();
@@ -100,7 +105,7 @@ namespace DomLib {
                 if(isTemplateStringsArray(selector)) {
                     selector = interpolate(selector, ...[...arguments].slice(1));
                 }
-                return $$(selector, this)
+                return $$(selector, this);
             }
         });
 
@@ -126,11 +131,11 @@ namespace DomLib {
                     case 5: {
                         let node: Node | null, nodes: Node[] = [];
                         while(node = result.iterateNext()) nodes.push(node);
-                        return ArrayProxy(...nodes);
+                        return ArrayProxy(nodes);
                     }
                     case 6:
                     case 7: {
-                        return ArrayProxy(...Array.apply(null, {length:result.snapshotLength} as unknown[]).map((_:unknown, i: number) => result.snapshotItem(i)!));
+                        return ArrayProxy(Array.apply(null, {length:result.snapshotLength} as unknown[]).map((_:unknown, i: number) => result.snapshotItem(i)!));
                     }
                     case 8:
                     case 9:
@@ -172,8 +177,8 @@ namespace DomLib {
     }
 
     // internal function ArrayProxy
-    export function ArrayProxy<T extends object>(...items: T[]): ArrayProxy<T> {
-        return new Proxy(items, {
+    function ArrayProxy<T extends object>(items: T[] | {[Symbol.iterator](): IterableIterator<T>}): ArrayProxy<T> {
+        return new Proxy([...items], {
             set(target: T[], property: string | symbol, value: unknown) {
                 if(typeof property === 'symbol')
                     return Reflect.set(target, property, value);
@@ -194,19 +199,19 @@ namespace DomLib {
                     if(typeof value === 'function')
                         return function() {
                             const result = value.bind([...target])(...arguments);
-                            return Array.isArray(result) ? ArrayProxy(...result) : result;
+                            return Array.isArray(result) ? ArrayProxy(result) : result;
                         }
                     else
-                        return Array.isArray(value) ? ArrayProxy(...value) : value;
+                        return Array.isArray(value) ? ArrayProxy(value) : value;
                 }
                 else if(target.some(item => typeof Reflect.get(item, property) === 'function'))
                     return function() {
-                        return ArrayProxy(...target.map(function(item: T) {
+                        return ArrayProxy(target.map(function(item: T) {
                             const value = Reflect.get(item, property);
                             return typeof value === 'function' ? value.bind(item)(...arguments) : value;
                         }))
                     }    
-                else return ArrayProxy(...target.map(item => Reflect.get(item, property)));
+                else return ArrayProxy(target.map(item => Reflect.get(item, property)));
                 
             },
             deleteProperty(target: T[], property: string | symbol) {
@@ -325,6 +330,7 @@ namespace DomLib {
             options.bind ||= 'globalThis';
             Reflect.set(globalThis, options.bind.toString(), Reflect.get(globalThis, options.bind.toString()) ?? {})
             for(const key of Object.keys(DomLib))
+                // Does not work for getters and setters
                 Object.defineProperty(Reflect.get(globalThis, options.bind.toString()), key, {get(){return Reflect.get(DomLib, key)}});
         }
     }*/
