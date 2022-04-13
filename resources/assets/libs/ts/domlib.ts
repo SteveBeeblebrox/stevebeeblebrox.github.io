@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ * 
+ * Copyright (c) 2022 S. Beeblebrox
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 namespace DomLib {
     // internal type NodeLike
     type NodeLike = Node & {
@@ -6,8 +29,7 @@ namespace DomLib {
     };
 
     // internal type XPathQueryValue
-    type XPathQueryValue = null | number | string | boolean | Node |ArrayProxy<Node>;
-
+    type XPathQueryValue = null | number | string | boolean | Node | ArrayProxy<Node>;
 
     // internal const options
     const options: {[option: string]: string | boolean} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key,value]: [string, string]) => [key, value === 'false' ? false : value])) : {debug: true});
@@ -162,7 +184,7 @@ namespace DomLib {
             }
         });
 
-    // internal type ArrayProxy
+    // export type ArrayProxy
     export type ArrayProxy<T> = {
         /*get*/ [key in keyof T]: ArrayProxy<T[key]>
       ///*set*/ [key in keyof T]: T[key]
@@ -276,38 +298,92 @@ namespace DomLib {
             }
         });
 
-    //TODO export const HTMLNode
-    export const HTMLNode = function HTMLNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): HTMLElement {throw 'NYI'}
+    // export const HTMLNode
+    export const HTMLNode = function HTMLNode<K extends keyof HTMLElementTagNameMap>(type: K, data?: string | {[key: string]: any} | Map<string, any>, ...children: Node[]): HTMLElementTagNameMap[K] {
+        const element = document.createElement(type);
+      
+        if(typeof data === 'string') {
+            element.textContent = data;
+        } else {
+            if(!(data instanceof Map))
+                data = new Map<string, any>(Object.entries(data ?? {}));
+
+            for(const [key, value] of data.entries()) {
+                if(key === 'children' && Array.isArray(value))
+                    element.replaceChildren(...element.childNodes, ...value);
+                else if(key === 'style' && typeof value === 'object')
+                    for(const [property, style] of (value instanceof Map ? value.entries() : Object.entries(value)))
+                        Reflect.set(element.style, property, style);
+                else if(key === 'classList' || key === 'classlist' && Array.isArray(value))
+                    element.classList.add(...value);
+                else if(key in element)
+                    Reflect.set(element, key, value);
+                else
+                    element.setAttribute(key, value);
+            }
+            
+            if(children.length)
+                element.replaceChildren(...element.childNodes, ...children);
+        }
+        return element;
+    }
     
     // export alias HtmlNode for HTMLNode
     export const HtmlNode = HTMLNode;
 
-    //TODO export const SVGNode
-    export const SVGNode = function SVGNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): SVGElement {throw 'NYI'}
+    // export const SVGNode
+    export const SVGNode = function SVGNode<K extends keyof SVGElementTagNameMap>(type: K, data?: {[key: string]: any} | Map<string, any>, ...children: Node[]): SVGElementTagNameMap[K] {
+        const element = document.createElementNS('http://www.w3.org/2000/svg', type);
+      
+        if(type === 'svg')
+            element.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        if(!(data instanceof Map))
+            data = new Map<string, any>(Object.entries(data ?? {}));
+
+        for(const [key, value] of data.entries()) {
+            if(key === 'children' && Array.isArray(value))
+                element.replaceChildren(...element.childNodes, ...value);
+            else if(key === 'style' && typeof value === 'object')
+                for(const [property, style] of (value instanceof Map ? value.entries() : Object.entries(value)))
+                    Reflect.set(element.style, property, style);
+            else if(key === 'classList' || key === 'classlist' && Array.isArray(value))
+                element.classList.add(...value);
+            else if(key in element && typeof value === 'function')
+                Reflect.set(element, key, value);
+            else
+                element.setAttribute(key, value);
+        }
+        
+        if(children.length)
+            element.replaceChildren(...element.childNodes, ...children);
+            
+        return element;
+    }
     
     // export alias SvgNode for SVGNode
     export const SvgNode = SVGNode;
 
     //TODO export const SVGNode
-    export const MATHMLNode = function MATHMLNode(type: string, properties: {[key: string]: any} | Map<string, any>, ...children: Node[]): MathMLElement {throw 'NYI'}
+    export const MATHMLNode = function MATHMLNode(type: string, data?: string | {[key: string]: any} | Map<string, any>, ...children: Node[]): MathMLElement {throw 'MathML node has not been implemented yet.'}
     
     // export alias MathMlNode for MATHMLNode
     export const MathMlNode = MATHMLNode;
 
 
     // export const TextNode
-    export const TextNode = function TextNode(content: string): Text {
+    export const TextNode = function TextNode(content: string = ''): Text {
         return document.createTextNode(content);
     }
 
     // export const CommentNode
-    export const CommentNode = function CommentNode(content: string): Comment {
+    export const CommentNode = function CommentNode(content: string = ''): Comment {
         return document.createComment(content);
     }
 
     // export const $host
     // define $host on ShadowRoot, Element, Document, DocumentFragment
-    export const $host: HTMLElement | null | undefined = undefined;
+    export const $host: Element | null | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$host', {get() {return document.currentScript?.parentElement}});
         [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:true,configurable:!!options.debug,get(){return this}}));
@@ -315,9 +391,9 @@ namespace DomLib {
 
     
     // export const $last
-    export const $last: HTMLElement | undefined = undefined;
+    export const $last: Element | undefined = undefined;
     {
-        let _lastAddedElement: HTMLElement | undefined = undefined;
+        let _lastAddedElement: Element | undefined = undefined;
         const observer = new MutationObserver(mutations => mutations.forEach(mutation => {const node = [...mutation.addedNodes].pop(); if(node instanceof HTMLElement && !(node instanceof HTMLScriptElement)) _lastAddedElement = node}));
         observer.observe(document.documentElement, {childList: true, subtree: true});
         window.addEventListener('load', () => {observer.disconnect(); _lastAddedElement = undefined});
@@ -325,13 +401,12 @@ namespace DomLib {
     }
 
     // Binding Control
-    /*if(document.currentScript) {
+    if(document.currentScript) {
         if('bind' in options) {
-            options.bind ||= 'globalThis';
-            Reflect.set(globalThis, options.bind.toString(), Reflect.get(globalThis, options.bind.toString()) ?? {})
-            for(const key of Object.keys(DomLib))
-                // Does not work for getters and setters
-                Object.defineProperty(Reflect.get(globalThis, options.bind.toString()), key, {get(){return Reflect.get(DomLib, key)}});
+            const target = Reflect.get(globalThis, (options.bind || 'globalThis').toString())
+            Object.getOwnPropertyNames(DomLib).forEach(function(key: string) {
+                if(key !== 'VERSION') Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(DomLib, key)!);
+            });
         }
-    }*/
+    }
 }
