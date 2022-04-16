@@ -1,4 +1,4 @@
-if [ ! $(find | grep mtsc.exe) ]
+if [ ! $(ls ./buildtools/ | grep mtsc.exe) ]
 then
     echo "Error: mtsc.exe not found. Please dowload from https://github.com/SteveBeeblebrox/MTSC/releases"
     return 1
@@ -19,7 +19,12 @@ gitfetch JSION jsion.ts
 for tsfile in $(ls assets/ts); do
     output=assets/js/$(basename $tsfile .${tsfile##*.}).min.js
     echo "//See /assets/ts/$tsfile for license info." > $output
-    curl -X POST -s --data-urlencode "input=$(./mtsc.exe --target=es2019 assets/ts/$tsfile --jsx=JSX.createElement --out)" https://www.toptal.com/developers/javascript-minifier/raw >> $output
+    curl -X POST -s --data-urlencode "input=$(./buildtools/mtsc.exe --target=es2019 --jsx=JSX.createElement assets/ts/$tsfile --out)" https://www.toptal.com/developers/javascript-minifier/raw >> $output
 done;
 
-python3 sitemap.py
+
+for htmlxfile in $(find | grep .htmlx); do
+    python3 ./buildtools/format.py $htmlxfile | ./buildtools/mtsc.exe --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out > $(echo $htmlxfile | sed 's/.htmlx/.html/')
+done;
+
+python3 ./buildtools/sitemap.py

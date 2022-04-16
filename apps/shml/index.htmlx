@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        %{HEADER}
+        <title>Document</title>
+        <script type="text/typescript">
+            let x = alert(1)
+        </script>
+    </head>
+    <body>
+        <h1>%{title}</h1>
+    </body>
+</html>
