@@ -5,9 +5,19 @@
         <title>Document</title>
         <script type="text/typescript">
             let x = alert(1)
+            function foo() {
+                let timeState = JSX.createState();
+                setInterval(() => {
+                    timeState.set(new Date().toLocaleTimeString());
+                }, 100);
+                document.body.append(<h2>
+                    {timeState}
+                </h2>)
+            }
         </script>
     </head>
     <body>
         <h1>%{title}</h1>
+        <button onclick="foo()">Test</button>
     </body>
 </html>
