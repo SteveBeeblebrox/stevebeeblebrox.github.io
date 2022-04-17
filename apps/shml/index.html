@@ -11,15 +11,15 @@
         <script src="/assets/js/jsx.min.js"></script>
         <script src="/assets/js/shml.min.js"></script>
         <title>Document</title>
-        <script type="text/typescript">
-let x = alert(1);
-function foo() {
-    let timeState = JSX.createState();
-    setInterval(() => {
-        timeState.set(new Date().toLocaleTimeString());
-    }, 100);
-    document.body.append(JSX.createElement("h2", null, timeState));
-}
+        <script>
+            let x = alert(1);
+            function foo() {
+                let timeState = JSX.createState();
+                setInterval(() => {
+                    timeState.set(new Date().toLocaleTimeString());
+                }, 100);
+                document.body.append(JSX.createElement("h2", null, timeState));
+            }
         </script>
     </head>
     <body>
