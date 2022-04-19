@@ -5,25 +5,29 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="/assets/js/compression.min.js"></script>
-        <script src="/assets/js/domlib.min.js"></script>
+        <script src="/assets/js/domlib.min.js?bind=globalThis"></script>
         <script src="/assets/js/encryption.min.js"></script>
         <script src="/assets/js/jsion.min.js"></script>
         <script src="/assets/js/jsx.min.js"></script>
         <script src="/assets/js/shml.min.js"></script>
         <title>Document</title>
         <script>
-            let x = alert(1);
-            function foo() {
-                let timeState = JSX.createState();
-                setInterval(() => {
-                    timeState.set(new Date().toLocaleTimeString());
-                }, 100);
-                document.body.append(JSX.createElement("h2", null, timeState));
+            function SHMLDocument() {
+                const text = JSX.createState('');
+                return JSX.createElement("section", null,
+                    JSX.createElement("textarea", { oninput: text.consume('value') }),
+                    JSX.createElement("iframe", { srcdoc: text.format(o => SHML.parseMarkup(o)) }));
+            }
+            function openSHMLDocument(name) {
+                $ `#workspace`.$children.push(JSX.createElement(SHMLDocument, null));
             }
         </script>
     </head>
     <body>
-        <h1>AaaaAaaa</h1>
-        <button onclick="foo()">Test</button>
+        <button onclick="openSHMLDocument(null)">New</button>
+        <script>
+
+        </script>
+        <div id="workspace"></div>
     </body>
 </html>

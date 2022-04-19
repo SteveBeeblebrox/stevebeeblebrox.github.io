@@ -32,9 +32,13 @@ declare namespace JSX {
 namespace JSX {
     export type Properties = {[key: string]: any}
     type ElementType = keyof HTMLElementTagNameMap|keyof SVGElementTagNameMap|'math'|((properties:Properties|null,...children:Node[])=>Node)
-    export class State<T extends Object> {
+    abstract class StateBase<T> {
+        abstract connectCallback(callback: (t:T)=>void);
+        abstract get(): T;
+    }
+    export class State<T extends Object> extends StateBase<T> {
         private readonly callbacks: ((t:T)=>void)[] = []
-        constructor(private value: T) {}
+        constructor(private value: T) {super()}
         get(): T {
             return this.value;
         }
@@ -55,6 +59,25 @@ namespace JSX {
         }
         consumeEvent(path: string) {
             return this.consume(path, 0);
+        }
+        format<K>(formatter: (t:T)=>K): StateFormatter<T,K> {
+            const stateFormatter = new StateFormatter(this, formatter);
+            this.connectCallback(stateFormatter.update.bind(stateFormatter));
+            return stateFormatter;
+        }
+    }
+    class StateFormatter<T extends Object,K> extends StateBase<K> {
+        private readonly callbacks: ((k:K)=>void)[] = []
+        constructor(private readonly state: State<T>, private readonly formatter: (t:T)=>K) {super()}
+        update() {
+            this.callbacks.forEach(f=>f(this.get()));
+        }
+        get(): K {
+            return this.formatter(this.state.get());
+        }
+        connectCallback(callback: (k:K)=>void): void {
+            this.callbacks.push(callback);
+            callback(this.get());
         }
     }
     export const createState = function createState<T>(t:T): State<T> {
@@ -90,11 +113,11 @@ namespace JSX {
                             Reflect.set(Reflect.get(element, key), property, style);
                     else if((key === 'classList' || key === 'classlist' && key in prototype) || key === 'class' && Array.isArray(value))
                         element.classList.add(...value);
-                    else if(key in prototype && value instanceof State)
+                    else if(key in prototype && value instanceof StateBase)
                         value.connectCallback(t=>Reflect.set(element,key,t));
                     else if(key in prototype)
                         Reflect.set(element, key, value);
-                    else if(value instanceof State)
+                    else if(value instanceof StateBase)
                         value.connectCallback(t=>element.setAttribute(key,t));
                     else
                         element.setAttribute(key, value);
@@ -102,7 +125,7 @@ namespace JSX {
             }
             
             for(let child of children) {
-                if(child instanceof State) {
+                if(child instanceof StateBase) {
                     const text = document.createTextNode('')
                     child.connectCallback(t=>text.textContent=t);
                     child = text;

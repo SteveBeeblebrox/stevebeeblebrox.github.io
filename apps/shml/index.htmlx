@@ -7,20 +7,24 @@
         %{SCRIPTS}
         <title>Document</title>
         <script type="text/typescript">
-            let x: void = alert(1)
-            function foo() {
-                let timeState = JSX.createState();
-                setInterval(() => {
-                    timeState.set(new Date().toLocaleTimeString());
-                }, 100);
-                document.body.append(<h2>
-                    {timeState}
-                </h2>)
+            function SHMLDocument() {
+                const text = JSX.createState('');
+                return <section>
+                    <textarea oninput={text.consume('value')}></textarea>
+                    <iframe srcdoc={text.format(o=>SHML.parseMarkup(o))}></iframe>
+                </section>
+            }
+
+            function openSHMLDocument(name?: string) {
+                $`#workspace`.$children.push(<SHMLDocument></SHMLDocument>);
             }
         </script>
     </head>
     <body>
-        <h1>%{title*2}</h1>
-        <button onclick="foo()">Test</button>
+        <button onclick="openSHMLDocument(null)">New</button>
+        <script type="text/typescript">
+
+        </script>
+        <div id="workspace"></div>
     </body>
 </html>
