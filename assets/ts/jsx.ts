@@ -37,26 +37,21 @@ namespace JSX {
         abstract get(): T;
     }
     export class State<T extends Object> extends StateBase<T> {
-        private readonly callbacks: WeakRef<(t:T)=>void>[] = []
+        private readonly callbacks: ((t:T)=>void)[] = [];
         constructor(private value: T) {super()}
         get(): T {
             return this.value;
         }
         set(t:T): T {
             this.value = t;
-            this.callbacks.forEach((f: WeakRef<(t:T)=>void>, index: number, array: WeakRef<(t:T)=>void>[]) => {
-                const ref = f.deref();
-                if(ref !== undefined) {
-                        ref(this.get());
-                } else {
-                    array.splice(index,1);
-                }
+            this.callbacks.forEach((f: (t:T)=>void) => {
+                f(this.get());
             });
             return this.value;
         }
         connectCallback(callback: (t:T)=>void): void {
-            this.callbacks.push(new WeakRef(callback));
-            callback(this.value);
+            this.callbacks.push(callback);
+            callback(this.get());
         }
         consume(path: string, argIndex?: number) {
             const state = this;
@@ -74,23 +69,18 @@ namespace JSX {
         }
     }
     class StateFormatter<T extends Object,K> extends StateBase<K> {
-        private readonly callbacks: WeakRef<(k:K)=>void>[] = []
+        private readonly callbacks: ((k:K)=>void)[] = [];
         constructor(private readonly state: State<T>, private readonly formatter: (t:T)=>K) {super()}
         update() {
-            this.callbacks.forEach((f: WeakRef<(k:K)=>void>, index: number, array: WeakRef<(k:K)=>void>[]) => {
-               const ref = f.deref();
-               if(ref !== undefined) {
-                    ref(this.get());
-               } else {
-                    array.splice(index,1);
-               }
+            this.callbacks.forEach((f: (k:K)=>void) => {
+                f(this.get());
             });
         }
         get(): K {
             return this.formatter(this.state.get());
         }
         connectCallback(callback: (k:K)=>void): void {
-            this.callbacks.push(new WeakRef(callback));
+            this.callbacks.push(callback);
             callback(this.get());
         }
     }
