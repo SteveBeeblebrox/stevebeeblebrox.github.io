@@ -33,11 +33,27 @@ namespace JSX {
     export type Properties = {[key: string]: any}
     type ElementType = keyof HTMLElementTagNameMap|keyof SVGElementTagNameMap|'math'|((properties:Properties|null,...children:Node[])=>Node)
     abstract class StateBase<T> {
-        abstract connectCallback(callback: (t:T)=>void);
+        protected readonly callbacks: ((t:T)=>void)[] = [];
+        connectCallback(callback: (t:T)=>void): void {
+            this.callbacks.push(callback);
+            callback(this.get());
+        }
+        disconnectCallback(callback: (t:T)=>void): void {
+            this.callbacks.splice(this.callbacks.indexOf(callback),1);
+        }
+        connectWeakCallback<K extends Array<object>>(weakCaptures: [...K], weakCallback: (t:T,...args: K)=>void) {
+            const weakrefs = weakCaptures.map(o=>new WeakRef(o)), state = this;
+            state.connectCallback(function callback(t:T) {
+                const refs = weakrefs.map(o=>o.deref());
+                if(refs.some(o=>o===undefined))
+                    state.disconnectCallback(callback);
+                else 
+                    weakCallback(t, ...refs as K);
+            });
+        }
         abstract get(): T;
     }
     export class State<T extends Object> extends StateBase<T> {
-        private readonly callbacks: ((t:T)=>void)[] = [];
         constructor(private value: T) {super()}
         get(): T {
             return this.value;
@@ -48,10 +64,6 @@ namespace JSX {
                 f(this.get());
             });
             return this.value;
-        }
-        connectCallback(callback: (t:T)=>void): void {
-            this.callbacks.push(callback);
-            callback(this.get());
         }
         consume(path: string, argIndex?: number) {
             const state = this;
@@ -69,7 +81,6 @@ namespace JSX {
         }
     }
     class StateFormatter<T extends Object,K> extends StateBase<K> {
-        private readonly callbacks: ((k:K)=>void)[] = [];
         constructor(private readonly state: State<T>, private readonly formatter: (t:T)=>K) {super()}
         update() {
             this.callbacks.forEach((f: (k:K)=>void) => {
@@ -78,10 +89,6 @@ namespace JSX {
         }
         get(): K {
             return this.formatter(this.state.get());
-        }
-        connectCallback(callback: (k:K)=>void): void {
-            this.callbacks.push(callback);
-            callback(this.get());
         }
     }
     export const createState = function createState<T>(t:T): State<T> {
@@ -118,11 +125,11 @@ namespace JSX {
                     else if((key === 'classList' || key === 'classlist' && key in prototype) || key === 'class' && Array.isArray(value))
                         element.classList.add(...value);
                     else if(key in prototype && value instanceof StateBase)
-                        value.connectCallback(t=>Reflect.set(element,key,t));
+                        value.connectWeakCallback([element],(t,element)=>Reflect.set(element,key,t));
                     else if(key in prototype)
                         Reflect.set(element, key, value);
                     else if(value instanceof StateBase)
-                        value.connectCallback(t=>element.setAttribute(key,t));
+                        value.connectWeakCallback([element],(t,element)=>element.setAttribute(key,t));
                     else
                         element.setAttribute(key, value);
                 }
@@ -131,7 +138,7 @@ namespace JSX {
             for(let child of children) {
                 if(child instanceof StateBase) {
                     const text = document.createTextNode('')
-                    child.connectCallback(t=>text.textContent=t);
+                    child.connectWeakCallback([text],(t,text)=>text.textContent=t);
                     child = text;
                 }
                 element.append(child);
