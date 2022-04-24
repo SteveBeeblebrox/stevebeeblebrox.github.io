@@ -10,24 +10,78 @@
         <script src="/assets/js/jsion.min.js"></script>
         <script src="/assets/js/jsx.min.js"></script>
         <script src="/assets/js/shml.min.js"></script>
-        <title>Document</title>
-        <script>
-            function SHMLDocument() {
-                const text = JSX.createState('');
-                return JSX.createElement("section", null,
-                    JSX.createElement("textarea", { oninput: text.consume('value') }),
-                    JSX.createElement("iframe", { srcdoc: text.format(o => SHML.parseMarkup(o)) }));
+        <title>Untitled</title>
+        <style>
+            html, body {
+                margin: 0;
+                height: 100%;
             }
-            function openSHMLDocument(name) {
-                $ `#workspace`.$children.push(JSX.createElement(SHMLDocument, null));
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5em;
+                background-color: #eee;
+            }
+            header>span:not(:nth-of-type(2)) {
+                flex-grow: 1;
+                flex-basis: 0;
+            }
+            header button {
+                border: none;
+            }
+
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+
+            .dropdown div {
+                display: none;
+                position: absolute;
+            }
+
+            .dropdown:hover div {
+                display: block;
+            }
+        </style>
+        <script>
+            const documentTitleState = JSX.createState(document.title).format(title => `${title} - SHML Editor`);
+            documentTitleState.connectCallback(t => document.title = t);
+        </script>
+        <script>
+            function Dropdown(props, label, ...children) {
+                return JSX.createElement("div", { class: "dropdown" },
+                    JSX.createElement("span", null, label),
+                    JSX.createElement("div", null, children));
             }
         </script>
     </head>
     <body>
-        <button onclick="openSHMLDocument(null)">New</button>
-        <script>
+        <header>
+            <span><button>File</button><button>Edit</button><button>View</button><button>Help</button></span>
+            <span>
+                <script>
+                    $host.replaceChildren(JSX.createElement("span", null, documentTitleState));
+                </script>
+            </span>
+            <span></span>
+        </header>
+        <main>
+            <section id="sidebar"></section>
+            <section id="workspace"></section>
+            <script>
+                $host.replaceChildren(JSX.createElement(Dropdown, null,
+                    JSX.createElement("label", null, "Files"),
+                    JSX.createElement("button", null, "New"),
+                    JSX.createElement("button", null, "Open")));
+            </script>
+        </main>
+        <footer>
 
-        </script>
-        <div id="workspace"></div>
+        </footer>
     </body>
 </html>

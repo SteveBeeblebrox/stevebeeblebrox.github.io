@@ -87,6 +87,9 @@ namespace JSX {
                 f(this.get());
             });
         }
+        set(t:T): T {
+            return this.state.set(t);
+        }
         get(): K {
             return this.formatter(this.state.get());
         }
@@ -135,7 +138,7 @@ namespace JSX {
                 }
             }
             
-            for(let child of children) {
+            for(let child of children.flat()) {
                 if(child instanceof StateBase) {
                     const text = document.createTextNode('')
                     child.connectWeakCallback([text],(t,text)=>text.textContent=t);
