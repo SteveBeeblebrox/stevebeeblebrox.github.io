@@ -49,12 +49,23 @@
         </script>
         <script type="text/typescript">
             function Dropdown(props, label, ...children) {
-                return <div class="dropdown">
-                    <span>{label}</span>
-                    <div>
-                        {children}
+                const style = `*{color:red}`
+                return <Shadow>
+                    <style>{style}</style>
+                    <div class="dropdown">
+                        <span>{label}</span>
+                        <div>
+                            {children}
+                        </div>
                     </div>
-                </div>
+                </Shadow>
+            }
+
+            function Shadow(_, ...children) {
+                const element = JSX.createElement('span');
+                element.attachShadow({mode: 'open'});
+                element.shadowRoot!.replaceChildren(...children);
+                return element;
             }
         </script>
     </head>
@@ -80,7 +91,7 @@
             </script>
         </main>
         <footer>
-
+            
         </footer>
     </body>
 </html>

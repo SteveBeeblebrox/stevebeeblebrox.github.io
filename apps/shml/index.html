@@ -54,9 +54,18 @@
         </script>
         <script>
             function Dropdown(props, label, ...children) {
-                return JSX.createElement("div", { class: "dropdown" },
-                    JSX.createElement("span", null, label),
-                    JSX.createElement("div", null, children));
+                const style = `*{color:red}`;
+                return JSX.createElement(Shadow, null,
+                    JSX.createElement("style", null, style),
+                    JSX.createElement("div", { class: "dropdown" },
+                        JSX.createElement("span", null, label),
+                        JSX.createElement("div", null, children)));
+            }
+            function Shadow(_, ...children) {
+                const element = JSX.createElement('span');
+                element.attachShadow({ mode: 'open' });
+                element.shadowRoot.replaceChildren(...children);
+                return element;
             }
         </script>
     </head>
@@ -81,7 +90,7 @@
             </script>
         </main>
         <footer>
-
+            
         </footer>
     </body>
 </html>
