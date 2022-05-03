@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "lib": ["ESNext","DOM"],
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "target":"ES2019"
     },
 }
