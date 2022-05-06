@@ -5,7 +5,7 @@ type VirtualEnv = {
 }
 type VFSEntryType = 'file' | 'directory' | 'undefined'
 class VFS {
-    public readonly SEPERATOR = '/'
+    public readonly SEPARATOR = '/'
     constructor(private fs: ArrayMap<string, VirtualFile>, private env: VirtualEnv){}
 
     private static escapeRegex(text: string) {
@@ -16,7 +16,7 @@ class VFS {
         if(Array.isArray(path))
             return path;
         else
-            return path.split(new RegExp(String.raw`(?<!^)${VFS.escapeRegex(this.SEPERATOR)}|(?<=^${VFS.escapeRegex(this.SEPERATOR)})`, 'g'));
+            return path.split(new RegExp(String.raw`(?<!^)${VFS.escapeRegex(this.SEPARATOR)}|(?<=^${VFS.escapeRegex(this.SEPARATOR)})`, 'g'));
     }
 
     touch(path: Path) {
@@ -47,7 +47,9 @@ class VFS {
     }
 
     cd(path: Path) {
-        [this.env.OLDPWD, this.env.PWD] = [this.env.PWD, this.toAbsolutePath(this.resolveAs(path, 'navigate to directory', ['directory']))]
+        const isRoot = path === this.SEPARATOR || (typeof path === 'object' && path.join('') === this.SEPARATOR);
+        if(!isRoot) this.resolveAs(path, 'navigate to directory', ['directory']);
+        [this.env.OLDPWD, this.env.PWD] = [this.env.PWD, isRoot ? this.SEPARATOR : this.toAbsolutePath(path)]
     }
 
     resolveAs(path: Path, action: string, accept: VFSEntryType[]): SomeArray<string> {
@@ -58,7 +60,7 @@ class VFS {
     }
 
     dir(path: Path) {
-        return this.fs.get(this.resolveAs(path, 'get direcotry', ['directory']));
+        return this.fs.get(this.resolveAs(path, 'get directory', ['directory']));
     }
 
     mv(from: Path, to: Path) {
@@ -102,7 +104,7 @@ class VFS {
     }
 
     resolve(path: Path): SomeArray<string> {
-        const array = this.toAbsolutePath(path).replace(new RegExp(String.raw`^${VFS.escapeRegex(this.SEPERATOR)}`), '').split(this.SEPERATOR);
+        const array = this.toAbsolutePath(path).replace(new RegExp(String.raw`^${VFS.escapeRegex(this.SEPARATOR)}|${VFS.escapeRegex(this.SEPARATOR)}$`,'g'), '').split(this.SEPARATOR);
         if(!array.length) throw new Error(`Computed path for "${path}" cannot be resolved.`)
         else return array as SomeArray<string>;
     }
@@ -111,7 +113,7 @@ class VFS {
         let pwdparts = this.splitfp(this.env.PWD);
         this.splitfp(path).forEach((part, index) => {
             switch(part) {
-                case this.SEPERATOR: pwdparts = [this.SEPERATOR]; break;
+                case this.SEPARATOR: pwdparts = [this.SEPARATOR]; break;
                 case '..': pwdparts.splice(index - 1, 1); break;
                 case '.': break;
                 default: 
@@ -122,7 +124,7 @@ class VFS {
                     break;
             }
         })
-        return pwdparts.join(this.SEPERATOR).replace(new RegExp(`^${VFS.escapeRegex(this.SEPERATOR)}(?=${VFS.escapeRegex(this.SEPERATOR)})`),'')
+        return pwdparts.join(this.SEPARATOR).replace(new RegExp(`^${VFS.escapeRegex(this.SEPARATOR)}(?=${VFS.escapeRegex(this.SEPARATOR)})`),'')
     }
     serialize() {
         return JSON.stringify({
@@ -155,6 +157,3 @@ type VirtualFile = {
 }
 type JSONValue = {[key: string]: JSONValue} | boolean | null | string | number;
 type Path = string | string[]
-
-
-//bugs can't resolve path "/", .. and . don't work trailing slashes in paths break
