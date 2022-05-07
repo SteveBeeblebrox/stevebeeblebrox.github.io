@@ -1,4 +1,4 @@
-module ArrayMap {
+namespace ArrayMap {
     export type SomeArray<V> = V[] & {0:V}
 }
 class ArrayMap<K,V> implements Map<ArrayMap.SomeArray<K>,V | ArrayMap<K,V>> {
