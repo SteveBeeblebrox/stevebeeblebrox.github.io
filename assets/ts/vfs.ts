@@ -24,9 +24,9 @@ class VFS {
     public readonly SEPARATOR = '/'
     private PWD: string = this.SEPARATOR;
     private OLDPWD: string = this.SEPARATOR;
-    constructor(private fs: VFS.VirtualDirectory, private readonly HOME: string) {
+    constructor(private fs: VFS.VirtualDirectory = new ArrayMap(), private readonly HOME: string = '') {
+        this.HOME ||= this.SEPARATOR;
         if(this.HOME !== this.SEPARATOR) this.mkdir('~', true);
-        this.HOME ??= this.SEPARATOR;
     }
 
     private static escapeRegex(text: string) {
@@ -122,12 +122,16 @@ class VFS {
         return this.typeOfResolved(this.resolve(path));
     }
 
-    ls(path: VFS.Path, includeHidden = false) {
+    ls(path: VFS.Path = this.PWD, includeHidden = false, recursive = false): string[] {
         const isRoot = path === this.SEPARATOR || (typeof path === 'object' && path.join('') === this.SEPARATOR);
         let k: VFS.ResolvedPath;
         let names = [...(isRoot ? this.fs : this.fs.get(k=this.resolveAs(path, 'list', ['directory'])) as VFS.VirtualDirectory).keys()]
         if(!includeHidden) names = names.filter(o=>!o[0].startsWith('.'))
-        return names.map((p: VFS.ResolvedPath)=>this.toAbsolutePath(isRoot?['/',...p]:[...k,...p]))
+        if(!recursive) return names.map((p: VFS.ResolvedPath)=>this.toAbsolutePath(isRoot?['/',...p]:[...k,...p]))
+        else return names.map((p: VFS.ResolvedPath) => {
+            if(this.typeOfResolved(p) === 'directory') return this.ls(p, includeHidden, recursive)
+            else return this.toAbsolutePath(isRoot?['/',...p]:[...k,...p])
+        }).flat()
     }
 
     private resolveAs(path: VFS.Path, action: string, accept: VFS.EntryType[]): VFS.ResolvedPath {
