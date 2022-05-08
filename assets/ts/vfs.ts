@@ -70,24 +70,24 @@ class VFS {
     }
 
     cd(path: VFS.Path) {
-        const isRoot = path === this.SEPARATOR || (typeof path === 'object' && path.join('') === this.SEPARATOR);
-        if(!isRoot) this.resolveAs(path, 'navigate to directory', ['directory']);
-        [this.OLDPWD, this.PWD] = [this.PWD, isRoot ? this.SEPARATOR : this.toAbsolutePath(path)]
+        this.resolveAs(path, 'navigate to directory', ['directory'], true);
+        [this.OLDPWD, this.PWD] = [this.PWD, this.toAbsolutePath(path)]
+    }
+
+    fname(path: VFS.Path) {
+        return [...this.resolve(path)].pop()!
     }
 
     mv(from: VFS.Path, to: VFS.Path) {
-        const isRoot = to === this.SEPARATOR || (typeof to === 'object' && to.join('') === this.SEPARATOR);
-        let resolvedFrom = this.resolveAs(from, 'move from', ['directory', 'file'])
-        if(!isRoot) {
-            let resolvedTo = this.resolveAs(to, 'move to', ['directory','undefined']);
-    
-            if(this.typeOfResolved(resolvedTo) === 'directory')
-                resolvedTo = (this.resolveAs([...resolvedTo, [...resolvedFrom].pop()!], 'move to', ['undefined',this.typeOfResolved(resolvedFrom)]));
-        
-            this.fs.set(resolvedTo, this.fs.get(resolvedFrom)!);
-        } else {
-            this.fs.set(this.resolveAs(['/', [...resolvedFrom].pop()!], 'move to', ['undefined',this.typeOfResolved(resolvedFrom)]), this.fs.get(resolvedFrom)!)
-        }
+        const resolvedFrom = this.resolveAs(from, 'move from', ['directory', 'file'])
+        let resolvedTo = this.resolveAs(to, 'move to', ['directory','undefined'], true);
+
+        if(this.typeOfResolved(resolvedTo) === 'directory')
+            resolvedTo = (this.resolveAs([this.SEPARATOR, ...resolvedTo, this.fname(resolvedFrom)], 'move to', ['undefined',this.typeOfResolved(resolvedFrom)]));
+        else if(this.isResolvedRoot(resolvedTo))
+            resolvedTo = (this.resolveAs([this.SEPARATOR, this.fname(resolvedFrom)], 'move to', ['undefined',this.typeOfResolved(resolvedFrom)]));
+
+        this.fs.set(resolvedTo, this.fs.get(resolvedFrom)!);
         this.fs.delete(resolvedFrom);
     }
 
@@ -108,7 +108,7 @@ class VFS {
         return this.OLDPWD;
     }
 
-    put(path: VFS.Path, contents: VFS.JSONValue) {
+    write(path: VFS.Path, contents: VFS.JSONValue) {
         const file = (this.fs.get(this.resolveAs(path, 'write to file', ['file'])) as VFS.VirtualFile);
         file.contents = contents;
         file.dateModified = +new Date();
@@ -123,22 +123,33 @@ class VFS {
     }
 
     ls(path: VFS.Path = this.PWD, includeHidden = false, recursive = false): string[] {
-        const isRoot = path === this.SEPARATOR || (typeof path === 'object' && path.join('') === this.SEPARATOR);
         let k: VFS.ResolvedPath;
-        let names = [...(isRoot ? this.fs : this.fs.get(k=this.resolveAs(path, 'list', ['directory'])) as VFS.VirtualDirectory).keys()]
+        let names = [...(this.getOptionallyRoot(k=this.resolveAs(path, 'list', ['directory'], true)) as VFS.VirtualDirectory).keys()];
         if(!includeHidden) names = names.filter(o=>!o[0].startsWith('.'))
-        if(!recursive) return names.map((p: VFS.ResolvedPath)=>this.toAbsolutePath(isRoot?['/',...p]:[...k,...p]))
+        if(!recursive) return names.map((p: VFS.ResolvedPath)=>this.toAbsolutePath(this.isResolvedRoot(k) ? [this.SEPARATOR,...p]:[this.SEPARATOR,...k,...p]))
         else return names.map((p: VFS.ResolvedPath) => {
             if(this.typeOfResolved(p) === 'directory') return this.ls(p, includeHidden, recursive)
-            else return this.toAbsolutePath(isRoot?['/',...p]:[...k,...p])
-        }).flat()
+            else return this.toAbsolutePath(this.isResolvedRoot(k)?[this.SEPARATOR,...p]:[...k,...p])
+        }).flat();
+
     }
 
-    private resolveAs(path: VFS.Path, action: string, accept: VFS.EntryType[]): VFS.ResolvedPath {
+    private resolveAs(path: VFS.Path, action: string, accept: VFS.EntryType[], allowRoot = false): VFS.ResolvedPath {
         const resolved = this.resolve(path), it = this.typeOfResolved(resolved);
+
+        if(this.isResolvedRoot(resolved) && allowRoot) return resolved;
+
         if(!accept.some(o=>o===it))
             throw new Error(`Could not ${action ?? 'access'} "${resolved}", it is ${it!=='undefined'?'a ':''}${it}`)
         return resolved;
+    }
+
+    private isResolvedRoot(resolved: VFS.ResolvedPath): boolean {
+        return resolved.length === 1 && resolved[0] === '';
+    }
+    private getOptionallyRoot(resolved: VFS.ResolvedPath) {
+        if(this.isResolvedRoot(resolved)) return this.fs;
+        else return this.fs.get(resolved);
     }
 
     private checkFileFlagResolved(resolved: VFS.ResolvedPath, flag: 'read' | 'write' | 'execute') {
@@ -150,7 +161,7 @@ class VFS {
             const o = this.fs.get(path, false);
             return o === undefined ? 'undefined' : o instanceof ArrayMap ? 'directory' : 'file';
         } catch(ignoredResolveError) {
-            throw new Error(`Could not find directory "${'TODO: Show where error occurred'}"`)
+            throw new Error(`Could not find directory "${ignoredResolveError}"`)
         }
     }
 
@@ -210,17 +221,12 @@ class VFS {
         }), home);
     }
     static load(key: string) {
-        const vfs = VFS.deserialize(globalThis.localStorage.getItem(key) ?? '{}');
+        const vfs = globalThis.localStorage.getItem(key) !== null ? VFS.deserialize(LZWCompression.unzip(globalThis.localStorage.getItem(key)!)) : new VFS();
         vfs.saveKey = key;
         return vfs;
     }
     save(key: string | undefined = this.saveKey) {
         if(!key) throw new Error('Unable to save, no key found')
-        else globalThis.localStorage.setItem(key ?? this.saveKey, this.serialize());
+        else globalThis.localStorage.setItem(key ?? this.saveKey, LZWCompression.zip(this.serialize()));
     }
 }
-
-/*function fs$(strings: TemplateStringsArray, ...values: any[]) {
-    const parts = values.reduce((acc,cur,i)=>acc+cur+strings[i+1], strings[0]).split(/\s(?=(?:[^'"`]*(['"`]).*?\1)*[^'"`]*$)/g).map((o:string)=>o==='true' ? true : o==='false' ? false : o?.replace?.(/["']/g,'')).filter((o:string)=>o);
-    return Reflect.get(fs,parts.shift()).apply(fs,parts)
-}*/
