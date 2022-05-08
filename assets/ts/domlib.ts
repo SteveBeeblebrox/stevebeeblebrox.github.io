@@ -42,7 +42,7 @@ namespace DomLib {
     // export const VERSION
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 2, minor: 0, patch: 0
+        major: 2, minor: 1, patch: 0
     });
 
     // internal let _lastQueryValue
@@ -82,7 +82,17 @@ namespace DomLib {
                 selector = interpolate(selector, ...[...arguments].slice(1)) as K;
                 target = document;
             }
-            return _lastQueryValue = target.querySelector(selector);
+            let {count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?:\^(?<count>\d*))? ?(?<cssSelector>[\s\S]*)$/)!.groups!
+            if(count !== undefined) {
+                if((count = +(count||'1')) === NaN || !(target instanceof Element)) return null;
+                let element: Element | null = target;
+                for(let i = 0; i < count;i++) {
+                    element = element?.parentElement?.closest?.(cssSelector || ':scope') ?? null;
+                }
+                return _lastQueryValue = element;
+            } else {
+                return _lastQueryValue = target.querySelector(cssSelector);
+            }
         }
         return $;
     })();
@@ -92,7 +102,7 @@ namespace DomLib {
         return Array.isArray(arg);
     }
 
-    //define $self on ShadowRoot, Element, Document, DocumentFragment
+    // define $self on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$self', {
             enumerable: true, configurable: !!options.debug,
@@ -409,4 +419,16 @@ namespace DomLib {
             });
         }
     }
+    export declare interface Extensions {
+        $children: Node[]
+        $self: typeof DomLib.$
+        $$self: typeof DomLib.$$
+        $xself: typeof DomLib.$x
+        $host: typeof DomLib.$host
+    }
 }
+
+declare interface ShadowRoot extends DomLib.Extensions {}
+declare interface Element extends DomLib.Extensions {}
+declare interface Document extends DomLib.Extensions {}
+declare interface DocumentFragment extends DomLib.Extensions {}
