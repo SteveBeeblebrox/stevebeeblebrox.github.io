@@ -410,6 +410,28 @@ namespace DomLib {
         Object.defineProperty(DomLib, '$last', {enumerable:true,configurable:!!options.debug,get(){return _lastAddedElement}});
     }
 
+    // export const $ctx
+    // define $ctx on ShadowRoot, Element, Document, DocumentFragment
+    export const $ctx: Node | null | undefined = undefined;
+    {
+        Object.defineProperty(DomLib, '$ctx', {
+            get() {
+                return document.currentScript;
+            },
+            set(other: string | Node) {
+                document.currentScript?.replaceWith?.(other);
+            }
+        });
+        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$ctx', {enumerable:true,configurable:!!options.debug,get(){return this},set(other:string|Node){this.replaceWith(other)}}));
+    }
+
+    // define $on on EventTarget
+    Object.defineProperty(EventTarget.prototype,'$on', {
+        value(this: globalThis.EventTarget, type: string, callback: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions | undefined) {
+            this.addEventListener(type, callback, options)
+            return {detach:()=>this.removeEventListener(type, callback, options)};
+        },enumerable:true,configurable:!!options.debug})
+
     // Binding Control
     if(document.currentScript) {
         if('bind' in options) {
@@ -424,7 +446,9 @@ namespace DomLib {
         $self: typeof DomLib.$
         $$self: typeof DomLib.$$
         $xself: typeof DomLib.$x
-        $host: typeof DomLib.$host
+        readonly $host: typeof DomLib.$host
+        get $ctx(): typeof DomLib.$ctx
+        set $ctx(other: typeof DomLib.$ctx | string)
     }
 }
 
@@ -432,3 +456,7 @@ declare interface ShadowRoot extends DomLib.Extensions {}
 declare interface Element extends DomLib.Extensions {}
 declare interface Document extends DomLib.Extensions {}
 declare interface DocumentFragment extends DomLib.Extensions {}
+
+declare interface EventTarget {
+    $on(this: EventTarget, type: string, callback: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions | undefined): {detach:()=>void}
+}
