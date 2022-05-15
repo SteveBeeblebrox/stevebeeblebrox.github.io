@@ -6,8 +6,9 @@ namespace ElementFactory {
             const sheet = styleElement.sheet!;
             for(const rule of Object.values([...sheet.cssRules])) {
                 let split = rule.cssText.split('{')
-                let selector = (split.shift() ?? '').replace(/:scope/g, ''), properties = split.join('{')
-                sheet.insertRule(`${name}${selector.trim() ? ` :is(${selector})` : ''} {${properties}`, sheet.cssRules.length)
+                let selector = (split.shift() ?? '').replace(/:scope/g, name), properties = split.join('{')
+                sheet.insertRule(`${selector} {${properties}`, sheet.cssRules.length)
+                
                 sheet.deleteRule(0)
             }
             document.head.appendChild(Object.assign(document.createElement('style'), {textContent: [...sheet.cssRules].map(rule => rule.cssText).join(' ')}));

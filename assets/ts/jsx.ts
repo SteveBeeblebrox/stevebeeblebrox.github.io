@@ -93,6 +93,12 @@ namespace JSX {
         get(): K {
             return this.formatter(this.state.get());
         }
+        consume(path: string, argIndex?: number) {
+            return this.state.consume(path, argIndex);
+        }
+        consumeEvent(path: string) {
+            return this.state.consumeEvent(path);
+        }
     }
     export const createState = function createState<T>(t:T): State<T> {
         return new State<T>(t);

@@ -10,8 +10,28 @@
         <script src="/assets/js/jsion.min.js"></script>
         <script src="/assets/js/jsx.min.js"></script>
         <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/elementfactory.min.js"></script>
+        <script src="/assets/js/elements.min.js"></script>
         <title>Untitled</title>
-        <style>
+        <script>
+            const { Shadow } = Elements;
+            function xprompt() {
+                return new Promise(function (resolve) {
+                    let modal;
+                    function submit() {
+                        modal.remove();
+                        resolve(1);
+                    }
+                    document.body.append(modal = JSX.createElement(Shadow, null,
+                        JSX.createElement("style", null, `button {
+                                border: none;
+                            }`),
+                        JSX.createElement("button", { onclick: submit }, "Resolve")));
+                });
+            }
+        </script>
+        <!--<style>
             html, body {
                 margin: 0;
                 height: 100%;
@@ -48,33 +68,99 @@
                 display: block;
             }
         </style>
-        <script>
-            const documentTitleState = JSX.createState(document.title).format(title => `${title} - SHML Editor`);
-            documentTitleState.connectCallback(t => document.title = t);
+        <script type="text/typescript">
+            const documentTitleState = JSX.createState(document.title).format(title=>`${title} - SHML Editor`);
+            documentTitleState.connectCallback(t=>document.title=t);
         </script>
-        <script>
+        <script type="text/typescript">
+
             function Dropdown(props, label, ...children) {
-                const style = `*{color:red}`;
-                return JSX.createElement(Shadow, null,
-                    JSX.createElement("style", null, style),
-                    JSX.createElement("div", { class: "dropdown" },
-                        JSX.createElement("span", null, label),
-                        JSX.createElement("div", null, children)));
-            }
-            function Shadow(_, ...children) {
-                const element = JSX.createElement('span');
-                element.attachShadow({ mode: 'open' });
-                element.shadowRoot.replaceChildren(...children);
-                return element;
+                const style = `*{color:red}`
+                return <Shadow>
+                    <style>{style}</style>
+                    <div class="dropdown">
+                        <span>{label}</span>
+                        <div>
+                            {children}
+                        </div>
+                    </div>
+                </Shadow>
             }
         </script>
+        <script type="text/typescript">
+            ElementFactory.define("app-dropdown", {
+                stylesheet: `
+                    :scope {
+                        display: inline-block;
+                        position: relative;
+                    }
+                    
+                    :scope>div {
+                        display: none;
+                        position: absolute;
+                    }
+                    
+                    :scope:hover>div {
+                        display: block;
+                        background-color: inherit;
+                    }
+
+                    :scope>div>a {
+                        display: block;
+                        padding: 0.5em;
+                    }
+                `
+            });
+        </script>-->
     </head>
     <body>
         <header>
-            <span><button>File</button><button>Edit</button><button>View</button><button>Help</button></span>
+            <span>
+                <app-dropdown>
+                    <span>File</span>
+                    <div>
+                        <a>New</a>
+                        <a>Open</a>
+                        <a>Save</a>
+                        <a>Save As</a>
+                        <a>Encrypt</a>
+                    </div>
+                </app-dropdown>
+                <app-dropdown>
+                    <span>Edit</span>
+                    <div>
+                        <a>New</a>
+                        <a>Open</a>
+                        <a>Save</a>
+                        <a>Save As</a>
+                        <a>Encrypt</a>
+                    </div>
+                </app-dropdown>
+                <app-dropdown>
+                    <span>View</span>
+                    <div>
+                        <a>New</a>
+                        <a>Open</a>
+                        <a>Save</a>
+                        <a>Save As</a>
+                        <a>Encrypt</a>
+                    </div>
+                </app-dropdown>
+                <app-dropdown>
+                    <span>Help</span>
+                    <div>
+                        <a>New</a>
+                        <a>Open</a>
+                        <a>Save</a>
+                        <a>Save As</a>
+                        <a>Encrypt</a>
+                    </div>
+                </app-dropdown>
+            </span>
             <span>
                 <script>
-                    $host.replaceChildren(JSX.createElement("span", null, documentTitleState));
+                    $ctx = JSX.createElement("span", null,
+                        JSX.createElement("input", { value: documentTitleState.get(), oninput: documentTitleState.consume('value') }));
                 </script>
             </span>
             <span></span>
@@ -88,9 +174,15 @@
                     JSX.createElement("button", null, "New"),
                     JSX.createElement("button", null, "Open")));
             </script>
+            <app-dropdown>
+                <span>Files</span>
+                <div>
+                    <a>Hello</a>
+                </div>
+            </app-dropdown>
         </main>
         <footer>
-            
+            <button onclick="xprompt().then(alert)">Test</button>
         </footer>
     </body>
 </html>

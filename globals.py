@@ -5,5 +5,12 @@ SCRIPTS = '''
         <script src="/assets/js/jsion.min.js"></script>
         <script src="/assets/js/jsx.min.js"></script>
         <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/elementfactory.min.js"></script>
+        <script src="/assets/js/elements.min.js"></script>
 '''
-title = 'Aaaa'
+FS_SCRIPTS = '''
+        <script src="/assets/js/arraymap.min.js"></script>
+        <script src="/assets/js/vfs.min.js"></script>
+'''
+TS='type="text/typescript"'

@@ -1,0 +1,78 @@
+ACTION=$1
+shift
+
+USERNAME=SteveBeeblebrox
+
+if [ ! $(ls | grep mtsc.exe) ]; then
+    echo "Error: mtsc.exe not found. Please dowload from https://github.com/$USERNAME/MTSC/releases"
+    return 1
+fi
+
+if [ ! $(ls | grep pt.exe) ]; then
+    echo "Error: pt.exe not found. Please dowload from https://github.com/$USERNAME/PT/releases"
+    return 1
+fi
+
+function minify() {
+    echo "//See $1 for license info."
+    curl -X POST -s --data-urlencode "input=$(cat $1)" https://www.toptal.com/developers/javascript-minifier/raw 2>/dev/null
+}
+
+function tsc() {
+    ./mtsc.exe --target=es2019 --jsx=JSX.createElement $1 --out=
+}
+
+function fetch() {
+    GIT_URL=https://raw.githubusercontent.com
+    DEFAULT_BRANCH=main
+    
+    curl $GIT_URL/$1/$DEFAULT_BRANCH/$2 2>/dev/null
+}
+
+function htmlx() {
+    python3 ./generator.py $1 | ./mtsc.exe --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out
+}
+
+if [ "$ACTION" == 'minify' ]; then
+    minify $@
+elif [ "$ACTION" == 'fetch' ]; then
+    fetch $@
+elif [ "$ACTION" == 'tsc' ]; then
+    tsc $@
+elif [ "$ACTION" == 'htmlx' ]; then
+    htmlx $@
+elif [ "$ACTION" == 'run' ]; then
+    python3 -m http.server --bind localhost
+elif [ "$ACTION" == 'debughtmlx' ]; then
+    bash build run&
+    while true; do 
+        inotifywait -e modify $1 &>/dev/null && htmlx $1 > $(./pt.exe $1 -e html)
+    done
+else
+    echo "Updating dependencies..."
+    
+    fetch $USERNAME/JSION jsion.ts > assets/ts/jsion.ts
+    fetch $USERNAME/SHML shml.ts > assets/ts/shml.ts
+
+    echo "Compiling TypeScript..."
+
+    for tsfile in $(ls assets/ts); do
+        tsc assets/ts/$tsfile > $(./pt.exe assets/ts/$tsfile ts~js '(?<=\.m|\.)ts$~~js')
+    done;
+
+    echo "Minifying JavaScript..."
+
+    for jsfile in $(ls assets/js | grep -vP '\.min\.m?js'); do
+        minify assets/js/$jsfile > $(./pt.exe assets/js/$jsfile '(?=\.m?js$)~~.min')
+    done;
+
+    echo "Generating HTML..."
+
+    for htmlxfile in $(find | grep -P '\.htmlx$'); do
+        htmlx $htmlxfile > $(./pt.exe $htmlxfile -e html)
+    done;
+
+    echo "Generating Sitemap..."
+
+    python3 ./sitemap.py
+fi
