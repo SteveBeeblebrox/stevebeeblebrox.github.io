@@ -11,22 +11,9 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var ElementFactory;
 (function (ElementFactory) {
-    function define(name, { attributes = new Map(), stylesheet, render, connect } = {}) {
-        var _a;
-        var _attributes, _observer, _b;
-        if (stylesheet) {
-            let styleElement = Object.assign(document.createElement('style'), { textContent: stylesheet });
-            document.implementation.createHTMLDocument().body.appendChild(styleElement);
-            const sheet = styleElement.sheet;
-            for (const rule of Object.values([...sheet.cssRules])) {
-                let split = rule.cssText.split('{');
-                let selector = ((_a = split.shift()) !== null && _a !== void 0 ? _a : '').replace(/:scope/g, name), properties = split.join('{');
-                sheet.insertRule(`${selector} {${properties}`, sheet.cssRules.length);
-                sheet.deleteRule(0);
-            }
-            document.head.appendChild(Object.assign(document.createElement('style'), { textContent: [...sheet.cssRules].map(rule => rule.cssText).join(' ') }));
-        }
-        window.customElements.define(`${name}`, (_b = class extends HTMLElement {
+    function define(name, { attributes = new Map(), render, connect } = {}) {
+        var _attributes, _observer, _a;
+        window.customElements.define(`${name}`, (_a = class extends HTMLElement {
                 constructor() {
                     var _a, _b;
                     super();
@@ -90,7 +77,7 @@ var ElementFactory;
             },
             _attributes = new WeakMap(),
             _observer = new WeakMap(),
-            _b));
+            _a));
         return window.customElements.get(name);
     }
     ElementFactory.define = define;

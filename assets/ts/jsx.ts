@@ -106,9 +106,9 @@ namespace JSX {
 
     export const createElement = (function() {
         function createElement<K extends keyof HTMLElementTagNameMap>(name: K, properties: Properties | null, ...children: Node[]): HTMLElementTagNameMap[K]
-        function createElement(tag: ElementType, properties: Properties | null, ...children: Node[]): Node {
+        function createElement(tag: ElementType, properties: Properties | null, ...children: (Node|HTMLCollection)[]): Node {
             if(typeof tag === 'function')
-                return tag(properties, ...children)
+                return tag(properties, ...children.map(o=>o instanceof HTMLCollection ? [...o]:o).flat())
             
             const element = (function() {
                 switch(tag) {
@@ -145,6 +145,11 @@ namespace JSX {
             }
             
             for(let child of children.flat()) {
+                if(child instanceof HTMLCollection) {
+                    element.append(...child);
+                    continue;
+                }
+
                 if(child instanceof StateBase) {
                     const text = document.createTextNode('')
                     child.connectWeakCallback([text],(t,text)=>text.textContent=t);

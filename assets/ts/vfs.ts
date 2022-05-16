@@ -220,7 +220,7 @@ class VFS {
                 return JSON.parse(value);
         }), home);
     }
-    static load(key: string) {
+    static load(key: `vfs:${string}`) {
         const vfs = globalThis.localStorage.getItem(key) !== null ? VFS.deserialize(LZWCompression.unzip(globalThis.localStorage.getItem(key)!)) : new VFS();
         vfs.saveKey = key;
         return vfs;

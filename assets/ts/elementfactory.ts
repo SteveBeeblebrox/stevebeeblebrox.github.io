@@ -1,19 +1,5 @@
 namespace ElementFactory {
-    export function define(name: `${string}-${string}`, {attributes=new Map(),stylesheet,render,connect}: {attributes?: Map<string,any>,stylesheet?:string,render?:()=>void,connect?:()=>void} = {} as any) {
-        if(stylesheet) {
-            let styleElement = Object.assign(document.createElement('style'), {textContent: stylesheet});
-            document.implementation.createHTMLDocument().body.appendChild(styleElement);
-            const sheet = styleElement.sheet!;
-            for(const rule of Object.values([...sheet.cssRules])) {
-                let split = rule.cssText.split('{')
-                let selector = (split.shift() ?? '').replace(/:scope/g, name), properties = split.join('{')
-                sheet.insertRule(`${selector} {${properties}`, sheet.cssRules.length)
-                
-                sheet.deleteRule(0)
-            }
-            document.head.appendChild(Object.assign(document.createElement('style'), {textContent: [...sheet.cssRules].map(rule => rule.cssText).join(' ')}));
-        }
-        
+    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect}: {attributes?: Map<string,any>,render?:()=>void,connect?:()=>void} = {} as any) {
         window.customElements.define(`${name}`, class extends HTMLElement {
             #attributes: Map<string, any>;
             #observer: MutationObserver;

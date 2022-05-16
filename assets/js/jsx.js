@@ -83,7 +83,7 @@ var JSX;
     JSX.createElement = (function () {
         function createElement(tag, properties, ...children) {
             if (typeof tag === 'function')
-                return tag(properties, ...children);
+                return tag(properties, ...children.map(o => o instanceof HTMLCollection ? [...o] : o).flat());
             const element = (function () {
                 switch (tag) {
                     case null: return document.createDocumentFragment();
@@ -115,6 +115,10 @@ var JSX;
                 }
             }
             for (let child of children.flat()) {
+                if (child instanceof HTMLCollection) {
+                    element.append(...child);
+                    continue;
+                }
                 if (child instanceof StateBase) {
                     const text = document.createTextNode('');
                     child.connectWeakCallback([text], (t, text) => text.textContent = t);

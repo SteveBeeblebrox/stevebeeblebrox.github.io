@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        %{SCRIPTS}
+        %{VFS_SCRIPTS}
+        <title>File Manager</title>
+        <script>console.log(`Loaded at ${new Date()}`)</script>
+        <script %{COMPILE_TS}>
+            const {Shadow} = Elements
+            const vfs = VFS.load('vfs:shared')
+            vfs.touch('text.txt')
+            vfs.write('text.txt', 'Hello World!')
+            vfs.mkdir('Documents')
+            vfs.touch('Documents/test2.txt')
+        </script>
+        <style>
+            hover-switch>* {
+                display: none;
+            }
+            hover-switch:not(:hover)>:not(:first-child), hover-switch:hover>:first-child {
+                display: unset;
+            }
+            .char {
+                height: 1em;
+                width: auto;
+            }
+        </style>
+        <script>
+            ElementFactory.define('hover-switch')
+        </script>
+    </head>
+    <body>
+        <header>
+        </header>
+        <main>
+            <hover-switch>
+                <svg xmlns="http://www.w3.org/2000/svg" class="char" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1H8a3 3 0 00-3 3v1.5a1.5 1.5 0 01-3 0V6z" clip-rule="evenodd" />
+                    <path d="M6 12a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H2h2a2 2 0 002-2v-2z" />
+                  </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="char" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                </svg>
+            </hover-switch>
+            <script %{COMPILE_TS}>
+                $ctx=<div>{
+                    vfs.ls().map(path=><p>{vfs.typeOf(path)}{vfs.fname(path)}</p>)
+                }</div>
+            </script>
+        </main>
+        <footer>
+        </footer>
+    </body>
+</html>

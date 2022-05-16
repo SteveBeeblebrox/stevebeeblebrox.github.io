@@ -4,37 +4,31 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/assets/css/reset.css">
         %{SCRIPTS}
         <title>Untitled</title>
-        <script %{TS}>
-            const {Shadow} = Elements
-
-            function xprompt() {
-                return new Promise(function(resolve) {
-                    let modal;
-                    function submit() {
-                        modal.remove();
-                        resolve(1)
-                    }
-
-                    document.body.append(modal=<Shadow>
-                        <style>
-                            {`button {
-                                border: none;
-                            }`}
-                        </style>
-                        <button onclick={submit}>Resolve</button>
-                    </Shadow>)
-                })
-            }
-        </script>
-        <!--<style>
-            html, body {
+        <script>console.log(`Loaded at ${new Date()}`)</script>
+        <style>
+            body, html {
+                padding: 0;
                 margin: 0;
                 height: 100%;
-            }
-            body {
                 font-family: Arial, Helvetica, sans-serif;
+            }
+            #preview iframe {
+                height: 100%;
+                width: 100%;
+                border: none;
+            }
+            main {
+                display: flex;
+                flex-direction: row;
+            }
+            main>* {
+                flex-grow: 2;
+            }
+            main:first-child {
+                flex-grow: 1;
             }
             header {
                 display: flex;
@@ -47,139 +41,109 @@
                 flex-grow: 1;
                 flex-basis: 0;
             }
-            header button {
+            select {
+                width: max-content
+            }
+            select-menu option {
+                font-family: monospace;
+            }
+            select-menu select {
+                -webkit-appearance: none;
+                background-color: transparent;
+                font-size: 100%;
+                outline: none;
                 border: none;
+                cursor: pointer;
             }
-
-            .dropdown {
-                position: relative;
-                display: inline-block;
-            }
-
-            .dropdown div {
-                display: none;
-                position: absolute;
-            }
-
-            .dropdown:hover div {
-                display: block;
+            input {
+                width: min-content;
             }
         </style>
-        <script type="text/typescript">
-            const documentTitleState = JSX.createState(document.title).format(title=>`${title} - SHML Editor`);
-            documentTitleState.connectCallback(t=>document.title=t);
-        </script>
-        <script type="text/typescript">
-
-            function Dropdown(props, label, ...children) {
-                const style = `*{color:red}`
-                return <Shadow>
-                    <style>{style}</style>
-                    <div class="dropdown">
-                        <span>{label}</span>
-                        <div>
-                            {children}
-                        </div>
-                    </div>
-                </Shadow>
-            }
-        </script>
-        <script type="text/typescript">
-            ElementFactory.define("app-dropdown", {
-                stylesheet: `
-                    :scope {
-                        display: inline-block;
-                        position: relative;
-                    }
-                    
-                    :scope>div {
-                        display: none;
-                        position: absolute;
-                    }
-                    
-                    :scope:hover>div {
-                        display: block;
-                        background-color: inherit;
-                    }
-
-                    :scope>div>a {
-                        display: block;
-                        padding: 0.5em;
-                    }
-                `
+        <script %{TS}>
+            const activeDocumentTitle = JSX.createState('Untitled');
+            activeDocumentTitle.connectCallback(t => {
+                if($`header input`) $it.style.width=`${Math.min(20,t.length)}ch`
             });
-        </script>-->
+
+
+            activeDocumentTitle.format(o=>`${o} - SHML Editor`).connectCallback(t=>document.title=t);
+
+            const keybinds = new Map(Object.entries({
+                'Ctrl+S'() {
+                    alert(1)
+                }
+            }));
+
+            const menuActions = new Map(Object.entries({
+                'file.new'() {
+                    console.log('new...');
+                }
+            }));
+
+            window.$on('load', function() {
+                document.body.$on('keydown', function(event) {
+                    const id = `${event.ctrlKey ? 'Ctrl+' : ''}${event.altKey ? 'Alt+' : ''}${event.shiftKey ? 'Shift+' : ''}${event.key.toUpperCase()}`;
+                    if(keybinds.has(id)) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        keybinds.get(id)();
+                    }
+                })
+            });
+        </script>
     </head>
     <body>
         <header>
             <span>
-                <app-dropdown>
-                    <span>File</span>
-                    <div>
-                        <a>New</a>
-                        <a>Open</a>
-                        <a>Save</a>
-                        <a>Save As</a>
-                        <a>Encrypt</a>
-                    </div>
-                </app-dropdown>
-                <app-dropdown>
-                    <span>Edit</span>
-                    <div>
-                        <a>New</a>
-                        <a>Open</a>
-                        <a>Save</a>
-                        <a>Save As</a>
-                        <a>Encrypt</a>
-                    </div>
-                </app-dropdown>
-                <app-dropdown>
-                    <span>View</span>
-                    <div>
-                        <a>New</a>
-                        <a>Open</a>
-                        <a>Save</a>
-                        <a>Save As</a>
-                        <a>Encrypt</a>
-                    </div>
-                </app-dropdown>
-                <app-dropdown>
-                    <span>Help</span>
-                    <div>
-                        <a>New</a>
-                        <a>Open</a>
-                        <a>Save</a>
-                        <a>Save As</a>
-                        <a>Encrypt</a>
-                    </div>
-                </app-dropdown>
+                <select-menu data-actions="menuActions" data-keybindings="keybinds">
+                    <option selected disabled hidden value="file">File</option>
+                    <option value="save" data-keybind="Ctrl+S">Save</option>
+                    <option value="save-as" data-keybind="Ctrl+Shift+S">Save As...</option>
+                    <option value="save-as">Download...</option>
+                    <option value="new">New File...</option>
+                    <option value="open" data-keybind="Ctrl+O">Open File...</option>
+                </select-menu>
             </span>
-            <span>
-                <script type="text/typescript">
-                    $ctx=<span><input value={documentTitleState.get()} oninput={documentTitleState.consume('value')}/></span>
-                </script>
-            </span>
+            
+            <span><script %{TS}>$ctx=<input placeholder="Untitled" value={activeDocumentTitle} type="text" oninput={activeDocumentTitle.consume('value')}/></script> - SHML Editor</span>
             <span></span>
         </header>
         <main>
-            <section id="sidebar"></section>
-            <section id="workspace"></section>
-            <script type="text/typescript">
-                $host.replaceChildren(<Dropdown>
-                    <label>Files</label>    
-                    <button>New</button>
-                    <button>Open</button>
-                </Dropdown>)
-            </script>
-            <app-dropdown>
-                <span>Files</span>
-                <div>
-                    <a>Hello</a>
-                </div>
-            </app-dropdown>
+            <section>
+                <p>Outline</p>
+                <dl id="outline">
+                </dl>
+            </section>
+            <section>
+                <div contenteditable="true" style="white-space: pre" oninput="render.bind(this)()"></div>
+                <script>
+                    $last.$on('paste', function(event) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        const selection = window.getSelection();
+                        if (!selection.rangeCount) return false;
+                        selection.deleteFromDocument();
+                        selection.getRangeAt(0).insertNode(document.createTextNode(event.clipboardData.getData('Text')));
+                        render.bind(this)()
+                    });
+                </script>
+                <iframe id="preview"></iframe>
+                <script %{TS}>
+                    function render() {
+                        const html = SHML.parseMarkup(this.innerText)
+
+                        $`#preview`.contentWindow.document.body.innerHTML = html
+                        $`#outline`.replaceChildren(
+                            ...$$('[id]', $`iframe`.contentWindow.document).$toArray().map(o=><dd>{o.textContent}</dd>)
+                        )
+                        $`#properties`.replaceChildren(
+                            ...$$('[id]', $`iframe`.contentWindow.document).$toArray().map(o=><dd>{o.textContent}</dd>)
+                        )
+                    }
+                </script>
+            </section>
         </main>
         <footer>
-            <button onclick="xprompt().then(alert)">Test</button>
         </footer>
     </body>
 </html>
