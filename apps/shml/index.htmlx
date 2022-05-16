@@ -4,146 +4,128 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/assets/css/reset.css">
         %{SCRIPTS}
         <title>Untitled</title>
         <script>console.log(`Loaded at ${new Date()}`)</script>
         <style>
             body, html {
-                padding: 0;
                 margin: 0;
+                padding: 0;
                 height: 100%;
-                font-family: Arial, Helvetica, sans-serif;
             }
-            #preview iframe {
-                height: 100%;
-                width: 100%;
-                border: none;
-            }
-            main {
+            body {
                 display: flex;
-                flex-direction: row;
-            }
-            main>* {
-                flex-grow: 2;
-            }
-            main:first-child {
-                flex-grow: 1;
+                flex-direction: column;
             }
             header {
+                background-color: brown;
+            }
+            main {
+                flex-grow: 1;
+                background-color: dodgerblue;
+            }
+            footer {
+                background-color: darkviolet;
+            }
+            .flex-distribute {
                 display: flex;
+                flex-direction: row;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0.5em;
-                background-color: #eee;
             }
-            header>span:not(:nth-of-type(2)) {
+            .flex-distribute>span:not(:nth-of-type(2)) {
                 flex-grow: 1;
                 flex-basis: 0;
             }
-            select {
-                width: max-content
-            }
-            select-menu option {
-                font-family: monospace;
-            }
-            select-menu select {
-                -webkit-appearance: none;
-                background-color: transparent;
-                font-size: 100%;
-                outline: none;
-                border: none;
-                cursor: pointer;
-            }
-            input {
-                width: min-content;
+            .flex-distribute>span:last-of-type {
+                text-align: right;
             }
         </style>
+        <style type="text/less">
+            .flex-distribute {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+
+                &>span:not(:nth-of-type(2)) {
+                    flex-grow: 1;
+                    flex-basis: 0;
+                }
+                &>span:last-of-type {
+                    text-align: right;
+                }
+            }
+        </style>
+        
+        
         <script %{TS}>
-            const activeDocumentTitle = JSX.createState('Untitled');
-            activeDocumentTitle.connectCallback(t => {
-                if($`header input`) $it.style.width=`${Math.min(20,t.length)}ch`
-            });
+            const titleState = JSX.createState(document.title);
+            const formattedTitleState= titleState.format(o=>o+' - SHML Editor');
+            formattedTitleState.connectCallback(t=>document.title=t);
 
+            async function fromArchive(text, password = () => prompt('Enter the password to view document')) {
+                let {type, version, compression, encryption, contents} = text.match(/^:(?<type>[\s\S]*?):(?<version>[\s\S]*?):(?:(?<compression>[\s\S]*?):)?(?:(?<encryption>[\s\S]*?):)?\n(?<contents>.*)$/)?.groups
+                if(type !== 'SHML')
+                    throw new Error(`Unsupported type: ${type}`);
+                
+                if(compression === 'LZW')
+                    contents = LZWCompression.unzip(contents);
+                else if(compression !== 'NONE')
+                    throw new Error(`Unsupported compression: ${compression}`);
+                
+                if(encryption === 'AES-GCM')
+                    contents = await AESGCMEncryption.decrypt(contents, typeof password === 'string' ? password : password());
+                else if(encryption !== 'NONE')
+                    throw new Error(`Unsupported encryption: ${encryption}`);
+                
+                return contents;
+            }
+            async function toArchive(text, password) {
+                if(password != null)
+                    text = await AESGCMEncryption.encrypt(text, password);
+                return `:SHML:${SHML.VERSION}:LZW:${password != null ? 'AES-GCM' : 'NONE'}:\n${LZWCompression.zip(text)}`;
+            }
 
-            activeDocumentTitle.format(o=>`${o} - SHML Editor`).connectCallback(t=>document.title=t);
-
-            const keybinds = new Map(Object.entries({
-                'Ctrl+S'() {
-                    alert(1)
-                }
-            }));
-
-            const menuActions = new Map(Object.entries({
-                'file.new'() {
-                    console.log('new...');
-                }
-            }));
-
-            window.$on('load', function() {
-                document.body.$on('keydown', function(event) {
-                    const id = `${event.ctrlKey ? 'Ctrl+' : ''}${event.altKey ? 'Alt+' : ''}${event.shiftKey ? 'Shift+' : ''}${event.key.toUpperCase()}`;
-                    if(keybinds.has(id)) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        keybinds.get(id)();
-                    }
-                })
+            window.$on('load', async function() {
+                const params = new URLSearchParams(window.location.search);
+                //if(params.has('share')) $`div[contenteditable]`.innerText = await fromArchive(decodeURIComponent(params.get('share')))
             });
         </script>
     </head>
     <body>
-        <header>
-            <span>
-                <select-menu data-actions="menuActions" data-keybindings="keybinds">
-                    <option selected disabled hidden value="file">File</option>
-                    <option value="save" data-keybind="Ctrl+S">Save</option>
-                    <option value="save-as" data-keybind="Ctrl+Shift+S">Save As...</option>
-                    <option value="save-as">Download...</option>
-                    <option value="new">New File...</option>
-                    <option value="open" data-keybind="Ctrl+O">Open File...</option>
-                </select-menu>
-            </span>
-            
-            <span><script %{TS}>$ctx=<input placeholder="Untitled" value={activeDocumentTitle} type="text" oninput={activeDocumentTitle.consume('value')}/></script> - SHML Editor</span>
-            <span></span>
+        <header class="flex-distribute">
+            <span>Left</span>
+            <script %{TS}>$ctx=<span>{formattedTitleState}</span></script>
+            <span>b</span>
         </header>
         <main>
-            <section>
-                <p>Outline</p>
-                <dl id="outline">
-                </dl>
-            </section>
-            <section>
-                <div contenteditable="true" style="white-space: pre" oninput="render.bind(this)()"></div>
-                <script>
-                    $last.$on('paste', function(event) {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        const selection = window.getSelection();
-                        if (!selection.rangeCount) return false;
-                        selection.deleteFromDocument();
-                        selection.getRangeAt(0).insertNode(document.createTextNode(event.clipboardData.getData('Text')));
-                        render.bind(this)()
-                    });
-                </script>
-                <iframe id="preview"></iframe>
-                <script %{TS}>
-                    function render() {
-                        const html = SHML.parseMarkup(this.innerText)
-
-                        $`#preview`.contentWindow.document.body.innerHTML = html
-                        $`#outline`.replaceChildren(
-                            ...$$('[id]', $`iframe`.contentWindow.document).$toArray().map(o=><dd>{o.textContent}</dd>)
-                        )
-                        $`#properties`.replaceChildren(
-                            ...$$('[id]', $`iframe`.contentWindow.document).$toArray().map(o=><dd>{o.textContent}</dd>)
-                        )
-                    }
-                </script>
-            </section>
+            <!--<div></div>
+            <div id="textbox" contenteditable></div>
+            <script>
+                const textbox = $last;
+                textbox.$on('paste', function(event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const selection = window.getSelection();
+                    if (!selection.rangeCount) return false;
+                    selection.deleteFromDocument();
+                    selection.getRangeAt(0).insertNode(document.createTextNode(event.clipboardData.getData('Text')));
+                });
+            </script>
+            <iframe id="preview"></iframe>
+            <script>
+                const preview = $last;
+                new MutationObserver(function() {
+                    preview.contentWindow.document.body.innerHTML = SHML.parseMarkup(textbox.innerText);
+                }).observe(textbox, {childList: true, subtree: true, characterData: true});
+            </script>-->
+            foo
         </main>
-        <footer>
+        <footer class="flex-distribute">
+            <span>a</span>
+            <span>a</span>
+            <script %{TS}>$ctx=<span>v{SHML.VERSION}</span></script>
         </footer>
     </body>
 </html>
