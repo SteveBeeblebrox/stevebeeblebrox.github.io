@@ -1,3 +1,2 @@
-mtsc.exe
-pt.exe
+*.exe
 __pycache__/

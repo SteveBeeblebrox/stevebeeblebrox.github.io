@@ -4,12 +4,17 @@ shift
 USERNAME=SteveBeeblebrox
 
 if [ ! $(ls | grep mtsc.exe) ]; then
-    echo "Error: mtsc.exe not found. Please dowload from https://github.com/$USERNAME/MTSC/releases"
+    echo "Error: mtsc.exe not found. Please download from https://github.com/$USERNAME/MTSC/releases"
     return 1
 fi
 
 if [ ! $(ls | grep pt.exe) ]; then
-    echo "Error: pt.exe not found. Please dowload from https://github.com/$USERNAME/PT/releases"
+    echo "Error: pt.exe not found. Please download from https://github.com/$USERNAME/PT/releases"
+    return 1
+fi
+
+if [ ! $(ls | grep mless.exe) ]; then
+    echo "Error: mless.exe not found. Please download from https://github.com/$USERNAME/MLESS/releases"
     return 1
 fi
 
@@ -30,7 +35,7 @@ function fetch() {
 }
 
 function htmlx() {
-    python3 ./generator.py $1 | ./mtsc.exe --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out
+    python3 ./generator.py $1 | ./mtsc.exe --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out | ./mless.exe --html --verbose --out
 }
 
 if [ "$ACTION" == 'minify' ]; then
