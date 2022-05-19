@@ -338,7 +338,7 @@ var DomLib;
     // define $host on ShadowRoot, Element, Document, DocumentFragment
     DomLib.$host = undefined;
     {
-        Object.defineProperty(DomLib, '$host', { get() { var _a; return (_a = document.currentScript) === null || _a === void 0 ? void 0 : _a.parentElement; } });
+        Object.defineProperty(DomLib, '$host', { get() { var _a, _b; return (_b = (_a = document.currentScript) === null || _a === void 0 ? void 0 : _a.parentElement) !== null && _b !== void 0 ? _b : null; } });
         [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', { enumerable: true, configurable: !!options.debug, get() { return this; } }));
     }
     // export const $last
@@ -348,7 +348,7 @@ var DomLib;
         const observer = new MutationObserver(mutations => mutations.forEach(mutation => { const node = [...mutation.addedNodes].pop(); if (node instanceof HTMLElement && !(node instanceof HTMLScriptElement))
             _lastAddedElement = node; }));
         observer.observe(document.documentElement, { childList: true, subtree: true });
-        window.addEventListener('load', () => { observer.disconnect(); _lastAddedElement = undefined; });
+        window.addEventListener('load', () => { observer.disconnect(); _lastAddedElement = null; });
         Object.defineProperty(DomLib, '$last', { enumerable: true, configurable: !!options.debug, get() { return _lastAddedElement; } });
     }
     // export const $ctx

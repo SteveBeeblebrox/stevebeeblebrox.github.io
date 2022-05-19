@@ -395,18 +395,18 @@ namespace DomLib {
     // define $host on ShadowRoot, Element, Document, DocumentFragment
     export const $host: Element | null | undefined = undefined;
     {
-        Object.defineProperty(DomLib, '$host', {get() {return document.currentScript?.parentElement}});
+        Object.defineProperty(DomLib, '$host', {get() {return document.currentScript?.parentElement ?? null}});
         [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:true,configurable:!!options.debug,get(){return this}}));
     }
 
     
     // export const $last
-    export const $last: Element | undefined = undefined;
+    export const $last: Element | null | undefined = undefined;
     {
-        let _lastAddedElement: Element | undefined = undefined;
+        let _lastAddedElement: Element | null | undefined = undefined;
         const observer = new MutationObserver(mutations => mutations.forEach(mutation => {const node = [...mutation.addedNodes].pop(); if(node instanceof HTMLElement && !(node instanceof HTMLScriptElement)) _lastAddedElement = node}));
         observer.observe(document.documentElement, {childList: true, subtree: true});
-        window.addEventListener('load', () => {observer.disconnect(); _lastAddedElement = undefined});
+        window.addEventListener('load', () => {observer.disconnect(); _lastAddedElement = null});
         Object.defineProperty(DomLib, '$last', {enumerable:true,configurable:!!options.debug,get(){return _lastAddedElement}});
     }
 

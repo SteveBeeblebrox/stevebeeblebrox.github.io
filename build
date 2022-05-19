@@ -27,6 +27,10 @@ function tsc() {
     ./mtsc.exe --target=es2019 --jsx=JSX.createElement $1 --out=
 }
 
+function less() {
+    ./mless.exe $1 --out=
+}
+
 function fetch() {
     GIT_URL=https://raw.githubusercontent.com
     DEFAULT_BRANCH=main
@@ -42,6 +46,8 @@ if [ "$ACTION" == 'minify' ]; then
     minify $@
 elif [ "$ACTION" == 'fetch' ]; then
     fetch $@
+elif [ "$ACTION" == 'less' ]; then
+    less $@
 elif [ "$ACTION" == 'tsc' ]; then
     tsc $@
 elif [ "$ACTION" == 'htmlx' ]; then

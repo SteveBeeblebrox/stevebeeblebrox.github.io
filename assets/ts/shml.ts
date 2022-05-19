@@ -23,7 +23,7 @@
 
 namespace SHML {
 
-    export const VERSION = '1.6.0';
+    export const VERSION = '1.6.2';
 
     function cyrb64(text: string, seed = 0) {
         let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
@@ -168,10 +168,11 @@ namespace SHML {
                 }
             }});
 
-            args.set('unicode_shortcut', {pattern: /(?<=\b)(?:TM|SS)(?=\b)|\([cCrR]\)|-&gt;|&lt;-/g, reviver({text}) {
+            args.set('unicode_shortcut', {pattern: /(?<=\b)(?:TM|SS|PG|SM)(?=\b)|\([cCrR]\)|-&gt;|&lt;-/g, reviver({text}) {
                 switch(text) {
-                    case 'SS': return '&section;'
-                    case 'PG': return '&para;'
+                    case 'SS': return '&sect;';
+                    case 'PG': return '&para;';
+                    case 'SM': return '&#8480;';
                     case 'TM': return '&trade;';
                     case '(C)':
                     case '(c)': return '&copy';
@@ -196,7 +197,7 @@ namespace SHML {
             args.set('sub', {pattern: SimpleInlineRegExp(',,')});
 
             args.set('mark', {pattern: /(\|\|)(\[(?:color=)?(?<color>[^;]*?)\])?(?<TEXT>.*?)\1/g, reviver({groups}) {
-                return `<mark${groups.color ? ` style="color:${groups.color}"`: ''}>${groups.TEXT}</mark>`
+                return `<mark${groups.color ? ` style="background-color:${groups.color}"`: ''}>${groups.TEXT}</mark>`
             }});
 
             args.set('span', {pattern: /(&amp;&amp;)(\[(?:color=)?(?<color>[^;]*?)\])?(?<TEXT>.*?)\1/g, reviver({groups}) {
@@ -254,7 +255,7 @@ namespace SHML {
                 }).trim(), groups.language, false) : groups.text.trim()}</code></pre>`;
             }});
 
-            args.set('property', {pattern: /^\s*?!\s*?(?<key>[a-zA-Z_][a-zA-Z_0-9]*?)(?<!http|https):(?<value>.*?)(?=\n)/gm, isInline: false, reviver({groups}) {
+            args.set('property', {pattern: /^\s*?!\s*?(?<key>[a-zA-Z_][a-zA-Z_0-9]*?)(?<!http|https):(?<value>.*?)$/gm, isInline: false, reviver({groups}) {
                 properties.set(groups.key, groups.value.trim())
                 return ''
             }});
@@ -293,11 +294,11 @@ namespace SHML {
                 return `<table>${groups.title ? `\n<caption>${groups.title.trim()}</caption>`: ''}\n<thead>${rows.shift()}\n<thead>\n<tbody>${rows.join('')}\n<tbody>\n</table>`
             }})
 
-            args.set('bull', {pattern: /(?<text>(?<=\n|^)(?<whitespace>[^\S\n\r]*)\+ .*(?:\n\k<whitespace>\+ .*)?)/g, isInline: false, reviver({groups}) {
+            args.set('bull', {pattern: /(?<text>(?<=\n|^)(?<whitespace>[^\S\n\r]*)\+ .*(?:\n\k<whitespace>\+ .*)*)/g, isInline: false, reviver({groups}) {
                 return `<ul>\n${groups.text.split('\n').filter((line:string)=>line.trim()).map((line:string)=>`<li>${line.replace(/^\s*?\+\s*/, '')}</li>`).join('\n')}\n</ul>`
             }})
 
-            args.set('list', {pattern: /(?<text>(?<=\n|^)(?<whitespace>[^\S\n\r]*)\d+[.)] .*(?:\n\k<whitespace>\d+[.)] .*)?)/g, isInline: false, reviver({groups}) {
+            args.set('list', {pattern: /(?<text>(?<=\n|^)(?<whitespace>[^\S\n\r]*)\d+[.)] .*(?:\n\k<whitespace>\d+[.)] .*)*)/g, isInline: false, reviver({groups}) {
                 return `<ol>\n${groups.text.split('\n').filter((line:string)=>line.trim()).map((line:string)=>`<li>${line.replace(/^\s*?\d+[.)] \s*/, '')}</li>`).join('\n')}\n</ol>`
             }})
 

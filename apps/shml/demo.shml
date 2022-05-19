@@ -1,0 +1,247 @@
+# Welcome to the SHML Demo
+## Introduction
+### Inline Formatting
+#### Escaped text
+`\\*` -> \* (For any special character)
+
+`\<</**text**/>>` -> <</**text**/>> (For more than one special characters)
+
+
+
+#### Comments
+`\<!-- text -->` -> Leave a comment visible in the compiled HTML, but not visible to the end user
+
+
+`\<!!-- text --> ` -> A comment only in the source file
+
+
+#### Code
+`\`text\`` -> `text` (For monospaced font) 
+
+
+#### Special Characters
+`/!/` -> /!/
+
+
+`/?/` -> /?/
+
+
+`/~n/` -> /~n/ (For many different letters and marks)
+
+
+`SS` -> SS
+
+
+`PG` -> PG
+
+
+`TM` -> TM
+
+
+`(R)` or `(r)` -> (r)
+
+
+`(c)` or `(c)` -> (c)
+
+
+
+`->` -> ->
+
+
+`<-` -> <-
+
+
+#### Common Formatting
+`*text*` -> *text*
+
+
+
+`**text**` -> **text**
+
+
+`***text***` -> ***text***
+
+
+
+`__text__` -> __text__
+
+
+`~~text~~` -> ~~text~~
+
+
+`x^^2^^` -> x^^2^^
+
+
+`H,,2,,O` -> H,,2,,O
+
+
+`||text||` -> ||text||
+
+
+`||[color=cyan]text||` -> ||[color=cyan]text|| (Works with any CSS color)
+
+
+
+`&&text&&` -> &&text&&
+
+
+`&&[color=magenta]text&&` -> &&[color=magenta]text&& (Works with any CSS color)
+
+
+
+#### Spoilers
+`<?text?>` -> <?text?> (Click to reveal)
+
+
+#### Custom Tokens
+`:text:` -> Application controlled substitution, often used for emojis
+
+
+#### Line Control
+`\\p` -> Non breaking space
+
+
+`\\t` -> Tab character
+
+
+`\\n` -> New Line
+
+
+`te-/-xt` -> Suggest where a word should break if needed
+
+
+#### Links
+`[https://google.com](Google)` -> [https://google.com](Google) (Opens in current tab)
+
+
+`+[https://google.com](Google)` -> +[https://google.com](Google) (Opens in new tab)
+
+
+
+`+[mailto:bob@example.com](Bob's Email)` -> +[mailto:bob@example.com](Bob's Email) (`tel` and `mailto` links are also supported; however, other protocols are forbidden)
+
+
+
+`https://google.com` -> https://google.com (Links starting with `www` or `http(s)` link by themselves)
+
+
+`bob@example.com` -> bob@example.com (Simple emails link by themselves)
+
+
+#### HTML
+The `code`, `em`, `i`, `strong`, `b`, `u`, `del`, `sup`, `sub`, `mark`, `span`, `wbr`, and `br` tags may be used like normal HTML so long as they have no attributes (Ex `<b>text</b>` -> <b>text</b>).
+
+
+### Block Formatting
+
+
+#### Inherited Inline Formatting
+All Inline Formatting also works as Block Formatting
+
+
+#### Code Blocks
+See Code Highlighting below
+
+
+#### Properties and Templates
+!key: my value
+`!key: my value` -> Sets "`key`" to "`my value`", see the Properties panel to the left. Note that keys cannot have spaces, while values are unrestricted and get whitespace trimmed
+
+
+`\${key}` -> ${key} (Interpolates the value of `key`)
+
+
+#### Images
+TODO
+
+
+#### Summary Elements
+```!! Summary (click to expand) [ 
+    Details
+    More Text
+]``` ->
+!! Summary (click to expand) [
+    Details
+    More Text
+]
+or use a `>` or `v` to force it to a certain state: 
+`!v! Summary (click to expand) [ Details ]` ->
+!v! Summary (click to expand) [ Details ]
+
+
+
+#### Text alignment
+```
+@@ centered
+text
+@@ reset
+```
+@@ centered
+text
+@@ reset
+
+
+(Works for `left`, `right`, `centered`, and `justified` text)
+
+
+#### Headers
+TODO
+
+
+#### Horizontal Line
+`---` or `===` (3 or more of either `-` or `=`)
+---
+
+
+#### Tables
+TODO
+
+
+#### Lists
+```
++ Item
++ Item
++ Item
+```
+
+
++ Item
++ Item
++ Item
+
+
+```
+1. Item
+2. Item
+```
+
+1. Item
+2. Item
+
+
+```
+1) Item
+2) Item
+```
+1) Item
+2) Item
+
+
+#### Quotes
+```
+>>> "Quote"
+>>> - Bob Smith
+```
+>>> "Quote"
+>>>  - Bob Smith
+
+
+#### HTML
+In addition to the allowed inline HTML tags, `h1`-`h6`, `hr`, `blockquote`, `ul`, `ol`, and `li` may be used like in normal HTML
+
+
+#### Paragraphs
+All other text gets wrapped in a paragraph
+
+
+###Code Highlighting
