@@ -13,8 +13,8 @@ Inline formatting provides markup for text that could then be placed inside most
 #### Code
 `\`text\`` -> `text` (For monospaced font, note that any previously mentioned characters still need to be escaped) 
 #### Special Characters
-`/!/` -> /!/
-`/?/` -> /?/
+`/!/` -> /!/  
+`/?/` -> /?/  
 `/~n/` -> /~n/ (For many different letters and marks)
 
 `SS` -> SS  
@@ -183,9 +183,9 @@ SHML can highlight the following languages: HTML, CSS, JavaScript, TypeScript, X
 ```java
 package com.example;
 
-
 @ExampleAnnotation
 class Main {
+    // Main method
     public static void main(String[] args) {
         for(int i = 0; i < 10; i++)
             System.out.println("Hello World!");
