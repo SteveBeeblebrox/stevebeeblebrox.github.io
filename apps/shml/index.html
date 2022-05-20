@@ -79,6 +79,9 @@
               color: #333;
               outline: none;
             }
+            div[contenteditable] {
+              white-space: pre-wrap;
+            }
             button {
               cursor: pointer;
               border: none;
@@ -104,6 +107,7 @@
             }
             main > iframe {
               border: none;
+              padding-right: 0;
             }
             main > * {
               flex-grow: 1;
@@ -116,6 +120,10 @@
             }
             main > div[contenteditable] {
               background: whitesmoke;
+            }
+            main > :not(:first-child) {
+              padding-top: 0;
+              padding-bottom: 0;
             }
             table,
             tr {
@@ -295,7 +303,7 @@
                         window.getSelection().collapseToEnd();
                     }, onmouseover: function () { this.focus(); }, autofocus: true });
             </script>
-            <iframe srcdoc></iframe>
+            <iframe srcdoc="<link rel='stylesheet' href='/assets/css/shml.css'/>"></iframe>
             <script>
                 (function () {
                     const documentPreview = $last, editableDiv = $ `div[contenteditable]`;

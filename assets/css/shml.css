@@ -1,0 +1,25 @@
+pre,
+code {
+  background-color: #e6e6e6;
+  border-radius: 4px;
+}
+pre [data-code-language="java"] [data-code-token="string"],
+code [data-code-language="java"] [data-code-token="string"] {
+  color: #ad0000;
+}
+pre [data-code-language="java"] [data-code-token="comment"],
+code [data-code-language="java"] [data-code-token="comment"] {
+  color: #808080;
+}
+pre [data-code-language="java"] [data-code-token="keyword"],
+code [data-code-language="java"] [data-code-token="keyword"] {
+  color: #8d06c2;
+}
+pre [data-code-language="java"] [data-code-token="number"],
+code [data-code-language="java"] [data-code-token="number"] {
+  color: #0703f3;
+}
+pre [data-code-language="java"] [data-code-token="annotation"],
+code [data-code-language="java"] [data-code-token="annotation"] {
+  color: #008080;
+}

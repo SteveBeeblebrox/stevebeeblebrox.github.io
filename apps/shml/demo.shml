@@ -1,174 +1,108 @@
 # Welcome to the SHML Demo
 ## Introduction
 ### Inline Formatting
+Inline formatting provides markup for text that could then be placed inside most other container elements. This markup is simpler and more common.
 #### Escaped text
-`\\*` -> \* (For any special character)
-
+`\\*` -> \* (For any special character)  
 `\<</**text**/>>` -> <</**text**/>> (For more than one special characters)
-
-
 
 #### Comments
 `\<!-- text -->` -> Leave a comment visible in the compiled HTML, but not visible to the end user
 
-
 `\<!!-- text --> ` -> A comment only in the source file
-
-
 #### Code
-`\`text\`` -> `text` (For monospaced font) 
-
-
+`\`text\`` -> `text` (For monospaced font, note that any previously mentioned characters still need to be escaped) 
 #### Special Characters
 `/!/` -> /!/
-
-
 `/?/` -> /?/
-
-
 `/~n/` -> /~n/ (For many different letters and marks)
 
-
-`SS` -> SS
-
-
-`PG` -> PG
-
-
-`TM` -> TM
-
-
-`(R)` or `(r)` -> (r)
-
-
-`(c)` or `(c)` -> (c)
-
-
-
-`->` -> ->
-
-
+`SS` -> SS  
+`PG` -> PG  
+`TM` -> TM  
+`(R)` or `(r)` -> (r)  
+`(c)` or `(c)` -> (c)   
+`->` -> ->  
 `<-` -> <-
 
-
 #### Common Formatting
-`*text*` -> *text*
-
-
-
-`**text**` -> **text**
-
-
-`***text***` -> ***text***
-
-
-
-`__text__` -> __text__
-
-
-`~~text~~` -> ~~text~~
-
-
-`x^^2^^` -> x^^2^^
-
-
-`H,,2,,O` -> H,,2,,O
-
-
-`||text||` -> ||text||
-
-
-`||[color=cyan]text||` -> ||[color=cyan]text|| (Works with any CSS color)
-
-
-
-`&&text&&` -> &&text&&
-
-
+`*text*` -> *text*  
+`**text**` -> **text**  
+`***text***` -> ***text***  
+`__text__` -> __text__  
+`~~text~~` -> ~~text~~  
+`x^^2^^` -> x^^2^^  
+`H,,2,,O` -> H,,2,,O  
+`||text||` -> ||text||  
+`||[color=cyan]text||` -> ||[color=cyan]text|| (Works with any CSS color)  
+`&&text&&` -> &&text&&  
 `&&[color=magenta]text&&` -> &&[color=magenta]text&& (Works with any CSS color)
-
-
 
 #### Spoilers
 `<?text?>` -> <?text?> (Click to reveal)
-
 
 #### Custom Tokens
 `:text:` -> Application controlled substitution, often used for emojis
 
 
 #### Line Control
-`\\p` -> Non breaking space
-
-
-`\\t` -> Tab character
-
-
-`\\n` -> New Line
-
-
+`\\p` -> Non breaking space  
+`\\t` -> Tab character  
+`\\n` -> New Line  
 `te-/-xt` -> Suggest where a word should break if needed
 
-
+Paragraphs may be separated by ending a line with `  ` (two spaces) or an empty line before the next paragraph.
 #### Links
-`[https://google.com](Google)` -> [https://google.com](Google) (Opens in current tab)
-
-
-`+[https://google.com](Google)` -> +[https://google.com](Google) (Opens in new tab)
-
-
-
-`+[mailto:bob@example.com](Bob's Email)` -> +[mailto:bob@example.com](Bob's Email) (`tel` and `mailto` links are also supported; however, other protocols are forbidden)
-
-
-
-`https://google.com` -> https://google.com (Links starting with `www` or `http(s)` link by themselves)
-
-
+`[https://google.com](Google)` -> [https://google.com](Google) (Opens in current tab)  
+`+[https://google.com](Google)` -> +[https://google.com](Google) (Opens in new tab)  
+`+[mailto:bob@example.com](Bob's Email)` -> +[mailto:bob@example.com](Bob's Email) (`tel` and `mailto` links are also supported; however, other protocols are forbidden)  
+`https://google.com` -> https://google.com (Links starting with `www` or `http(s)` link by themselves)  
 `bob@example.com` -> bob@example.com (Simple emails link by themselves)
-
 
 #### HTML
 The `code`, `em`, `i`, `strong`, `b`, `u`, `del`, `sup`, `sub`, `mark`, `span`, `wbr`, and `br` tags may be used like normal HTML so long as they have no attributes (Ex `<b>text</b>` -> <b>text</b>).
 
-
 ### Block Formatting
-
-
+Block formatting provides more structured options over inline formatting. 
 #### Inherited Inline Formatting
 All Inline Formatting also works as Block Formatting
 
-
 #### Code Blocks
-See Code Highlighting below
+Multiline code blocks provide monospaced font to their contents and can apply syntax highlighting
+(See Code Highlighting below).
 
+
+```
+\```
+text
+\```
+```
+
+```
+text
+```
 
 #### Properties and Templates
 !key: my value
 `!key: my value` -> Sets "`key`" to "`my value`", see the Properties panel to the left. Note that keys cannot have spaces, while values are unrestricted and get whitespace trimmed
 
-
 `\${key}` -> ${key} (Interpolates the value of `key`)
 
-
 #### Images
-TODO
-
+No documentation available
 
 #### Summary Elements
 ```!! Summary (click to expand) [ 
     Details
     More Text
-]``` ->
+]```
 !! Summary (click to expand) [
     Details
     More Text
 ]
-or use a `>` or `v` to force it to a certain state: 
-`!v! Summary (click to expand) [ Details ]` ->
+or use a `>` or `v` to force it to a certain state:   
+`!v! Summary (click to expand) [ Details ]` 
 !v! Summary (click to expand) [ Details ]
-
-
 
 #### Text alignment
 ```
@@ -180,52 +114,49 @@ text
 text
 @@ reset
 
-
 (Works for `left`, `right`, `centered`, and `justified` text)
 
-
 #### Headers
-TODO
-
+No documentation available
 
 #### Horizontal Line
 `---` or `===` (3 or more of either `-` or `=`)
 ---
 
-
 #### Tables
-TODO
 
+No documentation available
 
 #### Lists
 ```
 + Item
-+ Item
+  + Item
 + Item
 ```
-
-
 + Item
-+ Item
+  + Item
 + Item
 
 
 ```
 1. Item
 2. Item
+3. Item
 ```
-
 1. Item
 2. Item
-
+3. Item
 
 ```
 1) Item
+  + Item
 2) Item
+  + Item
 ```
 1) Item
+  + Item
 2) Item
-
+  + Item
 
 #### Quotes
 ```
@@ -235,13 +166,36 @@ TODO
 >>> "Quote"
 >>>  - Bob Smith
 
-
 #### HTML
-In addition to the allowed inline HTML tags, `h1`-`h6`, `hr`, `blockquote`, `ul`, `ol`, and `li` may be used like in normal HTML
-
-
+In addition to the allowed inline HTML tags, `h1`-`h6`, `hr`, `blockquote`, `ul`, `ol`, and `li` may be used
 #### Paragraphs
-All other text gets wrapped in a paragraph
+All other text gets wrapped into a paragraph
+
+###[code] Code Highlighting
+SHML can highlight the following languages: HTML, CSS, JavaScript, TypeScript, XML, JSON, Python, Diff files, and Java. Rust support will be added soon, and other C like languages can be done relatively well with the Java or JavaScript highlighter.
+#### HTML, CSS, and JavaScript
+#### TypeScript
+#### XML
+#### JSON
+#### Python
+#### Diff Files
+#### Java
+```java
+package com.example;
 
 
-###Code Highlighting
+@ExampleAnnotation
+class Main {
+    public static void main(String[] args) {
+        for(int i = 0; i < 10; i++)
+            System.out.println("Hello World!");
+    }
+}
+```
+
+
+
+
+
+
+

@@ -75,6 +75,9 @@
                 color: #333;
                 outline: none;
             }
+            div[contenteditable] {
+                white-space: pre-wrap;
+            }
             button {
                 cursor: pointer;
                 border: none;
@@ -99,6 +102,7 @@
                 }
                 &>iframe {
                     border: none;
+                    padding-right: 0;
                 }
                 &>* {
                     flex-grow: 1;
@@ -111,6 +115,10 @@
                 }
                 &>div[contenteditable] {
                     background: whitesmoke
+                }
+                &>:not(:first-child) {
+                    padding-top: 0;
+                    padding-bottom: 0;
                 }
             }
             table,tr {
@@ -287,7 +295,7 @@
                     window.getSelection().collapseToEnd();
                 }} onmouseover={function(){this.focus()}} autofocus></div>
             </script>
-            <iframe srcdoc=""></iframe>
+            <iframe srcdoc="&lt;link rel='stylesheet' href='/assets/css/shml.css'/&gt;"></iframe>
             <script %{TS}>
                 (function() {
                     const documentPreview = $last, editableDiv = $`div[contenteditable]`;
