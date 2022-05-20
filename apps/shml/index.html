@@ -83,6 +83,8 @@
               cursor: pointer;
               border: none;
               border-radius: 4px;
+              display: inline-flex;
+              padding: 0.5em;
             }
             button:hover {
               filter: brightness(125%);
@@ -293,13 +295,14 @@
                         window.getSelection().collapseToEnd();
                     }, onmouseover: function () { this.focus(); }, autofocus: true });
             </script>
-            <iframe src="/"></iframe>
+            <iframe srcdoc></iframe>
             <script>
                 (function () {
                     const documentPreview = $last, editableDiv = $ `div[contenteditable]`;
                     new MutationObserver(async function () {
                         const result = SHML.parseMarkup(editableDiv.innerText);
                         documentPreview.contentWindow.document.body.innerHTML = result.toString();
+                        $$('a[href^="#"', documentPreview.contentWindow.document.body).$forEach(a => a.href = `about:srcdoc${a.hash}`);
                         if (!tainted.get()) {
                             vfs.write(window.location.pathname + 'autosave.shml', await toArchive(editableDiv.innerText));
                             vfs.save();
