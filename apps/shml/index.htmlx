@@ -196,7 +196,7 @@
 
                 document.body.$on('keydown', function(e) {
                     if(e.key === 'Escape') document.activeElement.blur();
-                    else if(e.ctrlKey && e.key === 's') {
+                    else if(e.ctrlKey && e.key.toLowerCase() === 's') {
                         e.preventDefault();
                         e.shiftKey ? actions.download() : actions.save();
                     }

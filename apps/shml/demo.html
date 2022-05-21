@@ -1,0 +1,270 @@
+<html><head><meta charset="UTF-8"><link rel="stylesheet" href="/assets/css/shml.css"></head><body><h1 id="h1:1d56d07d40b1d981"><a href="about:srcdoc#h1:1d56d07d40b1d981" title="Link to section">Welcome to the SHML Demo</a></h1>
+<h2 id="h2:1e26b268f955172a"><a href="about:srcdoc#h2:1e26b268f955172a" title="Link to section">Introduction</a></h2>
+<h3 id="h3:7e1a999adaacda69"><a href="about:srcdoc#h3:7e1a999adaacda69" title="Link to section">Inline Formatting</a></h3>
+<p>Inline formatting provides markup for text that could then be placed inside most other container elements. This markup is simpler and more common than block formatting (See below).</p>
+<h4 id="h4:a9ff99c230df150e"><a href="about:srcdoc#h4:a9ff99c230df150e" title="Link to section">Escaped text</a></h4>
+<p><code>\*</code> → * (For any special character)</p>
+    
+<p><code>&lt;&lt;/**text**/&gt;&gt;</code> → **text** (For more than one special characters)</p>
+
+<h4 id="h4:665e5cb4cba8f43a"><a href="about:srcdoc#h4:665e5cb4cba8f43a" title="Link to section">Comments</a></h4>
+<p><code>&lt;!-- text --&gt;</code> → Leave a comment visible in the compiled HTML, but not visible to the end user</p>
+
+<p><code>&lt;!!-- text --&gt; </code> → A comment only in the source file</p>
+<h4 id="h4:a1c570e24c85cf95"><a href="about:srcdoc#h4:a1c570e24c85cf95" title="Link to section">Code</a></h4>
+<p><code>`text`</code> → <code>text</code> (For monospaced font, note that any previously mentioned characters still need to be escaped)</p>
+<h4 id="h4:d3e35ab4b2f76d68"><a href="about:srcdoc#h4:d3e35ab4b2f76d68" title="Link to section">Special Characters</a></h4>
+<p><code>/!/</code> → ¡</p>
+    
+<p><code>/?/</code> → ¿</p>
+    
+<p><code>/~n/</code> → ñ (For many different letters and marks)</p>
+
+<p><code>SS</code> → §</p>
+    
+<p><code>PG</code> → ¶</p>
+    
+<p><code>TM</code> → ™</p>
+    
+<p><code>(R)</code> or <code>(r)</code> → ®</p>
+    
+<p><code>(c)</code> or <code>(c)</code> → ©</p>
+    
+<p><code>-&gt;</code> → →</p>
+    
+<p><code>&lt;-</code> → ←</p>
+
+<h4 id="h4:3853f7d11ce46d7a"><a href="about:srcdoc#h4:3853f7d11ce46d7a" title="Link to section">Common Formatting</a></h4>
+<p><code>*text*</code> → <em>text</em></p>
+    
+<p><code>**text**</code> → <strong>text</strong></p>
+    
+<p><code>***text***</code> → <em><strong>text</strong></em></p>
+    
+<p><code>__text__</code> → <u>text</u></p>
+    
+<p><code>~~text~~</code> → <del>text</del></p>
+    
+<p><code>x^^2^^</code> → x<sup>2</sup></p>
+    
+<p><code>H,,2,,O</code> → H<sub>2</sub>O</p>
+    
+<p><code>||text||</code> → <mark>text</mark></p>
+    
+<p><code>||[color=cyan]text||</code> → <mark style="background-color:cyan">text</mark> (Works with any CSS color)</p>
+    
+<p><code>&amp;&amp;text&amp;&amp;</code> → <span style="color:red">text</span></p>
+    
+<p><code>&amp;&amp;[color=magenta]text&amp;&amp;</code> → <span style="color:magenta">text</span> (Works with any CSS color)</p>
+
+<h4 id="h4:003d338002f6fef7"><a href="about:srcdoc#h4:003d338002f6fef7" title="Link to section">Spoilers</a></h4>
+<p><code>&lt;?text?&gt;</code> → <span style="filter: blur(0.25em); cursor: pointer;" title="Show spoiler?" onclick="this.removeAttribute('style'); this.removeAttribute('title'); this.removeAttribute('onclick');">text</span> (Click to reveal)</p>
+
+<h4 id="h4:5520154f68d7a3dd"><a href="about:srcdoc#h4:5520154f68d7a3dd" title="Link to section">Custom Tokens</a></h4>
+<p><code>:text:</code> → Application controlled substitution, often used for emojis</p>
+
+<h4 id="h4:59a0e590865931d0"><a href="about:srcdoc#h4:59a0e590865931d0" title="Link to section">Line Control</a></h4>
+<p><code>\p</code> → Non breaking space</p>
+    
+<p><code>\t</code> → Tab character</p>
+    
+<p><code>\n</code> → New Line</p>
+    
+<p><code>te-/-xt</code> → Suggest where a word should break if needed</p>
+
+<p>Paragraphs may be separated by ending a line with <code>  </code> (two spaces) or an empty line before the next paragraph.</p>
+<h4 id="h4:7edab931082467e1"><a href="about:srcdoc#h4:7edab931082467e1" title="Link to section">Links</a></h4>
+<p><code>[https://google.com](Google)</code> → <a href="https://google.com">Google</a> (Opens in current tab)</p>
+    
+<p><code>+[https://google.com](Google)</code> → <a href="https://google.com" target="_blank">Google</a> (Opens in new tab)</p>
+    
+<p><code>+[mailto:bob@example.com](Bob's Email)</code> → <a href="mailto:bob@example.com" target="_blank">Bob's Email</a> (<code>tel</code> and <code>mailto</code> links are also supported; however, other protocols are forbidden)</p>
+    
+<p><code>https://google.com</code> → <a href="https://google.com">https://google.com</a> (Links starting with <code>www</code> or <code>http(s)</code> link by themselves)</p>
+    
+<p><code>bob@example.com</code> → <a href="mailto:bob@example.com">bob@example.com</a> (Simple emails link by themselves)</p>
+
+<h4 id="h4:8ce2c198fd90b44e"><a href="about:srcdoc#h4:8ce2c198fd90b44e" title="Link to section">HTML</a></h4>
+<p>The <code>code</code>, <code>em</code>, <code>i</code>, <code>strong</code>, <code>b</code>, <code>u</code>, <code>del</code>, <code>sup</code>, <code>sub</code>, <code>mark</code>, <code>span</code>, <code>wbr</code>, and <code>br</code> tags may be used like normal HTML so long as they have no attributes (Ex <code>&lt;b&gt;text&lt;/b&gt;</code> → <b>text</b>).</p>
+
+<h3 id="h3:950e5b7da9913eb5"><a href="about:srcdoc#h3:950e5b7da9913eb5" title="Link to section">Block Formatting</a></h3>
+<p>Block formatting provides more structured options over inline formatting.</p>
+<h4 id="h4:7b44d299eb9a4db6"><a href="about:srcdoc#h4:7b44d299eb9a4db6" title="Link to section">Inherited Inline Formatting</a></h4>
+<p>All Inline Formatting also works as Block Formatting</p>
+
+<h4 id="h4:a3a0cd47d6336f5e"><a href="about:srcdoc#h4:a3a0cd47d6336f5e" title="Link to section">Code Blocks</a></h4>
+<p>Multiline code blocks provide monospaced font to their contents and can apply syntax highlighting
+(See Code Highlighting below).</p>
+
+<pre><code>```
+text
+```</code></pre>
+<pre><code>text</code></pre>
+<h4 id="h4:a986e7eb61964a1f"><a href="about:srcdoc#h4:a986e7eb61964a1f" title="Link to section">Properties and Templates</a></h4>
+
+<p><code>!key: my value</code> → Sets "<code>key</code>" to "<code>my value</code>" (See the Properties panel to the left). Note that keys cannot have spaces while values are unrestricted and get whitespace trimmed. Properties may be reused using template or may control features of the application rendering the markup (For example, a <code>title</code> property could control a post title. Implementations will vary).</p>
+
+<p><code>${key}</code> → my value (Interpolates the value of <code>key</code>)</p>
+
+<h4 id="h4:e9998a7a17d66027"><a href="about:srcdoc#h4:e9998a7a17d66027" title="Link to section">Images</a></h4>
+<p><code>![/assets/images/sword_of_protection.png 40x40]</code> → <img src="/assets/images/sword_of_protection.png" height="40" width="40"> (Dimensions are optional)</p>
+
+<h4 id="h4:5a060c8abaa07437"><a href="about:srcdoc#h4:5a060c8abaa07437" title="Link to section">Summary Elements</a></h4>
+<pre><code>!! Summary (click to expand) [&nbsp;
+&nbsp; &nbsp; Details
+&nbsp; &nbsp; More Text
+]</code></pre>
+<details><summary> Summary&nbsp;(click to expand) </summary>
+Details
+<p>More Text</p>
+</details>
+<p>or use a <code>&gt;</code> or <code>v</code> to force it to a certain state:</p>
+    
+<p><code>!v! Summary (click to expand) [ Details ]</code></p>
+<details open=""><summary> Summary (click to expand) </summary>
+Details</details>
+<h4 id="h4:a3dd04f5eb47fdb5"><a href="about:srcdoc#h4:a3dd04f5eb47fdb5" title="Link to section">Text alignment</a></h4>
+<pre><code>@@ centered
+text
+@@ reset</code></pre>
+<div style="text-align: center;">
+<p>text</p>
+</div>
+<p>(Works for <code>left</code>, <code>right</code>, <code>centered</code>, and <code>justified</code> text)</p>
+
+<h4 id="h4:3aaced1732ecd132"><a href="about:srcdoc#h4:3aaced1732ecd132" title="Link to section">Headers</a></h4>
+<p><code># Large Header</code></p>
+<h1 id="h1:4b6e9942b78e64d3"><a href="about:srcdoc#h1:4b6e9942b78e64d3" title="Link to section">Large Header</a></h1>
+<p><code>###### Small Header</code></p>
+<h6 id="h6:7a156f8799ec7f4f"><a href="about:srcdoc#h6:7a156f8799ec7f4f" title="Link to section">Small Header</a></h6>
+<p>Optionally add a specific ID; otherwise, it receives a procedural ID based of the text contents</p>
+
+<p><code>#[example_id] Text</code></p>
+<h1 id="h1:example_id"><a href="about:srcdoc#h1:example_id" title="Link to section">Text</a></h1>
+<h4 id="h4:6b4d6d3e4748b7a0"><a href="about:srcdoc#h4:6b4d6d3e4748b7a0" title="Link to section">Horizontal Line</a></h4>
+<p><code>---</code> or <code>===</code> (3 or more of either <code>-</code> or <code>=</code>)</p>
+<hr>
+<h4 id="h4:435f22fe01978de3"><a href="about:srcdoc#h4:435f22fe01978de3" title="Link to section">Tables</a></h4>
+<pre><code>[[
+    title=Users
+    First Name, Last Name, Favorite Color
+    Bob,        Smith,     Blue
+    Jane, Doe, Green
+]]</code></pre>
+<table>
+<caption>Users</caption>
+<thead>
+<tr><th>First Name</th><th>Last Name</th><th>Favorite Color</th></tr>
+</thead><thead>
+</thead><tbody>
+<tr><td>Bob</td><td>Smith</td><td>Blue</td></tr>
+<tr><td>Jane</td><td>Doe</td><td>Green</td></tr>
+</tbody><tbody>
+</tbody></table>
+<p>(The title is optional)</p>
+
+<h4 id="h4:4ab5c07629c8d825"><a href="about:srcdoc#h4:4ab5c07629c8d825" title="Link to section">Lists</a></h4>
+<pre><code>+ Item
+&nbsp; + Item
++ Item</code></pre>
+<ul><li>Item</li><ul><li>Item</li></ul><li>Item</li></ul>
+<pre><code>1. Item
+2. Item
+3. Item</code></pre>
+<ol><li>Item</li><li>Item</li><li>Item</li></ol>
+<pre><code>1) Item
+&nbsp; + Item
+2) Item
+&nbsp; + Item</code></pre>
+<ol><li>Item</li><ul><li>Item</li></ul><li>Item</li><ul><li>Item</li></ul></ol>
+<h4 id="h4:5f4af8f45f494790"><a href="about:srcdoc#h4:5f4af8f45f494790" title="Link to section">Quotes</a></h4>
+<pre><code>&gt;&gt;&gt; "Quote"
+&gt;&gt;&gt; - Bob Smith</code></pre>
+<figure><blockquote> "Quote"
+&nbsp; </blockquote><figcaption><cite>-  Bob Smith</cite></figcaption></figure>
+<h4 id="h4:8ce2c198fd90b44e"><a href="about:srcdoc#h4:8ce2c198fd90b44e" title="Link to section">HTML</a></h4>
+<p>In addition to the allowed inline HTML tags, <code>h1</code>-<code>h6</code>, <code>hr</code>, <code>blockquote</code>, <code>ul</code>, <code>ol</code>, and <code>li</code> may be used</p>
+<h4 id="h4:c1e83a0f007857fc"><a href="about:srcdoc#h4:c1e83a0f007857fc" title="Link to section">Paragraphs</a></h4>
+<p>All other text gets wrapped into a paragraph</p>
+
+<h3 id="h3:code"><a href="about:srcdoc#h3:code" title="Link to section">Code Highlighting</a></h3>
+<p>SHML can highlight the following languages: HTML, CSS, JavaScript, TypeScript, XML, JSON, Python, Diff files, and Java. Rust support will be added soon, and other C like languages can be done relatively well with the Java or JavaScript highlighter.</p>
+
+<p>Use the form</p>
+<pre><code>```language-name
+code
+```</code></pre>
+<h4 id="h4:3bf9bcb086434db9"><a href="about:srcdoc#h4:3bf9bcb086434db9" title="Link to section">HTML, CSS, and JavaScript</a></h4>
+<pre><code><span data-code-language="html"><span data-code-token="doctype">&lt;!DOCTYPE html&gt;</span>
+<span data-code-token="tag">&lt;html</span> lang=<span data-code-token="string">"en"</span><span data-code-token="tag">&gt;</span>
+    <span data-code-token="tag">&lt;head</span><span data-code-token="tag">&gt;</span>
+        <span data-code-token="comment">&lt;!-- Hello World --&gt;</span>
+        <span data-code-token="tag">&lt;title</span><span data-code-token="tag">&gt;</span>Hello World<span data-code-token="tag">&lt;/title&gt;</span>
+        <span data-code-token="tag">&lt;script</span><span data-code-token="tag">&gt;</span><span data-code-language="javascript">console.log(<span data-code-token="string">"Hello World"</span>)</span><span data-code-token="tag">&lt;/script&gt;</span>
+        <span data-code-token="tag">&lt;style</span><span data-code-token="tag">&gt;</span><span data-code-language="css"><span data-code-token="selector">body</span> {<span data-code-token="property">font-family:</span> Arial}</span><span data-code-token="tag">&lt;/style&gt;</span>
+    <span data-code-token="tag">&lt;/head&gt;</span>
+    <span data-code-token="tag">&lt;html</span><span data-code-token="tag">&gt;</span>
+        <span data-code-token="tag">&lt;h1</span><span data-code-token="tag">&gt;</span>Hello World<span data-code-token="tag">&lt;/h1&gt;</span>
+    <span data-code-token="tag">&lt;/html&gt;</span>
+<span data-code-token="tag">&lt;/html&gt;</span></span></code></pre>
+<p>JavaScript and CSS can also be used on their own.</p>
+<pre><code><span data-code-language="javascript"><span data-code-token="comment">// Hello World</span>
+<span data-code-token="keyword">let</span> x = <span data-code-token="string">"Hello"</span>
+console.log(x + <span data-code-token="string">"World! "</span> + <span data-code-token="number">2</span>**<span data-code-token="number">2</span>)</span></code></pre>
+<pre><code><span data-code-language="css"><span data-code-token="comment">/* Example CSS */</span>
+<span data-code-token="selector">body</span> {
+    <span data-code-token="property">font-family:</span> <span data-code-token="string">'Courier New'</span>, <span data-code-token="other">monospace</span>;
+    <span data-code-token="property">color:</span> #<span data-code-token="number">3c</span>0;
+    <span data-code-token="property">height:</span> <span data-code-token="number">4em</span>;
+    <span data-code-token="property">filter:</span> <span data-code-token="function">brightness</span>(<span data-code-token="number">150%</span>);
+}
+
+
+<span data-code-token="keyword">@page</span> {
+    <span data-code-token="property">color:</span> <span data-code-token="other">gray</span>;
+}</span></code></pre>
+<h4 id="h4:1451caeb6e593d71"><a href="about:srcdoc#h4:1451caeb6e593d71" title="Link to section">TypeScript</a></h4>
+<pre><code><span data-code-language="typescript"><span data-code-token="comment">// Hello World</span>
+<span data-code-token="keyword">let</span> x: <span data-code-token="keyword">string</span> = <span data-code-token="string">"Hello"</span>
+console.log(x + <span data-code-token="string">"World! "</span> + <span data-code-token="number">2</span>**<span data-code-token="number">2</span>)</span></code></pre>
+<h4 id="h4:026e5fb685cd4297"><a href="about:srcdoc#h4:026e5fb685cd4297" title="Link to section">XML</a></h4>
+<pre><code><span data-code-language="xml"><span data-code-token="processing-instruction">&lt;?xml-foo</span> type=<span data-code-token="string">"foobar"</span><span data-code-token="processing-instruction">?&gt;</span>
+<span data-code-token="comment">&lt;!-- Example Data --&gt;</span>
+<span data-code-token="tag">&lt;foo</span> bar=<span data-code-token="string">"1"</span><span data-code-token="tag">&gt;</span>
+    <span data-code-token="tag">&lt;value</span><span data-code-token="tag">&gt;</span>
+        <span data-code-token="cdata">&lt;![CDATA[</span><span data-code-token="cdata-content">
+            Text...
+        </span><span data-code-token="cdata">]]&gt;</span>
+
+    <span data-code-token="tag">&lt;/value&gt;</span>
+<span data-code-token="tag">&lt;/foo&gt;</span></span></code></pre>
+<h4 id="h4:683f4256336f6f84"><a href="about:srcdoc#h4:683f4256336f6f84" title="Link to section">JSON</a></h4>
+<pre><code><span data-code-language="json">{
+    <span data-code-token="string">"username"</span>: <span data-code-token="string">"Bob"</span>,
+    <span data-code-token="string">"id"</span>: <span data-code-token="number">12345</span>
+    <span data-code-token="string">"payment info"</span>: <span data-code-token="keyword">null</span>,
+    <span data-code-token="string">"verified"</span>: <span data-code-token="keyword">true</span>
+}</span></code></pre>
+<h4 id="h4:490f4e34d317e1a1"><a href="about:srcdoc#h4:490f4e34d317e1a1" title="Link to section">Python</a></h4>
+<pre><code><span data-code-language="python"><span data-code-token="comment"># Hello!</span>
+print(<span data-code-token="string">"Hello World"</span>)
+<span data-code-token="keyword">if</span> <span data-code-token="value">True</span>:
+    print(<span data-code-token="number">1</span> + <span data-code-token="number">1</span>);</span></code></pre>
+<h4 id="h4:bfbcc0a3fab33277"><a href="about:srcdoc#h4:bfbcc0a3fab33277" title="Link to section">Diff Files</a></h4>
+<pre><code><span data-code-language="diff"><span data-code-token="deletion"><del>--- example.txt      timestamp</del></span>
+<span data-code-token="insertion"><ins>+++ example.txt      timestamp</ins></span>
+<span data-code-token="range">@@ -1,3 +1,9 @@</span>
+<span data-code-token="insertion"><ins>+ Lorem Ipsum</ins></span>
+<span data-code-token="deletion"><del>- Dolor Sit Amet</del></span></span></code></pre>
+<h4 id="h4:0638a559401bbde3"><a href="about:srcdoc#h4:0638a559401bbde3" title="Link to section">Java</a></h4>
+<pre><code><span data-code-language="java"><span data-code-token="keyword">package</span> com.example;
+
+<span data-code-token="annotation">@ExampleAnnotation</span>
+<span data-code-token="keyword">class</span> Main {
+    <span data-code-token="comment">// Main method</span>
+    <span data-code-token="keyword">public</span> <span data-code-token="keyword">static</span> <span data-code-token="keyword">void</span> main(String[] args) {
+        <span data-code-token="keyword">for</span>(<span data-code-token="keyword">int</span> i = <span data-code-token="number">0</span>; i &lt; <span data-code-token="number">10</span>; i++)
+            System.out.println(<span data-code-token="string">"Hello World!"</span>);
+    }
+}</span></code></pre>
+</body></html>

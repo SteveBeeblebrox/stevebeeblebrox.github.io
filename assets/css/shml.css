@@ -1,25 +1,72 @@
-pre,
-code {
-  background-color: #e6e6e6;
+pre {
+  background-color: #f7f7f7;
   border-radius: 4px;
+  padding: 0.5em;
 }
-pre [data-code-language="java"] [data-code-token="string"],
-code [data-code-language="java"] [data-code-token="string"] {
-  color: #ad0000;
-}
-pre [data-code-language="java"] [data-code-token="comment"],
-code [data-code-language="java"] [data-code-token="comment"] {
+code [data-code-language="html"] [data-code-token="doctype"] {
+  font-style: italic;
   color: #808080;
 }
-pre [data-code-language="java"] [data-code-token="keyword"],
-code [data-code-language="java"] [data-code-token="keyword"] {
+code [data-code-language="css"] [data-code-token="selector"] {
+  color: #00f;
+}
+code [data-code-language="css"] [data-code-token="property"] {
+  color: #137fc7;
+}
+code [data-code-language="css"] [data-code-token="hexadecimal"] {
+  color: #0086b3;
+}
+code [data-code-language="css"] [data-code-token="function"] {
+  color: #d3a305;
+}
+code [data-code-language="css"] [data-code-token="other"] {
+  color: #3a0d6d;
+}
+code [data-code-language="xml"] [data-code-token="processing-instruction"] {
+  font-style: italic;
+  color: #808080;
+}
+code [data-code-language="xml"] [data-code-token="cdata"] {
+  color: #808080;
+}
+code [data-code-language="xml"] [data-code-token="cdata-content"] {
+  font-style: italic;
+}
+code [data-code-language="python"] [data-code-token="value"] {
+  font-weight: bold;
+  color: navy;
+}
+code [data-code-language="diff"] [data-code-token="heading"] {
+  font-style: italic;
+  color: navy;
+}
+code [data-code-language="diff"] [data-code-token="range"] {
+  font-weight: bold;
+  color: navy;
+}
+code [data-code-language="diff"] [data-code-token="insertion"] {
+  color: #13a813;
+}
+code [data-code-language="diff"] [data-code-token="deletion"] {
+  color: #da0707;
+}
+code [data-code-language="java"] [data-code-token="annotation"] {
+  font-weight: bold;
+  color: #008080;
+}
+code [data-code-language] [data-code-token="string"] {
+  color: #ad0000;
+}
+code [data-code-language] [data-code-token="comment"] {
+  color: #808080;
+}
+code [data-code-language] [data-code-token="keyword"] {
+  font-weight: bold;
   color: #8d06c2;
 }
-pre [data-code-language="java"] [data-code-token="number"],
-code [data-code-language="java"] [data-code-token="number"] {
+code [data-code-language] [data-code-token="number"] {
   color: #0703f3;
 }
-pre [data-code-language="java"] [data-code-token="annotation"],
-code [data-code-language="java"] [data-code-token="annotation"] {
-  color: #008080;
+code [data-code-language] [data-code-token="tag"] {
+  color: #0703f3;
 }

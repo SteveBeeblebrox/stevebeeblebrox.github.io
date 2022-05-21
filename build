@@ -58,6 +58,10 @@ elif [ "$ACTION" == 'debughtmlx' ]; then
     while true; do 
         inotifywait -e modify $1 &>/dev/null && htmlx $1 > $(./pt.exe $1 -e html)
     done
+elif [ "$ACTION" == 'debugless' ]; then
+    while true; do 
+        inotifywait -e modify $1 &>/dev/null && less $1 > $(./pt.exe $1 less~css -e css)
+    done
 else
     echo "Updating dependencies..."
     
