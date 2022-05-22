@@ -229,7 +229,7 @@ JavaScript and CSS can also be used on their own.
 ```#javascript
 // Hello World
 let x = "Hello"
-console.log(x + "World! " + 2**2)
+console.log(x + " World! " + 2**2)
 ```
 
 
@@ -242,7 +242,6 @@ body {
     filter: brightness(150%);
 }
 
-
 @page {
     color: gray;
 }
@@ -251,7 +250,7 @@ body {
 ```#typescript
 // Hello World
 let x: string = "Hello"
-console.log(x + "World! " + 2**2)
+console.log(x + " World! " + 2**2)
 ```
 #### XML
 ```#xml
