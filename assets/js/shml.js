@@ -24,7 +24,7 @@ var SHML;
 (function (SHML) {
     SHML.VERSION = Object.freeze({
         toString() { return `${SHML.VERSION.major}.${SHML.VERSION.minor}.${SHML.VERSION.patch}${SHML.VERSION.prerelease !== undefined ? `-${SHML.VERSION.prerelease}` : ''}${SHML.VERSION.metadata !== undefined ? `+${SHML.VERSION.metadata}` : ''}`; },
-        major: 1, minor: 6, patch: 4
+        major: 1, minor: 6, patch: 7
     });
     function cyrb64(text, seed = 0) {
         let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
@@ -92,12 +92,12 @@ var SHML;
                 });
             return text;
         }
-        function decode(text) {
+        function decode(text, literal) {
             while (text.includes(UnicodeHelper.INLINE_MARKER) || text.includes(UnicodeHelper.BLOCK_MARKER))
                 text = text.replace(/([\ufffe\uffff]).*?\1/, hash => {
                     var _a;
                     const block = hashmap.get(hash);
-                    return ((_a = args.get(block.blockType).reviver) !== null && _a !== void 0 ? _a : (({ blockType, groups }) => `<${blockType}>${groups.TEXT}</${blockType}>`))(block, decode);
+                    return literal ? block.text : ((_a = args.get(block.blockType).reviver) !== null && _a !== void 0 ? _a : (({ blockType, groups }) => `<${blockType}>${groups.TEXT}</${blockType}>`))(block, decode);
                 });
             return text;
         }
@@ -134,8 +134,8 @@ var SHML;
             args.set('comment', { pattern: /&lt;!--(?<text>[\s\S]*?)--&gt;/g, isInline: true, reviver({ groups }) {
                     return `<!--${groups.text}-->`;
                 } });
-            args.set('code', { pattern: /(`)(?<text>.*?)\1/g, reviver({ groups }) {
-                    return `<code>${groups.text}</code>`;
+            args.set('code', { pattern: /(`)(?<text>.*?)\1/g, reviver({ groups }, decode) {
+                    return `<code>${decode(groups.text, true)}</code>`;
                 } });
             args.set('symbol', { pattern: /\/(?<what>(&#x27;|&quot;|.).|\?|!)\//g, reviver({ groups }) {
                     var _a, _b;
@@ -206,8 +206,9 @@ var SHML;
             args.set('raw', inlineArgs.get('raw'));
             args.set('src_comment', inlineArgs.get('src_comment'));
             args.set('comment', inlineArgs.get('comment'));
-            args.set('code_block', { pattern: /(```)(?<language>[a-z]+)?(?<text>[\s\S]*?)\1/g, isInline: false, reviver({ groups }, decode) {
-                    return `<pre><code>${groups.language ? SHML.parseCode(decode(groups.text).replace(/&lt;|&gt;|&amp;|&quot;|&#x27;/g, (match) => {
+            args.set('code_block', { pattern: /(```+)(?<lines>#)?(?<language>[a-z]+)?(?<text>[\s\S]*?)\1/g, isInline: false, reviver({ groups }, decode) {
+                    var _a;
+                    return `<pre><code>${groups.language || groups.lines ? SHML.parseCode(decode(groups.text, true).replace(/&lt;|&gt;|&amp;|&quot;|&#x27;/g, (match) => {
                         switch (match) {
                             case '&lt;': return '<';
                             case '&gt;': return '>';
@@ -216,7 +217,7 @@ var SHML;
                             case '&#x27;': return '\'';
                             default: throw null;
                         }
-                    }).trim(), groups.language, false) : groups.text.trim()}</code></pre>`;
+                    }).trim(), (_a = groups.language) !== null && _a !== void 0 ? _a : 'none', groups.lines === '#') : decode(groups.text, true).trim()}</code></pre>`;
                 } });
             args.set('property', { pattern: /^[\t ]*?![\t ]*?(?<key>[a-zA-Z_][a-zA-Z_0-9]*?)(?<!http|https):(?<value>.*?)$/gm, isInline: false, reviver({ groups }) {
                     properties.set(groups.key, groups.value.trim());
@@ -358,8 +359,8 @@ var SHML;
                 matchToken('keyword', new RegExp(String.raw `(?<text>@(?:${CSS_AT_RULES.join('|')})\b)`, 'g'));
                 matchToken('selector', /(?<text>[^\s{};\uffff\ufffe][^{};\uffff\ufffe]*?[^\s{};\uffff\ufffe]?(?=\s*{))/g);
                 matchToken('property', /(?<text>\b[a-z\-]+:)/g);
-                matchToken('number', /(?<text>\b(\d[\d_]*\.?[\d_]*((?<=[\d.])e[+\-]?\d[\d_]*)?n?(?<!_))(?:%|\b|[a-z]+))/gi);
                 matchToken('hexadecimal', /(?<text>#(?:(?:[0-9a-f]){8}|(?:[0-9a-f]){6}|(?:[0-9a-f]){3,4})\b)/gi);
+                matchToken('number', /(?<text>\b(\d[\d_]*\.?[\d_]*((?<=[\d.])e[+\-]?\d[\d_]*)?n?(?<!_))(?:%|\b|[a-z]+))/gi);
                 matchToken('function', /(?<text>\b[a-z\-]+\b(?=\())/g);
                 matchToken('other', /(?<text>\b[a-z\-]+\b)/g);
                 return args;

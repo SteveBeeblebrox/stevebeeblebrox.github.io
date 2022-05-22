@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         %{SCRIPTS}
         %{VFS_SCRIPTS}
+        <script src="/assets/js/emojis.min.js"></script>
         <title>Untitled</title>
         <script>console.log(`Loaded at ${new Date()}`)</script>
         <style type="text/less">
@@ -84,7 +85,7 @@
                 border-radius: 4px;
                 display: inline-flex;
                 padding: 0.5em;
-                &:hover {
+                &:enabled:hover {
                     filter: brightness(125%);
                 }
             }
@@ -156,7 +157,7 @@
             formattedTitleState.connectCallback(t=>document.title=t);
 
             async function fromArchive(text, password = () => tainted.set(true) && prompt('Enter the password to view document')) {
-                if(!text) return `ooo`;
+                if(!text) return `Unknown`;
                 try {
                     let {type, version, compression, encryption, contents} = text.match(/^:(?<type>[\s\S]*?):(?<version>[\s\S]*?):(?:(?<compression>[\s\S]*?):)?(?:(?<encryption>[\s\S]*?):)?\n(?<contents>.*)$/)?.groups
                     if(type !== 'SHML')
@@ -237,6 +238,9 @@
                 },
                 async download() {
                     (<a href={`data:text/plain,${encodeURIComponent($`div[contenteditable]`.innerText)}`} download={titleState.get()}></a>).click();
+                },
+                async publish() {
+                    window.open('/apps/shml/published.html?text='+encodeURIComponent(LZWCompression.zip(await toArchive($`div[contenteditable]`.innerText, tainted.get() ? assertSome(prompt('Enter the password to encrypt document with')) : undefined))), '_blank');
                 }
             }
         </script>
@@ -244,6 +248,7 @@
     <body>
         <header class="flex-distribute">
             <span>
+                <!-- Icons by Heroicons -->
                 <button title="Save (Ctrl+S)" onclick="actions.save()">
                     <svg xmlns="http://www.w3.org/2000/svg (Ctrl+S)" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -259,6 +264,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </button>
+                <button title="Publish to Web" onclick="actions.publish()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                </button>
+                <script>(function($last) {tainted.connectCallback(o=>o.disabled=o)})($last);</script>
             </span>
             <script %{TS}>
                 $ctx=<span><input value={titleState} oninput={titleState.consume('value')}/><b> - SHML Editor</b></span>
@@ -297,10 +308,12 @@
             </script>
             <iframe srcdoc="&lt;link rel='stylesheet' href='/assets/css/shml.css'/&gt;"></iframe>
             <script %{TS}>
-                (function() {
+                (async function($last) {
                     const documentPreview = $last, editableDiv = $`div[contenteditable]`;
                     new MutationObserver(async function() {
-                        const result = SHML.parseMarkup(editableDiv.innerText);
+                        const result = SHML.parseMarkup(editableDiv.innerText, {get(key) {
+                            return Object.hasOwn(emojis, key) ? `<img src="https://emojicdn.elk.sh/${emojis[key]}?style=google" style="height:1em;width:1em;vertical-align:text-top;"/>` : `:${key}:`
+                        }});
                         documentPreview.contentWindow.document.body.innerHTML = result.toString();
 
                         $$('a[href^="#"', documentPreview.contentWindow.document.body).$forEach(a=>a.href=`about:srcdoc${a.hash}`)
@@ -310,10 +323,10 @@
                             vfs.save()
                         }
 
-                        $`main>div:first-of-type>ol`.replaceChildren(...$$('*[id]',documentPreview.contentWindow.document.body).$toArray().map(i=><li data-href={i.id}>{i.textContent}</li>))//new Map($$('*[id]',documentPreview.contentWindow.document.body).$toArray().map(o=>[o.id,o.textContent])))
-                        $`main>div:first-of-type>table>tbody`.replaceChildren(...[...result.properties.entries()].map(([k,v])=><tr><td>{k}</td><td>{v}</td></tr>))//new Map($$('*[id]',documentPreview.contentWindow.document.body).$toArray().map(o=>[o.id,o.textContent])))
+                        $`main>div:first-of-type>ol`.replaceChildren(...$$('*[id]',documentPreview.contentWindow.document.body).$toArray().map(i=><li data-href={i.id}>{i.textContent}</li>))
+                        $`main>div:first-of-type>table>tbody`.replaceChildren(...[...result.properties.entries()].map(([k,v])=><tr><td>{k}</td><td>{v}</td></tr>))
                     }).observe(editableDiv, {childList: true, subtree: true, characterData: true});
-                })();
+                })($last);
 
 
             </script>

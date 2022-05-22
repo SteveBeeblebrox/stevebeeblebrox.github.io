@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/assets/css/shml.css">
+        <script src="/assets/js/domlib.min.js?bind=globalThis"></script>
+        <script src="/assets/js/compression.min.js"></script>
+        <script src="/assets/js/encryption.js"></script>
+        <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/emojis.min.js"></script>
+        <link rel="preconnect" href="https://emojicdn.elk.sh">
+        <style>
+            pre {
+              position: relative;
+            }
+            pre button {
+              color: inherit;
+              position: absolute;
+              background-color: transparent;
+              top: 0;
+              right: 0;
+              border: 0;
+              padding: 0.1em;
+              font-size: 1.5em;
+              font-weight: bold;
+              cursor: pointer;
+            }
+            pre button:hover {
+              filter: brightness(150%);
+            }
+            pre button:active {
+              top: 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            (async function() {
+                // External link icon by Heroicons
+                const EXTERNAL_LINK =
+                    new SVGNode('svg', { viewBox: '0 0 20 20', fill: 'currentColor', children: [
+                        new SVGNode('path', {d: "M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"}),
+                        new SVGNode('path', {d: "M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"})
+                    ], style: {
+                        height: '1em',
+                        width: '1em',
+                        'vertical-align': 'text-bottom'
+                    }});
+
+                async function fromArchive(text) {
+                    try {
+                        let {type, version, compression, encryption, contents} = text.match(/^:(?<type>[\s\S]*?):(?<version>[\s\S]*?):(?:(?<compression>[\s\S]*?):)?(?:(?<encryption>[\s\S]*?):)?\n(?<contents>.*)$/)?.groups
+                        if(type !== 'SHML')
+                            throw new Error(`Unsupported type: ${type}`);
+                        
+                        if(compression === 'LZW')
+                            contents = LZWCompression.unzip(contents);
+                        else if(compression !== 'NONE')
+                            throw new Error(`Unsupported compression: ${compression}`);
+                        
+                        if(encryption === 'AES-GCM')
+                            contents = await AESGCMEncryption.decrypt(contents, prompt('Enter the password to view page'));
+                        else if(encryption !== 'NONE')
+                            throw new Error(`Unsupported encryption: ${encryption}`);
+                        return contents;
+                    } catch(e) {
+                        if(e.toString() === 'OperationError') e = 'Bad Password'
+                        return `Error: ${e}`
+                    }
+                }
+
+                const result = SHML.parseMarkup(await fromArchive(LZWCompression.unzip(new URLSearchParams(location.search).get('text'))),{get(key) {
+                    return `<img src="https://emojicdn.elk.sh/${emojis[key]}?style=google" style="height:1em;width:1em;vertical-align:text-top;"/>`;
+                }});
+
+                document.body.innerHTML=result;
+                document.title=result.properties.get('title') || 'Untitled';
+                document.getElementById(window.location.hash.substring(1))?.scrollIntoView();
+
+                for(const anchor of $$`a`.$toArray())
+                    if(anchor.origin !== window.location.origin)
+                        anchor.appendChild(EXTERNAL_LINK.cloneNode(true));
+
+                     
+                for(const block of $$`pre`.$toArray())
+                    block.appendChild(
+                        new HTMLNode('button', {title: 'Copy Code', children: [
+                            new SVGNode('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', children: [
+                                new SVGNode('path', {'stroke-linecap':"round", 'stroke-linejoin':"round", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"}),
+                            ], style: {
+                                height: '1em',
+                                width: '1em',
+                                'vertical-align': 'text-bottom'
+                            }})
+                        ], onclick() {
+                            const code = block.cloneNode(true);
+                            code.$$self`[data-code-token="line-number"]`.remove();
+                            navigator.clipboard.writeText(code.innerText);
+                        }})
+                    );
+            })();
+        </script>
+    </body>
+</html>
