@@ -54,10 +54,10 @@ Inline formatting provides markup for text that could then be placed inside most
 
 Paragraphs may be separated by ending a line with `  ` (two spaces) or an empty line before the next paragraph.
 #### Links
-`[https://google.com](Google)` -> [https://google.com](Google) (Opens in current tab)  
-`+[https://google.com](Google)` -> +[https://google.com](Google) (Opens in new tab)  
+`[https://example.com](Example)` -> [https://example.com](Example) (Opens in current tab)  
+`+[https://example.com](Example)` -> +[https://example.com](Example) (Opens in new tab)  
 `+[mailto:bob@example.com](Bob's Email)` -> +[mailto:bob@example.com](Bob's Email) (`tel` and `mailto` links are also supported; however, other protocols are forbidden)  
-`https://google.com` -> https://google.com (Links starting with `www` or `http(s)` link by themselves)  
+`https://example.com` -> https://example.com (Links starting with `www` or `http(s)` link by themselves)  
 `bob@example.com` -> bob@example.com (Simple emails link by themselves)
 
 #### HTML
@@ -302,6 +302,9 @@ class Main {
 }
 ```
 
+@@centered
+(C) 2022 S.B.
+@@reset
 
 
 

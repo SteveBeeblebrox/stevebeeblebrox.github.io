@@ -4,12 +4,12 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="/assets/css/shml.css">
-        <script src="/assets/js/domlib.min.js?bind=globalThis"></script>
-        <script src="/assets/js/compression.min.js"></script>
-        <script src="/assets/js/encryption.min.js"></script>
-        <script src="/assets/js/shml.min.js"></script>
-        <script src="/assets/js/emojis.min.js"></script>
+        <link rel="stylesheet" href="/assets/css/latest/shml.css">
+        <script src="/assets/js/latest/domlib.min.js?bind=globalThis"></script>
+        <script src="/assets/js/latest/compression.min.js"></script>
+        <script src="/assets/js/latest/encryption.min.js"></script>
+        <script src="/assets/js/latest/shml.min.js"></script>
+        <script src="/assets/js/latest/emojis.min.js"></script>
         <link rel="preconnect" href="https://emojicdn.elk.sh">
         <style type="text/less">
             pre {
@@ -87,6 +87,7 @@
                 for(const block of $$`pre`.$toArray())
                     block.appendChild(
                         new HTMLNode('button', {title: 'Copy Code', children: [
+                            // Copy icon by Heroicons
                             new SVGNode('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', children: [
                                 new SVGNode('path', {'stroke-linecap':"round", 'stroke-linejoin':"round", d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"}),
                             ], style: {

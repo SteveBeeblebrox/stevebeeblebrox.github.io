@@ -19,7 +19,7 @@ body :is(summary, a):hover {
   filter: brightness(150%);
 }
 body :is(summary, a):hover > img {
-  filter: brightness(70%);
+  filter: brightness(75%);
 }
 body table {
   border-collapse: collapse;
@@ -45,6 +45,9 @@ body pre {
 body > code,
 body :not(pre) > code {
   padding: 0.25em;
+}
+body code {
+  word-wrap: break-word;
 }
 body code [data-code-language="html"] [data-code-token="doctype"] {
   font-style: italic;

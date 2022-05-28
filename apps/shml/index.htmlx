@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         %{SCRIPTS}
         %{VFS_SCRIPTS}
-        <script src="/assets/js/emojis.min.js"></script>
+        <script src="/assets/js/latest/emojis.min.js"></script>
         <title>Untitled</title>
         <script>console.log(`Loaded at ${new Date()}`)</script>
         <style type="text/less">
@@ -306,7 +306,7 @@
                     window.getSelection().collapseToEnd();
                 }} onmouseover={function(){this.focus()}} autofocus></div>
             </script>
-            <iframe srcdoc="&lt;link rel='stylesheet' href='/assets/css/shml.css'/&gt;"></iframe>
+            <iframe srcdoc="&lt;link rel='stylesheet' href='/assets/css/latest/shml.css'/&gt;"></iframe>
             <script %{TS}>
                 (async function($last) {
                     const documentPreview = $last, editableDiv = $`div[contenteditable]`;
