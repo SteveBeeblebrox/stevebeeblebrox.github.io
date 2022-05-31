@@ -89,7 +89,8 @@ function fetch() {
 }
 
 if [ "$ACTION" == 'minify' ]; then
-    minify $@
+    echo "Unable to minify JavaScript..."
+    # minify $@
 elif [ "$ACTION" == 'fetch' ]; then
     fetch $@
 elif [ "$ACTION" == 'snapshot' ]; then
@@ -157,10 +158,12 @@ elif [ "$ACTION" == '' ]; then
        tsc $file
     done;
 
-    echo "Minifying JavaScript..."
-    for file in $(_findext js | grep -vP '\.min\.m?js'); do
-        minify $file
-    done;
+    echo "Unable to minify JavaScript..."
+
+    # echo "Minifying JavaScript..."
+    # for file in $(_findext js | grep -vP '\.min\.m?js'); do
+    #     minify $file
+    # done;
 
     echo "Generating HTML..."
     for file in $(_findext htmlx); do
