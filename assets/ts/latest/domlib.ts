@@ -25,7 +25,8 @@ namespace DomLib {
     // internal type NodeLike
     type NodeLike = Node & {
         querySelector(selectors: string): Element | null,
-        querySelectorAll(selectors: string): NodeListOf<Element>
+        querySelectorAll(selectors: string): NodeListOf<Element>,
+        childElementCount?: number
     };
 
     // internal type XPathQueryValue
@@ -82,6 +83,7 @@ namespace DomLib {
                 selector = interpolate(selector, ...[...arguments].slice(1)) as K;
                 target = document;
             }
+            
             let {count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?:\^(?<count>\d*))? ?(?<cssSelector>[\s\S]*)$/)!.groups!
             if(count !== undefined) {
                 if((count = +(count||'1')) === NaN || !(target instanceof Element)) return null;
@@ -114,6 +116,27 @@ namespace DomLib {
             }
         });
 
+    // internal function querySelectorAllDeep
+    function querySelectorAllDeep(selector: string, root: NodeLike = document): Element[] {
+        const elements =  [];
+        if(root instanceof Element && root.matches(selector))
+            elements.push(root);
+        if(root.childElementCount) {
+            const tw = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+            let node;
+            while(node = tw.nextNode()) {
+                if(node instanceof Element && node.matches(selector))
+                    elements.push(node);
+                if(node instanceof Element && node.shadowRoot) {
+                    elements.push(...querySelectorAllDeep(selector,node.shadowRoot));
+                } else if (node instanceof HTMLIFrameElement && node.contentWindow) {
+                    elements.push(...querySelectorAllDeep(selector,node.contentWindow.document));
+                }
+            }
+        }
+        return elements;
+    }
+
     // export const $$
     export const $$ = (function() {
         function $$<K extends keyof HTMLElementTagNameMap>(selector: K, target?: NodeLike): ArrayProxy<HTMLElementTagNameMap[K]>;
@@ -124,7 +147,13 @@ namespace DomLib {
                 selector = interpolate(selector, ...[...arguments].slice(1)) as K;
                 target = document;
             }
-            return (_lastQueryAllValue = ArrayProxy(target.querySelectorAll(selector) as NodeListOf<Element>)) as ArrayProxy<Element> | ArrayProxy<HTMLElementTagNameMap[K]>;
+
+            let {deep,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)? ?(?<cssSelector>[\s\S]*)$/)!.groups!
+            if(deep !== undefined) {
+                return _lastQueryAllValue = ArrayProxy(querySelectorAllDeep(cssSelector, target));
+            } else {
+                return (_lastQueryAllValue = ArrayProxy(target.querySelectorAll(cssSelector) as NodeListOf<Element>)) as ArrayProxy<Element> | ArrayProxy<HTMLElementTagNameMap[K]>;
+            }
         }
         return $$;
     })();
