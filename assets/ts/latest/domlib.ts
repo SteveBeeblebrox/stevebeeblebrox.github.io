@@ -26,7 +26,8 @@ namespace DomLib {
     type NodeLike = Node & {
         querySelector(selectors: string): Element | null,
         querySelectorAll(selectors: string): NodeListOf<Element>,
-        childElementCount?: number
+        childElementCount?: number,
+        closest?: (selectors: string)=>Element | null,
     };
 
     // internal type XPathQueryValue
@@ -73,6 +74,18 @@ namespace DomLib {
         Object.defineProperty(DomLib, '$xit', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryXValue}})
     }
 
+    // internal function closestDeep
+    function closestDeep(selector: string, target: NodeLike): Element | null {
+        let root: Node;
+        return target.closest?.(selector) ?? (
+            (root = target.getRootNode() as ShadowRoot).host
+                ? closestDeep(selector, (root as ShadowRoot).host)
+                : (root as Document).defaultView?.frameElement
+                    ? closestDeep(selector, (root as Document).defaultView!.frameElement!)
+                    : null
+        );
+    }
+
     // export const $
     export const $ = (function() {
         function $<K extends keyof HTMLElementTagNameMap>(selector: K, target?: NodeLike): HTMLElementTagNameMap[K] | null;
@@ -84,14 +97,22 @@ namespace DomLib {
                 target = document;
             }
             
-            let {count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?:\^(?<count>\d*))? ?(?<cssSelector>[\s\S]*)$/)!.groups!
+            let {deep,count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)?(?:\^(?<count>\d*))? ?(?<cssSelector>[\s\S]*)$/)!.groups!
             if(count !== undefined) {
                 if((count = +(count||'1')) === NaN || !(target instanceof Element)) return null;
                 let element: Element | null = target;
                 for(let i = 0; i < count;i++) {
-                    element = element?.parentElement?.closest?.(cssSelector || ':scope') ?? null;
+                    if(!element?.parentElement) {
+                        break;
+                    } else if(deep) {
+                        element = closestDeep(cssSelector || ':scope', element?.parentElement);
+                    } else {
+                        element = element?.parentElement?.closest?.(cssSelector || ':scope') ?? null;
+                    }
                 }
                 return _lastQueryValue = element;
+            } else if(deep) {
+                return _lastQueryValue = querySelectorDeep(cssSelector, target);
             } else {
                 return _lastQueryValue = target.querySelector(cssSelector);
             }
@@ -119,8 +140,6 @@ namespace DomLib {
     // internal function querySelectorAllDeep
     function querySelectorAllDeep(selector: string, root: NodeLike = document): Element[] {
         const elements =  [];
-        if(root instanceof Element && root.matches(selector))
-            elements.push(root);
         if(root.childElementCount) {
             const tw = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
             let node;
@@ -133,8 +152,38 @@ namespace DomLib {
                     elements.push(...querySelectorAllDeep(selector,node.contentWindow.document));
                 }
             }
+        } else if(root instanceof HTMLIFrameElement && root.contentWindow?.document) {
+            elements.push(...querySelectorAllDeep(selector, root.contentWindow.document));
+        } else if(root instanceof Element && root.shadowRoot) {
+            elements.push(...querySelectorAllDeep(selector, root.shadowRoot));
         }
         return elements;
+    }
+
+    function querySelectorDeep(selector: string, root: NodeLike = document): Element | null {
+        let temp;
+        if(root.childElementCount) {
+            const tw = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+            let node;
+            while(node = tw.nextNode()) {
+                if(node instanceof Element && node.matches(selector))
+                    return node;
+                if(node instanceof Element && node.shadowRoot) {
+                    if(temp = querySelectorDeep(selector,node.shadowRoot))
+                        return temp;
+                } else if (node instanceof HTMLIFrameElement && node.contentWindow) {
+                    if(temp = querySelectorDeep(selector,node.contentWindow.document))
+                        return temp;
+                }
+            }
+        } else if(root instanceof HTMLIFrameElement && root.contentWindow?.document) {
+            if(temp = querySelectorDeep(selector, root.contentWindow.document))
+                return temp;
+        } else if(root instanceof Element && root.shadowRoot) {
+            if(temp = querySelectorDeep(selector, root.shadowRoot))
+                return temp;
+        }
+        return null;
     }
 
     // export const $$
