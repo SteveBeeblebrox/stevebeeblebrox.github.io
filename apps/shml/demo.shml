@@ -1,0 +1,313 @@
+!title: SHML Demo
+# Welcome to the SHML Demo :cat:
+## Introduction
+### Inline Formatting
+Inline formatting provides markup for text that could then be placed inside most other container elements. This markup is simpler and more common than block formatting (See below).
+#### Escaped text
+`\*` -> \* (For any special character)  
+`<</**text**/>>` -> <</**text**/>> (For more than one special characters)
+
+#### Comments
+`<!-- text -->` -> Leave a comment visible in the compiled HTML, but not visible to the end user
+
+`<!!-- text --> ` -> A comment only in the source file
+#### Code
+`\`text\`` -> `text` (For monospaced font, note that any previously mentioned characters still need to be escaped) 
+#### Special Characters
+`/!/` -> /!/  
+`/?/` -> /?/  
+`/~n/` -> /~n/ (For many different letters and marks)
+
+`SS` -> SS  
+`PG` -> PG  
+`TM` -> TM  
+`(R)` or `(r)` -> (r)  
+`(c)` or `(c)` -> (c)   
+`->` -> ->  
+`<-` -> <-
+
+#### Common Formatting
+`*text*` -> *text*  
+`**text**` -> **text**  
+`***text***` -> ***text***  
+`__text__` -> __text__  
+`~~text~~` -> ~~text~~  
+`x^^2^^` -> x^^2^^  
+`H,,2,,O` -> H,,2,,O  
+`||text||` -> ||text||  
+`||[color=cyan]text||` -> ||[color=cyan]text|| (Works with any CSS color)  
+`&&text&&` -> &&text&&  
+`&&[color=magenta]text&&` -> &&[color=magenta]text&& (Works with any CSS color)
+
+#### Spoilers
+`<?text?>` -> <?text?> (Click to reveal)
+
+#### Custom Tokens
+`:text:` -> Application controlled substitution, often used for emojis
+
+
+#### Line Control
+`\p` -> Non breaking space  
+`\t` -> Tab character  
+`\n` -> New Line  
+`te-/-xt` -> Suggest where a word should break if needed
+
+Paragraphs may be separated by ending a line with `  ` (two spaces) or an empty line before the next paragraph.
+#### Links
+`[https://example.com](Example)` -> [https://example.com](Example) (Opens in current tab)  
+`+[https://example.com](Example)` -> +[https://example.com](Example) (Opens in new tab)  
+`+[mailto:bob@example.com](Bob's Email)` -> +[mailto:bob@example.com](Bob's Email) (`tel` and `mailto` links are also supported; however, other protocols are forbidden)  
+`https://example.com` -> https://example.com (Links starting with `www` or `http(s)` link by themselves)  
+`bob@example.com` -> bob@example.com (Simple emails link by themselves)
+
+#### HTML
+The `code`, `em`, `i`, `strong`, `b`, `u`, `del`, `sup`, `sub`, `mark`, `span`, `wbr`, and `br` tags may be used like normal HTML so long as they have no attributes (Ex `<b>text</b>` -> <b>text</b>).
+
+### Block Formatting
+Block formatting provides more structured options over inline formatting. 
+#### Inherited Inline Formatting
+All Inline Formatting also works as Block Formatting
+
+#### Code Blocks
+Multiline code blocks provide monospaced font to their contents and can apply syntax highlighting
+(See Code Highlighting below).
+
+
+````
+```
+text
+```
+````
+
+```
+text
+```
+
+#### Properties and Templates
+!key: my value
+`!key: my value` -> Sets "`key`" to "`my value`" (See the Properties panel to the left). Note that keys cannot have spaces while values are unrestricted and get whitespace trimmed. Properties may be reused using template or may control features of the application rendering the markup (For example, a `title` property could control a post title. Implementations will vary).
+
+`${key}` -> ${key} (Interpolates the value of `key`)
+
+#### Images
+`![/assets/images/sword_of_protection.png 40x40]` -> ![/assets/images/sword_of_protection.png 40x40] (Dimensions are optional)
+
+#### Summary Elements
+```!! Summary (click to expand) [ 
+    Details
+    More Text
+]```
+!! Summary (click to expand) [
+    Details
+    More Text
+]
+or use a `>` or `v` to force it to a certain state:   
+`!v! Summary (click to expand) [ Details ]` 
+!v! Summary (click to expand) [ Details ]
+
+#### Text alignment
+```
+@@ centered
+text
+@@ reset
+```
+@@ centered
+text
+@@ reset
+
+(Works for `left`, `right`, `centered`, and `justified` text)
+
+#### Headers
+`# Large Header`
+# Large Header
+`###### Small Header`
+###### Small Header
+
+
+Optionally add a specific ID; otherwise, it receives a procedural ID based of the text contents
+
+`#[example_id] Text`
+#[example_id] Text
+
+#### Horizontal Line
+`---` or `===` (3 or more of either `-` or `=`)
+---
+
+#### Tables
+```
+[[
+    title=Users
+    First Name, Last Name, Favorite Color
+    Bob,        Smith,     Blue
+    Jane, Doe, Green
+]]
+```
+[[
+    title=Users
+    First Name, Last Name, Favorite Color
+    Bob,        Smith,     Blue
+    Jane, Doe, Green
+]]
+(The title is optional)
+
+#### Lists
+```
++ Item
+  + Item
++ Item
+```
++ Item
+  + Item
++ Item
+
+
+```
+1. Item
+2. Item
+3. Item
+```
+1. Item
+2. Item
+3. Item
+
+```
+1) Item
+  + Item
+2) Item
+  + Item
+```
+1) Item
+  + Item
+2) Item
+  + Item
+
+#### Quotes
+```
+>>> "Quote"
+>>> - Bob Smith
+```
+>>> "Quote"
+>>>  - Bob Smith
+
+#### HTML
+In addition to the allowed inline HTML tags, `h1`-`h6`, `hr`, `blockquote`, `ul`, `ol`, and `li` may be used
+#### Paragraphs
+All other text gets wrapped into a paragraph
+
+###[code] Code Highlighting
+SHML can highlight the following languages: HTML, CSS, JavaScript, TypeScript, XML, JSON, Python, Diff files, and Java. Rust support will be added soon, and other C like languages can be done relatively well with the Java or JavaScript highlighter.
+
+
+Use the form:
+````
+```language-name
+code
+```
+````
+or to show line numbers:
+````
+```#language-name
+code
+```
+````
+#### HTML, CSS, and JavaScript
+```#html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Hello World -->
+        <title>Hello World</title>
+        <script>console.log("Hello World")</script>
+        <style>body {font-family: Arial}</style>
+    </head>
+    <html>
+        <h1>Hello World</h1>
+    </html>
+</html>
+```
+JavaScript and CSS can also be used on their own.
+```#javascript
+// Hello World
+let x = "Hello"
+console.log(x + " World! " + 2**2)
+```
+
+
+```#css
+/* Example CSS */
+body {
+    font-family: 'Courier New', monospace;
+    color: #3c0;
+    height: 4em;
+    filter: brightness(150%);
+}
+
+@page {
+    color: gray;
+}
+```
+#### TypeScript
+```#typescript
+// Hello World
+let x: string = "Hello"
+console.log(x + " World! " + 2**2)
+```
+#### XML
+```#xml
+<?xml-foo type="foobar"?>
+<!-- Example Data -->
+<foo bar="1">
+    <value>
+        <![CDATA[
+           Text...
+        ]]>
+    </value>
+</foo>
+```
+#### JSON
+```#json
+{
+    "username": "Bob",
+    "id": 12345
+    "payment info": null,
+    "verified": true
+}
+```
+#### Python
+```#python
+# Hello!
+print("Hello World")
+if True:
+    print(1 + 1);
+```
+#### Diff Files
+```#diff
+--- example.txt      timestamp
++++ example.txt      timestamp
+@@ -1,3 +1,9 @@
++ Lorem Ipsum
+- Dolor Sit Amet
+```
+#### Java
+```#java
+package com.example;
+
+@ExampleAnnotation
+class Main {
+    // Main method
+    public static void main(String[] args) {
+        for(int i = 0; i < 10; i++)
+            System.out.println("Hello World!");
+    }
+}
+```
+
+@@centered
+(C) 2022 S.B.
+@@reset
+
+
+
+
+
+

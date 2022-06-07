@@ -1,0 +1,183 @@
+body {
+    background-color: #fdfdfe;
+    margin:40px auto;
+    max-width:650px;
+    line-height:1.6;
+    font-size:18px;
+    color:#444;
+    padding:0 10px;
+    font-family: Arial, Helvetica, sans-serif;
+
+    :is(h1, h2, h3, h4, h5, h6) a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    summary {
+        cursor: pointer;
+    }
+
+    :is(summary, a):hover {
+        &> img {
+            filter: brightness(75%);
+        }
+        filter: brightness(150%);
+    }
+
+    table {
+        border-collapse: collapse;
+        :not(thead) tr:nth-of-type(odd) {
+            background-color: #f7f7f7;
+        }
+        th, td {
+            border: 1px solid currentColor;
+            padding: 0.25em;
+        }
+    }
+
+    &>code, :not(pre)>code, pre {
+        background-color: #f7f7f7;
+        border-radius: 4px;
+    }
+    pre {
+        padding: 0.5em;
+        overflow-x: auto;
+    }
+    &>code, :not(pre)>code {
+        padding: 0.25em;
+    }
+    code {
+        word-wrap: break-word;
+
+        [data-code-language="html"] {
+            // [data-code-token="comment"] {}
+            [data-code-token="doctype"] {
+                font-style: italic;
+                color: #808080;
+            }
+            // [data-code-token="string"] {}
+            // [data-code-token="tag"] {}
+            
+        }
+        [data-code-language="css"] {
+            // [data-code-token="string"] {}
+            // [data-code-token="comment"] {}
+            // [data-code-token="keyword"] {}
+            [data-code-token="selector"] {
+                color: #00f;
+            }
+            [data-code-token="property"] {
+                color: #137fc7;
+            }
+            // [data-code-token="number"] {}
+            [data-code-token="hexadecimal"] {
+                color: #0086b3;
+            }
+            [data-code-token="function"] {
+                color: #d3a305;
+            }
+            [data-code-token="other"] {
+                color: #3a0d6d;
+            }
+        }
+        [data-code-language="javascript"] {
+            // [data-code-token="string"] {}
+            // [data-code-token="comment"] {}
+            // [data-code-token="number"] {}
+            // [data-code-token="keyword"] {}
+        }
+        [data-code-language="typescript"] {
+            // [data-code-token="string"] {}
+            // [data-code-token="comment"] {}
+            // [data-code-token="number"] {}
+            // [data-code-token="keyword"] {}
+
+        }
+        [data-code-language="xml"] {
+            // [data-code-token="comment"] {}
+            [data-code-token="processing-instruction"] {
+                font-style: italic;
+                color: #808080;
+            }
+            [data-code-token="cdata"] {
+                color: #808080;
+            }
+            [data-code-token="cdata-content"] {
+                font-style: italic;
+            }
+            // [data-code-token="string"] {}
+            // [data-code-token="tag"] {}
+
+        }
+        [data-code-language="json"] {
+            // [data-code-token="string"] {}
+            // [data-code-token="number"] {}
+            // [data-code-token="keyword"] {}
+        }
+        [data-code-language="python"] {
+            // [data-code-token="string"] {}
+            // [data-code-token="comment"] {}
+            // [data-code-token="number"] {}
+            // [data-code-token="keyword"] {}
+
+            [data-code-token="value"] {
+                font-weight: bold;
+                color: navy;
+            }
+        }
+        [data-code-language="diff"] {
+            [data-code-token="heading"] {
+                font-style: italic;
+                color: navy;
+            }
+            [data-code-token="range"] {
+                font-weight: bold;
+                color: navy;
+            }
+            [data-code-token="insertion"] {
+                color: rgb(19, 168, 19);
+            }
+            [data-code-token="deletion"] {
+                color: rgb(218, 7, 7);
+            }
+        }
+        [data-code-language="java"] {
+            // [data-code-token="string"] {}
+            // [data-code-token="comment"] {}
+            // [data-code-token="number"] {}
+            // [data-code-token="keyword"] {}
+
+            [data-code-token="annotation"] {
+                font-weight: bold;
+                color: #008080;
+            }
+        }
+
+        [data-code-language] {
+            [data-code-token="string"] {
+                color: #ad0000;
+            }
+            [data-code-token="comment"] {
+                color: #808080;
+            }
+            [data-code-token="keyword"] {
+                font-weight: bold;
+                color: #8d06c2;
+            }
+            [data-code-token="number"] {
+                color: #0703f3;
+            }
+            [data-code-token="tag"] {
+                color: #0703f3;
+            }
+        }
+
+        [data-code-token="line-number"] {
+            user-select: none;
+            margin-right: 1ch;
+            color: #808080;
+        }
+
+        // [data-code-token="line"] {}
+    }
+}

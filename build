@@ -1,0 +1,151 @@
+#! /bin/bash
+ACTION=$1
+shift
+
+USERNAME=SteveBeeblebrox
+
+mkdir -p tools
+
+if [ ! $(ls tools | grep mtsc.exe) ]; then
+    echo "Error: mtsc.exe not found. Please download from https://github.com/$USERNAME/MTSC/releases and place in ./tools"
+    return 1
+fi
+
+if [ ! $(ls tools | grep pt.exe) ]; then
+    echo "Error: pt.exe not found. Please download from https://github.com/$USERNAME/PT/releases and place in ./tools"
+    return 1
+fi
+
+if [ ! $(ls tools | grep mless.exe) ]; then
+    echo "Error: mless.exe not found. Please download from https://github.com/$USERNAME/MLESS/releases and place in ./tools"
+    return 1
+fi
+
+if [ ! $(ls tools | grep sitemap.py) ]; then
+    echo "Error: sitemap.py not found. Please download and place in ./tools"
+    return 1
+fi
+
+if [ ! $(ls tools | grep generator.py) ]; then
+    echo "Error: generator.py not found. Please download and place in ./tools"
+    return 1
+fi
+
+if [ ! $(ls | grep globals.py) ]; then
+    touch globals.py
+fi
+
+function tsc() {
+    tools/mtsc.exe --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $(tools/pt.exe $1 ts~js '(?<=\.m|\.)ts$~~js' '(?=\..?js.?$)~~.min')
+}
+
+function less() {
+    tools/mless.exe $1 --out= > $(tools/pt.exe $1 less~css -e css)
+}
+
+function htmlx() {
+    python3 tools/generator.py $1 | tools/mtsc.exe --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out | tools/mless.exe --html --verbose --out= > $(tools/pt.exe $1 -e html)
+}
+
+function compile() {
+    filename=$(basename "$1")
+    type="${filename##*.}"
+    if [ "$type" == 'ts' ]; then
+        tsc $1
+    elif [ "$type" == 'less' ]; then
+        less $1
+    elif [ "$type" == 'htmlx' ]; then
+        htmlx $1
+    elif [ "$type" == 'grc' ]; then
+        fetch $1
+    else
+        echo "Unsupported file type: '$type' for file '$1'"
+    fi
+}
+
+function _findext() {
+    find | grep -P '\.'$1'$' | grep -Pv '/snapshot-\d{2}-\d{2}-\d{4}'
+}
+
+function fetch() {
+    curl https://raw.githubusercontent.com/"$(cat $1)" 2>/dev/null > "$(tools/pt.exe $1 --ext=)"
+}
+
+if [ "$ACTION" == 'fetch' ]; then
+    fetch $@
+elif [ "$ACTION" == 'snapshot' ]; then
+    now=$(date +"%d-%m-%Y")
+    for dir in $(find -type d | grep -P '/latest$'); do
+        cp -r $dir $(tools/pt.exe $dir "(?<=/)latest$~~snapshot-$now")
+    done
+elif [ "$ACTION" == 'less' ]; then
+    less $@
+elif [ "$ACTION" == 'tsc' ]; then
+    tsc $@
+elif [ "$ACTION" == 'htmlx' ]; then
+    htmlx $@
+elif [ "$ACTION" == 'compile' ]; then
+    compile $@
+elif [ "$ACTION" == 'run' ]; then
+    python3 -m http.server --bind localhost
+elif [ "$ACTION" == 'sitemap' ]; then
+    python3 tools/sitemap.py
+elif [ "$ACTION" == 'watch' ]; then
+    while true; do
+        inotifywait -e modify $1 &>/dev/null && compile $1
+    done
+elif [ "$ACTION" == 'help' ]; then
+    cat << HELPTEXT
+=== Buildscript Help ===
+(C) 2022 $USERNAME
+
+Usage:
+    ./build                     Run the whole build process (fetch > less > tsc > htmlx > sitemap)
+                                for all appropriate files
+    ./build [action] ...args    Runs the given subcommand
+
+Actions:
+    fetch <file>      Writes the contents of <GitHub User>/<GitHub Repo>/<branch>/<file...> found by reading
+                      the input file to the input file's name with the grc extension removed.
+    snapshot          Copies all 'latest' folders to 'snapshot-DD-MM-YYYY' folders in the same location
+    less <file>       Runs a less compiler on the input file
+    tsc <file>        Runs a TypeScript compiler on the input file and minifies the output
+    htmlx <file>      Runs interpolation, TypeScript compiling, and Less compiling on the given file
+    compile <file>    Calls fetch, less, tsc, and/or htmlx depending on the input file type
+    run               Shortcut for runing Python server on localhost
+    sitemap           Generates a sitemap ignoring hidden files starting with a '.'
+    watch <file>      Re-runs compile on the input file whenever it changes
+    help              Shows this message
+    update            Updates this script and its dependencies from GitHub (NYI)
+
+HELPTEXT
+elif [ "$ACTION" == 'update' ]; then
+    echo "Automatic updating not yet supported"
+elif [ "$ACTION" == '' ]; then
+    echo "Updating dependencies..."
+    for file in $(_findext grc); do
+        fetch $file
+    done
+    
+    echo "Compiling Less..."
+    for file in $(_findext less); do
+       less $file
+    done;
+
+    echo "Compiling TypeScript..."
+    for file in $(_findext ts); do
+       tsc $file
+    done;
+
+    echo "Generating HTML..."
+    for file in $(_findext htmlx); do
+        htmlx $file
+    done;
+
+    echo "Generating Sitemap..."
+    python3 tools/sitemap.py
+
+    echo "Done!"
+else
+    echo 'Unknown command try "./build help"'
+fi
