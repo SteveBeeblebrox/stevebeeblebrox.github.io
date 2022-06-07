@@ -43,13 +43,6 @@ function less() {
     tools/mless.exe $1 --out= > $(tools/pt.exe $1 less~css -e css)
 }
 
-function _fetch() {
-    GIT_URL=https://raw.githubusercontent.com
-    DEFAULT_BRANCH=main
-    
-    curl $GIT_URL/$1 2>/dev/null
-}
-
 function htmlx() {
     python3 tools/generator.py $1 | tools/mtsc.exe --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out | tools/mless.exe --html --verbose --out= > $(tools/pt.exe $1 -e html)
 }

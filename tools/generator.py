@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import globals as user_globals
 import fileinput
 import textwrap
