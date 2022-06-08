@@ -57,6 +57,8 @@
                         
                         if(compression === 'LZW')
                             contents = LZWCompression.unzip(contents);
+                        else if(compression === 'ENC-LZW')
+                            contents = decodeURIComponent(LZWCompression.unzip(contents));
                         else if(compression !== 'NONE')
                             throw new Error(`Unsupported compression: ${compression}`);
                         

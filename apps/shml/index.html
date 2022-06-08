@@ -173,6 +173,8 @@
                         throw new Error(`Unsupported type: ${type}`);
                     if (compression === 'LZW')
                         contents = LZWCompression.unzip(contents);
+                    else if (compression === 'ENC-LZW')
+                        contents = decodeURIComponent(LZWCompression.unzip(contents));
                     else if (compression !== 'NONE')
                         throw new Error(`Unsupported compression: ${compression}`);
                     if (encryption === 'AES-GCM')
@@ -190,7 +192,7 @@
             async function toArchive(text, password) {
                 if (password != null)
                     text = await AESGCMEncryption.encrypt(text, typeof password === 'string' ? password : password());
-                return `:SHML:${SHML.VERSION}:${text ? 'LZW' : 'NONE'}:${password != null ? 'AES-GCM' : 'NONE'}:\n${text ? LZWCompression.zip(text) : text}`;
+                return `:SHML:${SHML.VERSION}:${text ? 'ENC-LZW' : 'NONE'}:${password != null ? 'AES-GCM' : 'NONE'}:\n${text ? LZWCompression.zip(encodeURIComponent(text)) : text}`;
             }
             window.$on('load', async function () {
                 const params = new URLSearchParams(window.location.search);
