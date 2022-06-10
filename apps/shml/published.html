@@ -76,7 +76,7 @@
                 async function getTextInput() {
                     const params = new URLSearchParams(location.search);
                     if(params.has('src'))
-                        return await (await fetch(params.get('src'))).text;
+                        return await (await fetch(params.get('src'))).text();
                     else
                         return await fromArchive(LZWCompression.unzip(params.get('text')));
                 }
