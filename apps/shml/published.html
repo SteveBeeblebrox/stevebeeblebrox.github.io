@@ -78,10 +78,10 @@
                     if(params.has('src'))
                         return await (await fetch(params.get('src'))).text;
                     else
-                        return params.get('text')
+                        return await fromArchive(LZWCompression.unzip(params.get('text')));
                 }
 
-                const result = SHML.parseMarkup(await fromArchive(LZWCompression.unzip(await getTextInput())),{get(key) {
+                const result = SHML.parseMarkup(await getTextInput(),{get(key) {
                     return `<img src="https://emojicdn.elk.sh/${emojis[key]}?style=google" style="height:1em;width:1em;vertical-align:text-top;"/>`;
                 }});
 
