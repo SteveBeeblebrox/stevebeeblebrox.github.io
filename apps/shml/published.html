@@ -73,7 +73,15 @@
                     }
                 }
 
-                const result = SHML.parseMarkup(await fromArchive(LZWCompression.unzip(new URLSearchParams(location.search).get('text'))),{get(key) {
+                async function getTextInput() {
+                    const params = new URLSearchParams(location.search);
+                    if(params.has('src'))
+                        return await (await fetch(params.get('src'))).text;
+                    else
+                        return params.get('text')
+                }
+
+                const result = SHML.parseMarkup(await fromArchive(LZWCompression.unzip(await getTextInput())),{get(key) {
                     return `<img src="https://emojicdn.elk.sh/${emojis[key]}?style=google" style="height:1em;width:1em;vertical-align:text-top;"/>`;
                 }});
 
