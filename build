@@ -112,7 +112,7 @@ Actions:
     tsc <file>        Runs a TypeScript compiler on the input file and minifies the output
     htmlx <file>      Runs interpolation, TypeScript compiling, and Less compiling on the given file
     compile <file>    Calls fetch, less, tsc, and/or htmlx depending on the input file type
-    run               Shortcut for runing Python server on localhost
+    run               Shortcut for running a Python server on localhost
     sitemap           Generates a sitemap ignoring hidden files starting with a '.'
     watch <file>      Re-runs compile on the input file whenever it changes
     help              Shows this message
