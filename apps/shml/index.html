@@ -285,7 +285,7 @@
             </span>
             <script>
                 $ctx = JSX.createElement("span", null,
-                    JSX.createElement("input", { value: titleState, oninput: titleState.consume('value') }),
+                    JSX.createElement("input", { value: titleState, oninput: titleState.consume(e => e.target.value) }),
                     JSX.createElement("b", null, " - SHML Editor"));
             </script>
             <span>
@@ -347,7 +347,7 @@
             <span>
                 <script>
                     $ctx = JSX.createElement("label", null,
-                        JSX.createElement("input", { type: "checkbox", checked: tainted, oninput: tainted.consume('checked') }),
+                        JSX.createElement("input", { type: "checkbox", checked: tainted, oninput: tainted.consume(e => e.target.checked) }),
                         "Encrypted sharing ",
                         JSX.createElement("i", null, "(\u26A0 Disables auto-save!)"));
                 </script>

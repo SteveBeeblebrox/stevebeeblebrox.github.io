@@ -65,14 +65,11 @@ namespace JSX {
             });
             return this.value;
         }
-        consume(path: string, argIndex?: number) {
+        consume(f: (...args:any[])=>T) {
             const state = this;
-            return function(this: any) {
-                state.set(path.split('.').reduce((acc: any, key: string) => acc[key], argIndex !== undefined ? arguments[argIndex] : this) as T)
+            return function(this: any, ...args: any[]) {
+                state.set(f.bind(this)(...args));
             }
-        }
-        consumeEvent(path: string) {
-            return this.consume(path, 0);
         }
         format<K>(formatter: (t:T)=>K): StateFormatter<T,K> {
             const stateFormatter = new StateFormatter(this, formatter);
@@ -93,11 +90,8 @@ namespace JSX {
         get(): K {
             return this.formatter(this.state.get());
         }
-        consume(path: string, argIndex?: number) {
-            return this.state.consume(path, argIndex);
-        }
-        consumeEvent(path: string) {
-            return this.state.consumeEvent(path);
+        consume(f: (...args:any[])=>T) {
+            return this.state.consume(f);
         }
     }
     export const createState = function createState<T>(t:T): State<T> {

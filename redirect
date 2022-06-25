@@ -1,0 +1,2 @@
+mkdir -p l
+echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta http-equiv=\"refresh\" content=\"0; url=$2\"></head><body><p>Redirecting you to $2</p></body></html>" > l/$1.html

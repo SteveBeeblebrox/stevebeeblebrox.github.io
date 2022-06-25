@@ -279,7 +279,7 @@
                 <script>(function($last) {tainted.connectCallback(o=>o.disabled=o)})($last);</script>
             </span>
             <script %{TS}>
-                $ctx=<span><input value={titleState} oninput={titleState.consume('value')}/><b> - SHML Editor</b></span>
+                $ctx=<span><input value={titleState} oninput={titleState.consume(e=>e.target.value)}/><b> - SHML Editor</b></span>
             </script>
             <span>
                 <button title="Share (Alt+S)" onclick="actions.share()">
@@ -341,7 +341,7 @@
         <footer class="flex-distribute">
             <span>
                 <script %{TS}>
-                    $ctx=<label><input type="checkbox" checked={tainted} oninput={tainted.consume('checked')}/>Encrypted sharing <i>(&#9888; Disables auto-save!)</i></label>
+                    $ctx=<label><input type="checkbox" checked={tainted} oninput={tainted.consume(e=>e.target.checked)}/>Encrypted sharing <i>(&#9888; Disables auto-save!)</i></label>
                 </script>
             </span>
             <span></span>

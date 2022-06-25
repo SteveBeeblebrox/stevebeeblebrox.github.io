@@ -13,3 +13,4 @@ VFS_SCRIPTS = '''
         <script src="/assets/js/vfs.min.js"></script>
 '''
 TS='type="text/typescript"'
+TSMODULE='type="tsmodule"'
