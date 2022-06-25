@@ -30,14 +30,16 @@
               flex-direction: column;
               justify-content: space-evenly;
               padding: 1em;
+              overflow: hidden;
             }
             :root {
-              --status-trigger: #b70808;
-              --status-banned: red;
-              --status-unknown: #8f8f8f;
-              --status-ok: #00ff62;
-              --status-at-risk: #f6ff00;
-              --status-other: #ff38e1;
+              --status-color-trigger: #b70808;
+              --status-color-banned: red;
+              --status-color-unknown: #8f8f8f;
+              --status-color-ok: #00ff62;
+              --status-color-at-risk: #f6ff00;
+              --status-color-other: #ff38e1;
+              --show-details: 0;
             }
             svg .dccircle {
               display: none;
@@ -52,23 +54,23 @@
               filter: brightness(85%);
             }
             svg .state > path.status-trigger {
-              fill: var(--status-trigger);
+              fill: var(--status-color-trigger);
             }
             svg .state > path.status-banned {
-              fill: var(--status-banned);
+              fill: var(--status-color-banned);
             }
             svg .state > path,
             svg .state > path .status-unknown {
-              fill: var(--status-unknown);
+              fill: var(--status-color-unknown);
             }
             svg .state > path.status-ok {
-              fill: var(--status-ok);
+              fill: var(--status-color-ok);
             }
             svg .state > path.status-at-risk {
-              fill: var(--status-at-risk);
+              fill: var(--status-color-at-risk);
             }
             svg .state > path.status-other {
-              fill: var(--status-other);
+              fill: var(--status-color-other);
             }
             header {
               display: flex;
@@ -93,6 +95,16 @@
               text-indent: -2ch;
               padding-left: 2ch;
             }
+            article {
+              background-color: whitesmoke;
+              height: 100%;
+              position: absolute;
+              right: calc(min(90%, 400px) * (var(--show-details) - 1) * 1.1);
+              width: min(90%, 400px);
+              box-shadow: -4px 0px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+              transition: right 0.2s linear;
+              padding: 1em;
+            }
         </style>
         <script type="module">
             function emit(data) {
@@ -113,19 +125,36 @@
             emit({ DATA, POSTAL_CODES });
             const $map = $ `svg.usmap`;
             $map.$$self `.state>path`.$forEach(function ($state) {
-                var _a, _b, _c;
+                var _a, _b, _c, _d;
                 $state.dataset.name = $state.$self('title').textContent;
                 $state.dataset.postalCode = $state.classList[0];
+                $state.dataset.json = (_a = DATA[$state.dataset.postalCode]) !== null && _a !== void 0 ? _a : '{}';
                 $state.$self('title').textContent = `${$state.dataset.name} (${$state.dataset.postalCode.toUpperCase()})`;
-                $state.classList.add(`status-${(_c = (_b = (_a = DATA[$state.dataset.postalCode]) === null || _a === void 0 ? void 0 : _a.status) === null || _b === void 0 ? void 0 : _b.replace(/ /g, '-')) !== null && _c !== void 0 ? _c : 'unknown'}`);
+                $state.classList.add(`status-${(_d = (_c = (_b = DATA[$state.dataset.postalCode]) === null || _b === void 0 ? void 0 : _b.status) === null || _c === void 0 ? void 0 : _c.replace(/ /g, '-')) !== null && _d !== void 0 ? _d : 'unknown'}`);
                 $state.$on('click', function (event) {
                     titleState.set($state.dataset.name);
+                    showDetails($state);
                     event.stopPropagation();
                 }, { capture: true });
             });
             $map.$on('click', function () {
                 titleState.set('Overview');
+                hideDetails();
             });
+            $ `header`.$on('click', function () {
+                titleState.set('Overview');
+                hideDetails();
+            });
+        </script>
+        <script>
+            const titleState = JSX.createState('Overview')
+            titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
+            function showDetails() {
+                document.documentElement.style.setProperty('--show-details', +true)
+            }
+            function hideDetails() {
+                document.documentElement.style.setProperty('--show-details', +false)
+            }
         </script>
     </head>
     <body>
@@ -467,17 +496,15 @@
 </svg>
         
         <header>
+            <hgroup>
+                <script>
+$ctx = JSX.createElement("h1", null,
+    "U.S. Abortion Ban Map | ",
+    titleState);</script>
+                <h2>This is <em>not</em> legal advice. This map is a good starting point, but always do your own research to be sure.</h2>
+            </hgroup>
             <script>
-                const titleState = JSX.createState('Overview');
-                $ctx = JSX.createElement("hgroup", null,
-                    JSX.createElement("h1", null,
-                        "U.S. Abortion Ban Map | ",
-                        titleState),
-                    JSX.createElement("h2", null,
-                        "This is ",
-                        JSX.createElement("em", null, "not"),
-                        " legal advice. This map is a good starting point, but always do your own research to be sure."));
-                titleState.connectCallback(v => document.title = `U.S. Abortion Ban Map | ${v}`);
+
             </script>
             <script>
                 $ctx = JSX.createElement("div", null, Object.entries({
@@ -488,10 +515,17 @@
                     'at-risk': 'At risk of being banned',
                     other: 'Other, see notes'
                 }).map(([key, value]) => JSX.createElement("p", null,
-                    JSX.createElement("span", { style: `color:var(--status-${key});` }, "\u2B24"),
+                    JSX.createElement("span", { style: `color:var(--status-color-${key});` }, "\u2B24"),
                     " ",
                     value)));
               </script>
         </header>
+        <article>
+            <script>
+                $ctx = JSX.createElement("h1", null,
+                    titleState,
+                    " | Details");
+            </script>
+        </article>
     </body>
 </html>

@@ -22,15 +22,17 @@
                     flex-direction: column;
                     justify-content: space-evenly;
                     padding: 1em;
+                    overflow: hidden;
                 }
             }
             :root {
-                --status-trigger: rgb(183, 8, 8);
-                --status-banned: red;
-                --status-unknown: rgb(143, 143, 143);
-                --status-ok: rgb(0, 255, 98);
-                --status-at-risk: rgb(246, 255, 0);
-                --status-other: rgb(255, 56, 225);
+                --status-color-trigger: rgb(183, 8, 8);
+                --status-color-banned: red;
+                --status-color-unknown: rgb(143, 143, 143);
+                --status-color-ok: rgb(0, 255, 98);
+                --status-color-at-risk: rgb(246, 255, 0);
+                --status-color-other: rgb(255, 56, 225);
+                --show-details: 0;
             }
             svg {
                 .dccircle {display:none;}
@@ -42,12 +44,12 @@
                     &:hover {
                         filter: brightness(85%);
                     }
-                    &.status-trigger {fill: var(--status-trigger);}
-                    &.status-banned {fill: var(--status-banned);}
-                    &,.status-unknown {fill: var(--status-unknown);}
-                    &.status-ok {fill: var(--status-ok);}
-                    &.status-at-risk {fill: var(--status-at-risk);}
-                    &.status-other {fill: var(--status-other);}
+                    &.status-trigger {fill: var(--status-color-trigger);}
+                    &.status-banned {fill: var(--status-color-banned);}
+                    &,.status-unknown {fill: var(--status-color-unknown);}
+                    &.status-ok {fill: var(--status-color-ok);}
+                    &.status-at-risk {fill: var(--status-color-at-risk);}
+                    &.status-other {fill: var(--status-color-other);}
                 }
             }
             header {
@@ -73,6 +75,16 @@
                     }
                 }
             }
+            article {
+                background-color: whitesmoke;
+                height: 100%;
+                position: absolute;
+                right: calc(min(90%, 400px) * (var(--show-details) - 1) * 1.1);
+                width: min(90%, 400px);
+                box-shadow: -4px 0px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+                transition: right 0.2s linear;
+                padding: 1em;
+            }
         </style>
         <script %{TSMODULE}>
             function emit(data) {
@@ -95,17 +107,34 @@
             const $map = $`svg.usmap`
             $map.$$self`.state>path`.$forEach(function($state) {
                 $state.dataset.name = $state.$self('title').textContent;
-                $state.dataset.postalCode=$state.classList[0];
+                $state.dataset.postalCode = $state.classList[0];
+                $state.dataset.json = DATA[$state.dataset.postalCode] ?? '{}';
                 $state.$self('title').textContent = `${$state.dataset.name} (${$state.dataset.postalCode.toUpperCase()})`;
                 $state.classList.add(`status-${DATA[$state.dataset.postalCode]?.status?.replace(/ /g, '-') ?? 'unknown'}`);   
                 $state.$on('click', function(event) {
                     titleState.set($state.dataset.name);
+                    showDetails($state);
                     event.stopPropagation();
                 }, {capture: true});
             })
             $map.$on('click', function() {
-                titleState.set('Overview')
+                titleState.set('Overview');
+                hideDetails();
             });
+            $`header`.$on('click', function() {
+                titleState.set('Overview');
+                hideDetails();
+            });
+        </script>
+        <script>
+            const titleState = JSX.createState('Overview')
+            titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
+            function showDetails() {
+                document.documentElement.style.setProperty('--show-details', +true)
+            }
+            function hideDetails() {
+                document.documentElement.style.setProperty('--show-details', +false)
+            }
         </script>
     </head>
     <body>
@@ -117,13 +146,12 @@
             }
         
         <header>
+            <hgroup>
+                <script %{TS}>$ctx=<h1>U.S. Abortion Ban Map | {titleState}</h1></script>
+                <h2>This is <em>not</em> legal advice. This map is a good starting point, but always do your own research to be sure.</h2>
+            </hgroup>
             <script %{TS}>
-                const titleState = JSX.createState('Overview')
-                $ctx=<hgroup>
-                        <h1>U.S. Abortion Ban Map | {titleState}</h1>
-                        <h2>This is <em>not</em> legal advice. This map is a good starting point, but always do your own research to be sure.</h2>
-                    </hgroup>
-                titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
+                
             </script>
             <script %{TS}>
                 $ctx=<div>
@@ -134,9 +162,14 @@
                     ok: 'Still Legal',
                     'at-risk': 'At risk of being banned',
                     other: 'Other, see notes'
-                  }).map(([key,value])=><p><span style={`color:var(--status-${key});`}>&#x2B24;</span> {value}</p>)}
+                  }).map(([key,value])=><p><span style={`color:var(--status-color-${key});`}>&#x2B24;</span> {value}</p>)}
                 </div>
               </script>
         </header>
+        <article>
+            <script %{TS}>
+                $ctx=<h1>{titleState} | Details</h1>
+            </script>
+        </article>
     </body>
 </html>
