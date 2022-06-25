@@ -32,6 +32,13 @@
               padding: 1em;
               overflow: hidden;
             }
+            html body > span:first-child {
+              color: silver;
+              position: fixed;
+              top: 1em;
+              left: 1em;
+              font-size: x-small;
+            }
             :root {
               --status-color-trigger: #b70808;
               --status-color-banned: red;
@@ -96,6 +103,7 @@
               padding-left: 2ch;
             }
             article {
+              overflow-y: scroll;
               background-color: whitesmoke;
               height: 100%;
               position: fixed;
@@ -105,8 +113,58 @@
               transition: right 0.2s linear;
               padding: 1em;
             }
+            article h1 {
+              display: flex;
+              justify-content: space-between;
+            }
+            article h1 span:first-of-type {
+              cursor: pointer;
+            }
+            article h1 span:first-of-type::first-letter {
+              vertical-align: top;
+            }
+            article h1 span:first-of-type:active {
+              cursor: grabbing;
+            }
+            article h2 {
+              border-bottom: 2px solid currentColor;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            table :not(thead) tr:nth-of-type(odd) {
+              background-color: #eeeeee;
+            }
+            table th,
+            table td {
+              border: 1px solid currentColor;
+              padding: 0.25em;
+            }
+            table tr td:first-child span:first-child {
+              font-weight: bold;
+            }
+            table tr td:first-child span:first-child::after {
+              content: ':';
+            }
+            table tr td:first-child span:nth-child(2) {
+              font-size: small;
+              cursor: help;
+              display: block;
+            }
+            table tr td:last-child {
+              width: 25%;
+            }
         </style>
         <script type="module">
+            var _a, _b, _c;
+            function nanCoalesce(...args) {
+                let a = +args[0];
+                for (let i = 0; i < args.length; i++)
+                    if (Number.isNaN(+a) && i + 1 < args.length)
+                        a = +args[i + 1];
+                return a;
+            }
             function emit(data) {
                 for (const [key, value] of Object.entries(data))
                     window[key] = value;
@@ -120,44 +178,115 @@
                     return null;
                 }
             }
-            const DATA = JSION.parse(await text('data.jsion'));
-            const POSTAL_CODES = Object.fromEntries(Object.entries(JSION.parse(await text('states.jsion'))).map(p => p.reverse()));
-            emit({ DATA, POSTAL_CODES });
+            const DATA = JSION.parse(await text(`data.jsion?v=${Math.random().toString().substring(2)}`));
+            emit({ DATA });
             const $map = $ `svg.usmap`;
             $map.$$self `.state>path`.$forEach(function ($state) {
                 var _a, _b, _c, _d;
                 $state.dataset.name = $state.$self('title').textContent;
                 $state.dataset.postalCode = $state.classList[0];
-                $state.dataset.json = (_a = DATA[$state.dataset.postalCode]) !== null && _a !== void 0 ? _a : '{}';
+                $state.dataset.json = JSON.stringify((_a = DATA[$state.dataset.postalCode]) !== null && _a !== void 0 ? _a : {});
                 $state.$self('title').textContent = `${$state.dataset.name} (${$state.dataset.postalCode.toUpperCase()})`;
                 $state.classList.add(`status-${(_d = (_c = (_b = DATA[$state.dataset.postalCode]) === null || _b === void 0 ? void 0 : _b.status) === null || _c === void 0 ? void 0 : _c.replace(/ /g, '-')) !== null && _d !== void 0 ? _d : 'unknown'}`);
                 $state.$on('click', function (event) {
-                    titleState.set($state.dataset.name);
                     showDetails($state);
                     event.stopPropagation();
                 }, { capture: true });
             });
             $map.$on('click', function () {
-                titleState.set('Overview');
                 hideDetails();
             });
             $ `header`.$on('click', function () {
-                titleState.set('Overview');
                 hideDetails();
             });
+            if (Object.keys(DATA).includes(window.location.hash.substring(1))) {
+                showDetails($map.$self(`.${window.location.hash.substring(1)}`));
+            }
+            const $time = $ `time`;
+            const dataChangedTimestamp = new Date(((_c = (_b = (_a = JSON.parse(await text(`/sitemap.json?v=${Math.random().toString().substring(2)}`))) === null || _a === void 0 ? void 0 : _a['apps']) === null || _b === void 0 ? void 0 : _b['abortionbanmap']) === null || _c === void 0 ? void 0 : _c['data.jsion']) * 1000);
+            $time.datetime = dataChangedTimestamp.toISOString();
+            $time.textContent = dataChangedTimestamp.toLocaleString();
         </script>
         <script>
-            const titleState = JSX.createState('Overview')
-            titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
-            function showDetails() {
-                document.documentElement.style.setProperty('--show-details', +true)
+            const STATUSES = {
+                trigger: 'Banned by trigger law',
+                banned: 'Banned',
+                unknown: 'Unknown, no data',
+                ok: 'Still Legal',
+                'at-risk': 'At risk of being banned',
+                other: 'Other, see notes'
+            };
+            const titleState = JSX.createState('Overview');
+            titleState.connectCallback(v => document.title = `U.S. Abortion Ban Map | ${v}`);
+            const toYesNo = b => b ? 'Yes' : 'No';
+            function showDetails($state) {
+                var _a, _b, _c, _d;
+                titleState.set($state.dataset.name);
+                window.location.hash = $state.dataset.postalCode;
+                document.documentElement.style.setProperty('--show-details', +true);
+                const json = JSON.parse($state.dataset.json);
+                const data = {};
+                data['Status'] = JSX.createElement(null, null, (_a = STATUSES[json.status]) !== null && _a !== void 0 ? _a : 'Unknown',
+                    JSX.createElement("hr", { style: `--color: var(--status-color-${(_d = (_c = (_b = json.status) === null || _b === void 0 ? void 0 : _b.replace) === null || _c === void 0 ? void 0 : _c.call(_b, / /g, '-')) !== null && _d !== void 0 ? _d : 'unknown'});background-color:var(--color);border: 1px solid var(--color);height:2px;margin-bottom:0;margin-top:4px;` }));
+                if ('applyAfter' in json) {
+                    let value = json.applyAfter;
+                    if (typeof value == 'number')
+                        value += ' months';
+                    else
+                        value = json.applyAfter;
+                    data['Ban Applicable After'] = value;
+                }
+                if ('global' in json)
+                    data['Applies Out of State | Does this ban apply for citizen who go out of state to get an abortion?'] = toYesNo(json.global);
+                if ('penalties' in json) {
+                    const penalties = json.penalties;
+                    if ('fine' in penalties) {
+                        const value = penalties.fine;
+                        if (typeof value === 'number')
+                            data['Fine | Maximum fine you could face'] = `\$${value}`;
+                        else
+                            data['Fine | Could you face a fine for getting an abortion?'] = toYesNo(value);
+                    }
+                    if ('jail' in penalties) {
+                        const value = penalties.fine;
+                        if (typeof value === 'number')
+                            data['Jail Time | Maximum jail time you could face'] = `${value} years`;
+                        else
+                            data['Jail Time | Could you face jail time for getting an abortion?'] = toYesNo(value);
+                    }
+                    if ('isMurder' in penalties) {
+                        const value = penalties.isMurder;
+                        data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value);
+                    }
+                }
+                $ `article>section`.replaceChildren(JSX.createElement(null, null,
+                    JSX.createElement("h2", null, "Overview"),
+                    JSX.createElement("table", null,
+                        JSX.createElement("tbody", null, Object.entries(data).map(([key, value]) => {
+                            var _a, _b, _c, _d, _e, _f;
+                            return JSX.createElement("tr", null,
+                                JSX.createElement("td", null,
+                                    JSX.createElement("span", null, (_b = (_a = key.split(/\|(.*)/s)[0]) === null || _a === void 0 ? void 0 : _a.trim) === null || _b === void 0 ? void 0 : _b.call(_a)),
+                                    JSX.createElement("span", null, (_f = (_e = (_d = (_c = key.split(/\|(.*)/s)) === null || _c === void 0 ? void 0 : _c[1]) === null || _d === void 0 ? void 0 : _d.trim) === null || _e === void 0 ? void 0 : _e.call(_d)) !== null && _f !== void 0 ? _f : '')),
+                                JSX.createElement("td", null, value));
+                        }))),
+                    'notes' in json ? JSX.createElement(null, null,
+                        JSX.createElement("h2", null, "Notes"),
+                        Object.assign(JSX.createElement("p", null), { innerHTML: SHML.parseInlineMarkup(json.notes) })) : '',
+                    'links' in json ? JSX.createElement(null, null,
+                        JSX.createElement("h2", null, "Useful Links"),
+                        JSX.createElement("ul", null, json.links.map(link => JSX.createElement("li", null,
+                            JSX.createElement("a", { target: "_blank", title: link, href: link }, link))))) : ''));
             }
             function hideDetails() {
-                document.documentElement.style.setProperty('--show-details', +false)
+                document.documentElement.style.setProperty('--show-details', +false);
+                titleState.set('Overview');
+                window.location.hash = '';
             }
         </script>
     </head>
     <body>
+        <span>Last Updated <time><i>Loading...</i></time></span>
             <!--?xml version="1.0" encoding="UTF-8" standalone="no"?-->
 <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 959 593" class="usmap">
   <!--Adapted from https://commons.wikimedia.org/wiki/File:Blank_US_Map_(states_only).svg-->
@@ -507,14 +636,7 @@ $ctx = JSX.createElement("h1", null,
 
             </script>
             <script>
-                $ctx = JSX.createElement("div", null, Object.entries({
-                    trigger: 'Banned by trigger law',
-                    banned: 'Banned',
-                    unknown: 'Unknown, no data',
-                    ok: 'Still Legal',
-                    'at-risk': 'At risk of being banned',
-                    other: 'Other, see notes'
-                }).map(([key, value]) => JSX.createElement("p", null,
+                $ctx = JSX.createElement("div", null, Object.entries(STATUSES).map(([key, value]) => JSX.createElement("p", null,
                     JSX.createElement("span", { style: `color:var(--status-color-${key});` }, "\u2B24"),
                     " ",
                     value)));
@@ -523,9 +645,12 @@ $ctx = JSX.createElement("h1", null,
         <article>
             <script>
                 $ctx = JSX.createElement("h1", null,
-                    titleState,
-                    " | Details");
+                    JSX.createElement("span", { title: "Close", onclick: hideDetails }, "\u00D7"),
+                    JSX.createElement("span", null,
+                        titleState,
+                        " | Details"));
             </script>
+            <section></section>
         </article>
     </body>
 </html>

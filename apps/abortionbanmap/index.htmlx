@@ -14,6 +14,13 @@
                 height: 100vh;
                 width: 100vw;
                 body {
+                    &>span:first-child {
+                        color: silver;
+                        position: fixed;
+                        top: 1em;
+                        left: 1em;
+                        font-size: x-small;
+                    }
                     width: 100%;
                     background-color: whitesmoke;
                     color: #333;
@@ -76,6 +83,7 @@
                 }
             }
             article {
+                overflow-y: scroll;
                 background-color: whitesmoke;
                 height: 100%;
                 position: fixed;
@@ -84,9 +92,58 @@
                 box-shadow: -4px 0px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
                 transition: right 0.2s linear;
                 padding: 1em;
+                h1 {
+                    display: flex;
+                    justify-content: space-between;
+                    span:first-of-type {
+                        &::first-letter {
+                            vertical-align: top;
+                        }
+                        cursor: pointer;
+                        &:active {
+                            cursor: grabbing;
+                        }
+                    }
+                }
+                h2 {
+                    border-bottom: 2px solid currentColor;
+                }
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                :not(thead) tr:nth-of-type(odd) {
+                    background-color: #eeeeee;
+                }
+                th, td {
+                    border: 1px solid currentColor;
+                    padding: 0.25em;
+                }
+                tr td:first-child span:first-child {
+                    font-weight: bold;
+                }
+                tr td:first-child span:first-child::after {
+                    content: ':';
+                }
+                tr td:first-child span:nth-child(2) {
+                    font-size: small;
+                    cursor: help;
+                    display: block;
+                }
+                tr td:last-child {
+                    width: 25%;
+                }
             }
         </style>
         <script %{TSMODULE}>
+            function nanCoalesce(...args) {
+                let a = +args[0];
+                for(let i = 0; i < args.length; i++)
+                    if(Number.isNaN(+a) && i + 1 < args.length)
+                        a = +args[i+1]
+                return a;
+            }
             function emit(data) {
                 for(const [key, value] of Object.entries(data))
                     window[key] = value;
@@ -99,45 +156,135 @@
                     return null;
                 }
             }
-            const DATA = JSION.parse(await text('data.jsion'));
-            const POSTAL_CODES = Object.fromEntries(Object.entries(JSION.parse(await text('states.jsion'))).map(p=>p.reverse()));
+            const DATA = JSION.parse(await text(`data.jsion?v=${Math.random().toString().substring(2)}`));
             
-            emit({DATA,POSTAL_CODES});
+            emit({DATA});
 
             const $map = $`svg.usmap`
             $map.$$self`.state>path`.$forEach(function($state) {
                 $state.dataset.name = $state.$self('title').textContent;
                 $state.dataset.postalCode = $state.classList[0];
-                $state.dataset.json = DATA[$state.dataset.postalCode] ?? '{}';
+                $state.dataset.json = JSON.stringify(DATA[$state.dataset.postalCode] ?? {});
                 $state.$self('title').textContent = `${$state.dataset.name} (${$state.dataset.postalCode.toUpperCase()})`;
                 $state.classList.add(`status-${DATA[$state.dataset.postalCode]?.status?.replace(/ /g, '-') ?? 'unknown'}`);   
                 $state.$on('click', function(event) {
-                    titleState.set($state.dataset.name);
                     showDetails($state);
                     event.stopPropagation();
                 }, {capture: true});
             })
             $map.$on('click', function() {
-                titleState.set('Overview');
                 hideDetails();
             });
             $`header`.$on('click', function() {
-                titleState.set('Overview');
                 hideDetails();
             });
+            if(Object.keys(DATA).includes(window.location.hash.substring(1))) {
+                showDetails($map.$self(`.${window.location.hash.substring(1)}`));
+            }
+            const $time = $`time`;
+            const dataChangedTimestamp = new Date(JSON.parse(await text(`/sitemap.json?v=${Math.random().toString().substring(2)}`))?.['apps']?.['abortionbanmap']?.['data.jsion']*1000);
+            $time.datetime = dataChangedTimestamp.toISOString();
+            $time.textContent = dataChangedTimestamp.toLocaleString();
         </script>
-        <script>
+        <script %{TS}>
+            const STATUSES = {
+                trigger: 'Banned by trigger law',
+                banned: 'Banned',
+                unknown: 'Unknown, no data',
+                ok: 'Still Legal',
+                'at-risk': 'At risk of being banned',
+                other: 'Other, see notes'
+            }
             const titleState = JSX.createState('Overview')
             titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
-            function showDetails() {
-                document.documentElement.style.setProperty('--show-details', +true)
+            const toYesNo = b => b ? 'Yes' : 'No';
+            function showDetails($state) {
+                titleState.set($state.dataset.name);
+                window.location.hash = $state.dataset.postalCode;
+                document.documentElement.style.setProperty('--show-details', +true);
+                const json = JSON.parse($state.dataset.json)
+                const data = {}
+
+                data['Status'] = <>{STATUSES[json.status] ?? 'Unknown'}<hr style={`--color: var(--status-color-${json.status?.replace?.(/ /g,'-') ?? 'unknown'});background-color:var(--color);border: 1px solid var(--color);height:2px;margin-bottom:0;margin-top:4px;`}/></>;
+
+                if('applyAfter' in json) {
+                    let value = json.applyAfter;
+                    if(typeof value == 'number') value += ' months';
+                    else value = json.applyAfter;
+                    data['Ban Applicable After'] = value;
+                }
+                if('global' in json)
+                    data['Applies Out of State | Does this ban apply for citizen who go out of state to get an abortion?'] = toYesNo(json.global);
+                
+                if('penalties' in json) {
+                    const penalties = json.penalties;
+                    if('fine' in penalties) {
+                        const value = penalties.fine;
+                        if(typeof value === 'number')
+                            data['Fine | Maximum fine you could face'] = `\$${value}`;
+                        else 
+                            data['Fine | Could you face a fine for getting an abortion?'] = toYesNo(value);
+                    }
+                    if('jail' in penalties) {
+                        const value = penalties.fine;
+                        if(typeof value === 'number')
+                            data['Jail Time | Maximum jail time you could face'] = `${value} years`;
+                        else 
+                            data['Jail Time | Could you face jail time for getting an abortion?'] = toYesNo(value);    
+                    }
+                    if('isMurder' in penalties) {
+                        const value = penalties.isMurder;
+                           data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value);
+                    }
+                }
+
+                $`article>section`.replaceChildren(
+                    <>
+                        <h2>Overview</h2>
+                        <table>
+                            <tbody>
+                                {Object.entries(data).map(([key,value])=>
+                                    <tr>
+                                        <td>
+                                            <span>{key.split(/\|(.*)/s)[0]?.trim?.()}</span>
+                                            <span>{key.split(/\|(.*)/s)?.[1]?.trim?.() ?? ''}</span>
+                                        </td>
+                                        <td>
+                                            {value}
+                                        </td>
+                                    </tr>)}
+                            </tbody>
+                        </table>
+                        {
+                            'notes' in json ? <>
+                                <h2>Notes</h2>
+                                {
+                                    Object.assign(<p></p>,{innerHTML:SHML.parseInlineMarkup(json.notes)})
+                                }
+                            </> : ''
+                        }
+                        {
+                            'links' in json ? <>
+                                <h2>Useful Links</h2>
+                                <ul>
+                                    {
+                                        json.links.map(link => <li><a target="_blank" title={link} href={link}>{link}</a></li>)
+                                    }
+                                </ul>
+                            </> : ''
+                        }
+                    </>
+                )
             }
             function hideDetails() {
-                document.documentElement.style.setProperty('--show-details', +false)
+                document.documentElement.style.setProperty('--show-details', +false);
+                titleState.set('Overview');
+                window.location.hash = '';
             }
         </script>
     </head>
     <body>
+        <span>Last Updated <time><i>Loading...</i></time></span>
             %{
                 map=''
                 with open('apps/abortionbanmap/map.svg') as file:
@@ -155,21 +302,15 @@
             </script>
             <script %{TS}>
                 $ctx=<div>
-                  {Object.entries({
-                    trigger: 'Banned by trigger law',
-                    banned: 'Banned',
-                    unknown: 'Unknown, no data',
-                    ok: 'Still Legal',
-                    'at-risk': 'At risk of being banned',
-                    other: 'Other, see notes'
-                  }).map(([key,value])=><p><span style={`color:var(--status-color-${key});`}>&#x2B24;</span> {value}</p>)}
+                  {Object.entries(STATUSES).map(([key,value])=><p><span style={`color:var(--status-color-${key});`}>&#x2B24;</span> {value}</p>)}
                 </div>
               </script>
         </header>
         <article>
             <script %{TS}>
-                $ctx=<h1>{titleState} | Details</h1>
+                $ctx=<h1><span title="Close" onclick={hideDetails}>&times;</span><span>{titleState} | Details</span></h1>
             </script>
+            <section></section>
         </article>
     </body>
 </html>
