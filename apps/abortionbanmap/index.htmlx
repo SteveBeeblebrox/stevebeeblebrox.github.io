@@ -98,7 +98,6 @@
                     span:first-of-type {
                         &::first-letter {
                             vertical-align: top;
-                            user-select: none;
                         }
                         cursor: pointer;
                         &:active {
