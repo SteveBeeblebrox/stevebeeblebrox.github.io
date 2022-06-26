@@ -308,7 +308,7 @@
         <header>
             <hgroup>
                 <script %{TS}>$ctx=<h1>U.S. Abortion Ban Map | {titleState}</h1></script>
-                <h2>This is <em>not</em> legal advice. This map is a good starting point, but always do your own research to be sure.</h2>
+                <h2>This is <em>not</em> legal advice. This map is a good starting point, but always do your own research to be sure. Information here should be updated and accurate, but no guarantees.</h2>
             </hgroup>
             <script %{TS}>
                 
