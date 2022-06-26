@@ -34,11 +34,12 @@
             }
             :root {
                 --status-color-trigger: rgb(183, 8, 8);
-                --status-color-banned: red;
+                --status-color-banned: rgb(223, 42, 42);
+                --status-color-limited: rgb(236, 130, 30);
                 --status-color-unknown: rgb(143, 143, 143);
-                --status-color-ok: rgb(0, 255, 98);
-                --status-color-at-risk: rgb(246, 255, 0);
-                --status-color-other: rgb(255, 56, 225);
+                --status-color-ok: rgb(26, 194, 90);
+                --status-color-at-risk: rgb(238, 213, 87);
+                --status-color-other: rgb(218, 70, 195);
                 --show-details: 0;
             }
             svg {
@@ -53,6 +54,7 @@
                     }
                     &.status-trigger {fill: var(--status-color-trigger);}
                     &.status-banned {fill: var(--status-color-banned);}
+                    &.status-limited {fill: var(--status-color-limited);}
                     &,.status-unknown {fill: var(--status-color-unknown);}
                     &.status-ok {fill: var(--status-color-ok);}
                     &.status-at-risk {fill: var(--status-color-at-risk);}
@@ -190,10 +192,11 @@
             const STATUSES = {
                 trigger: 'Banned by trigger law',
                 banned: 'Banned',
-                unknown: 'Unknown, no data',
+                limited: 'Limited',
                 ok: 'Still Legal',
                 'at-risk': 'At risk of being banned',
-                other: 'Other, see notes'
+                other: 'Other, see notes',
+                unknown: 'Unknown, no data',
             }
             const titleState = JSX.createState('Overview')
             titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)

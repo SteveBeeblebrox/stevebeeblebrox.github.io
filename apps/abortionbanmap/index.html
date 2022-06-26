@@ -41,11 +41,12 @@
             }
             :root {
               --status-color-trigger: #b70808;
-              --status-color-banned: red;
+              --status-color-banned: #df2a2a;
+              --status-color-limited: #ec821e;
               --status-color-unknown: #8f8f8f;
-              --status-color-ok: #00ff62;
-              --status-color-at-risk: #f6ff00;
-              --status-color-other: #ff38e1;
+              --status-color-ok: #1ac25a;
+              --status-color-at-risk: #eed557;
+              --status-color-other: #da46c3;
               --show-details: 0;
             }
             svg .dccircle {
@@ -65,6 +66,9 @@
             }
             svg .state > path.status-banned {
               fill: var(--status-color-banned);
+            }
+            svg .state > path.status-limited {
+              fill: var(--status-color-limited);
             }
             svg .state > path,
             svg .state > path .status-unknown {
@@ -211,10 +215,11 @@
             const STATUSES = {
                 trigger: 'Banned by trigger law',
                 banned: 'Banned',
-                unknown: 'Unknown, no data',
+                limited: 'Limited',
                 ok: 'Still Legal',
                 'at-risk': 'At risk of being banned',
-                other: 'Other, see notes'
+                other: 'Other, see notes',
+                unknown: 'Unknown, no data',
             };
             const titleState = JSX.createState('Overview');
             titleState.connectCallback(v => document.title = `U.S. Abortion Ban Map | ${v}`);
