@@ -98,6 +98,7 @@
                     span:first-of-type {
                         &::first-letter {
                             vertical-align: top;
+                            user-select: none;
                         }
                         cursor: pointer;
                         &:active {
@@ -197,7 +198,7 @@
             }
             const titleState = JSX.createState('Overview')
             titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
-            const toYesNo = b => b ? 'Yes' : 'No';
+            const toYesNo = (b, invertColors = false) => <>{<b style={`font-size:1.25em;color: var(--status-color-${b && !invertColors ? 'ok' : 'banned'});`}> {b ? <>&check;</> : <>&times;</>}</b>} {b ? 'Yes' : 'No'}</>;
             function showDetails($state) {
                 titleState.set($state.dataset.name);
                 window.location.hash = $state.dataset.postalCode;
@@ -209,13 +210,19 @@
 
                 if('applyAfter' in json) {
                     let value = json.applyAfter;
-                    if(typeof value == 'number') value += ' months';
+                    if(typeof value == 'number') value += ' weeks';
                     else value = json.applyAfter;
                     data['Ban Applicable After'] = value;
                 }
-                if('global' in json)
-                    data['Applies Out of State | Does this ban apply for citizen who go out of state to get an abortion?'] = toYesNo(json.global);
-                
+
+                function simpleYesNo(object, property, info, invert = true) {
+                    if(property in object) {                            
+                        data[info] = toYesNo(object[property], false);
+                    }
+                }
+
+                simpleYesNo(json, 'global', 'Applies Out of State | Does this ban apply for citizen who go out of state to get an abortion?', true)
+
                 if('penalties' in json) {
                     const penalties = json.penalties;
                     if('fine' in penalties) {
@@ -223,19 +230,26 @@
                         if(typeof value === 'number')
                             data['Fine | Maximum fine you could face'] = `\$${value}`;
                         else 
-                            data['Fine | Could you face a fine for getting an abortion?'] = toYesNo(value);
+                            data['Fine | Could you face a fine for getting an abortion?'] = toYesNo(value, true);
                     }
                     if('jail' in penalties) {
                         const value = penalties.fine;
                         if(typeof value === 'number')
                             data['Jail Time | Maximum jail time you could face'] = `${value} years`;
                         else 
-                            data['Jail Time | Could you face jail time for getting an abortion?'] = toYesNo(value);    
+                            data['Jail Time | Could you face jail time for getting an abortion?'] = toYesNo(value, true);    
                     }
                     if('isMurder' in penalties) {
                         const value = penalties.isMurder;
-                           data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value);
+                           data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value, true);
                     }
+                }
+
+                if('exceptions' in json) {
+                    const exceptions = json.exceptions;
+                    simpleYesNo(exceptions, 'medical', 'Medical Exception | Is there an exemption to the ban for medical emergencies?');
+                    simpleYesNo(exceptions, 'rape', 'Rape Exception | Is there an exemption to the ban for cases of rape?');
+                    simpleYesNo(exceptions, 'incest', 'Incest Exception | Is there an exemption to the ban for cases of incest?');
                 }
 
                 $`article>section`.replaceChildren(
