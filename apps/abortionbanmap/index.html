@@ -47,6 +47,7 @@
               --status-color-ok: #1ac25a;
               --status-color-at-risk: #eed557;
               --status-color-other: #da46c3;
+              --status-color-protected: #1414d7;
               --show-details: 0;
             }
             svg .dccircle {
@@ -76,6 +77,9 @@
             }
             svg .state > path.status-ok {
               fill: var(--status-color-ok);
+            }
+            svg .state > path.status-protected {
+              fill: var(--status-color-protected);
             }
             svg .state > path.status-at-risk {
               fill: var(--status-color-at-risk);
@@ -216,8 +220,9 @@
                 trigger: 'Banned by trigger law',
                 banned: 'Banned',
                 limited: 'Limited',
-                ok: 'Still Legal',
                 'at-risk': 'At risk of being banned',
+                ok: 'Still Legal',
+                protected: 'Protected',
                 other: 'Other, see notes',
                 unknown: 'Unknown, no data',
             };

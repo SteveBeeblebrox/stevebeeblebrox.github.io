@@ -40,6 +40,7 @@
                 --status-color-ok: rgb(26, 194, 90);
                 --status-color-at-risk: rgb(238, 213, 87);
                 --status-color-other: rgb(218, 70, 195);
+                --status-color-protected: rgb(20, 20, 215);
                 --show-details: 0;
             }
             svg {
@@ -57,6 +58,7 @@
                     &.status-limited {fill: var(--status-color-limited);}
                     &,.status-unknown {fill: var(--status-color-unknown);}
                     &.status-ok {fill: var(--status-color-ok);}
+                    &.status-protected {fill: var(--status-color-protected);}
                     &.status-at-risk {fill: var(--status-color-at-risk);}
                     &.status-other {fill: var(--status-color-other);}
                 }
@@ -193,8 +195,9 @@
                 trigger: 'Banned by trigger law',
                 banned: 'Banned',
                 limited: 'Limited',
-                ok: 'Still Legal',
                 'at-risk': 'At risk of being banned',
+                ok: 'Still Legal',
+                protected: 'Protected',
                 other: 'Other, see notes',
                 unknown: 'Unknown, no data',
             }
