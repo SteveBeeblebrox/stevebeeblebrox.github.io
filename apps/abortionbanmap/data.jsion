@@ -1,89 +1,151 @@
 {
-    (tx: {
-        status: "trigger", (trigger/banned/unknown/ok/at risk/other\)
-        global: true, (Does ban apply to out of state abortions\)
-        penalties: {
-            fine: true,
-            jail: true,
-            countsAsMurder: true
-        },
-        notes: "Lorem Ipsum",
-        links: [
-            "https://g.co",
-            "https://google.com",
-        ],
-    },)
     al: {
         status: 'trigger'
     },
-    ak: {},
-    az: {},
-    ar: {},
-    ca: {},
-    co: {},
-    ct: {},
-    de: {},
-    fl: {},
-    ga: {},
-    hi: {},
+    ak: {
+        
+    },
+    az: {
+
+    },
+    ar: {
+
+    },
+    ca: {
+
+    },
+    co: {
+
+    },
+    ct: {
+
+    },
+    de: {
+
+    },
+    fl: {
+
+    },
+    ga: {
+
+    },
+    hi: {
+
+    },
     id: {
         status: 'trigger'
     },
-    il: {},
-    in: {},
-    ia: {},
-    ks: {},
+    il: {
+
+    },
+    in: {
+
+    },
+    ia: {
+
+    },
+    ks: {
+
+    },
     ky: {
         status: 'trigger'
     },
     la: {
         status: 'trigger'
     },
-    me: {},
-    md: {},
-    ma: {},
-    mi: {},
-    mn: {},
+    me: {
+
+    },
+    md: {
+        
+    },
+    ma: {
+
+    },
+    mi: {
+
+    },
+    mn: {
+
+    },
     ms: {
         status: 'trigger'
     },
     mo: {
         status: 'trigger'
     },
-    mt: {},
-    ne: {},
-    nv: {},
-    nh: {},
-    nj: {},
-    nm: {},
-    ny: {},
-    nc: {},
+    mt: {
+
+    },
+    ne: {
+
+    },
+    nv: {
+
+    },
+    nh: {
+
+    },
+    nj: {
+
+    },
+    nm: {
+
+    },
+    ny: {
+
+    },
+    nc: {
+
+    },
     nd: {
         status: 'trigger'
     },
-    oh: {},
+    oh: {
+
+    },
     ok: {
         status: 'trigger'
     },
-    or: {},
-    pa: {},
-    ri: {},
-    sc: {},
+    or: {
+
+    },
+    pa: {
+
+    },
+    ri: {
+
+    },
+    sc: {
+
+    },
     sd: {
         status: 'trigger'
     },
-    tn: {},
+    tn: {
+
+    },
     tx: {
         status: 'trigger'
     },
     ut: {
         status: 'trigger'
     },
-    vt: {},
-    va: {},
-    wa: {},
-    wv: {},
-    wi: {},
+    vt: {
+
+    },
+    va: {
+
+    },
+    wa: {
+
+    },
+    wv: {
+
+    },
+    wi: {
+        
+    },
     wy: {
         status: 'trigger'
     }
