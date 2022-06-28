@@ -134,6 +134,7 @@
         },
         parentalConsent: true,
         applyAfter: 'Viability',
+        notes: 'Patient must recieve inconvient counseling dcesigned to discourage the abortion.',
         links: [
             'https://www.guttmacher.org/fact-sheet/state-facts-about-abortion-tennessee'
         ]
