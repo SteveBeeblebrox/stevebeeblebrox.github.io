@@ -93,7 +93,8 @@
 
     },
     ny: {
-
+        status: 'protected',
+        applyAfter: 24
     },
     nc: {
 
