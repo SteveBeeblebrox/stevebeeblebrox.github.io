@@ -123,10 +123,38 @@
         status: 'trigger'
     },
     tn: {
-
+        status: 'trigger',
+        penalties: {
+            jail: '3-15 years',
+            exceptions: {
+                medical: true,
+                rape: false,
+                incest: false,
+            }
+        },
+        parentalConsent: true,
+        applyAfter: 'Viability',
+        links: [
+            'https://www.guttmacher.org/fact-sheet/state-facts-about-abortion-tennessee'
+        ]
     },
     tx: {
-        status: 'trigger'
+        applyAfter: 'conception',
+        status: 'trigger',
+        penalties: {
+            jail: '2 years-life',
+        },
+        bansContraceptives: false,
+        parentalConsent: true,
+        exceptions: {
+            medical: true,
+            incest: false,
+            rape: false
+        },
+        notes: "For some clinics, abortions up to 6 weeks are temporarily allowed while the courts decide on a more permanent decision.",
+        links: [
+            "https://www.texastribune.org/2022/06/24/texas-abortion-law-supreme-court-ruling/",
+        ]
     },
     ut: {
         status: 'trigger'
@@ -144,7 +172,7 @@
 
     },
     wi: {
-        
+
     },
     wy: {
         status: 'trigger'

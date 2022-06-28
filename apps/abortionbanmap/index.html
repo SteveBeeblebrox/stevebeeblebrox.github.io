@@ -282,6 +282,7 @@
                 }
                 simpleYesNo(json, 'bansMiscarriages', 'Bans Miscarriages | Does this state also penalize miscarriages?', true);
                 simpleYesNo(json, 'bansContraceptives', 'Bans Contraceptives | Does this state also ban contraceptives?', true);
+                simpleYesNo(json, 'parentalConsent', 'Parental Consent | Do minors need parental consent?', true);
                 if ('exceptions' in json) {
                     const exceptions = json.exceptions;
                     simpleYesNo(exceptions, 'medical', 'Medical Exception | Is there an exemption to the ban for medical emergencies?');
