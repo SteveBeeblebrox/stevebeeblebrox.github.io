@@ -224,7 +224,7 @@
             const titleState = JSX.createState('Overview');
             titleState.connectCallback(v => document.title = `U.S. Abortion Ban Map | ${v}`);
             const toYesNo = (b, invertColors = false) => JSX.createElement(null, null,
-                JSX.createElement("b", { style: `font-size:1.25em;color: var(--status-color-${b && !invertColors ? 'ok' : 'banned'});` },
+                JSX.createElement("b", { style: `font-size:1.25em;color: var(--status-color-${invertColors ? (b ? 'banned' : 'ok') : (b ? 'ok' : 'banned')});` },
                     " ",
                     b ? JSX.createElement(null, null, "✓") : JSX.createElement(null, null, "\u00D7")),
                 " ",
@@ -246,9 +246,9 @@
                         value = json.applyAfter;
                     data['Ban Applicable After'] = value;
                 }
-                function simpleYesNo(object, property, info, invert = true) {
+                function simpleYesNo(object, property, info, invert = false) {
                     if (property in object) {
-                        data[info] = toYesNo(object[property], false);
+                        data[info] = toYesNo(object[property], invert);
                     }
                 }
                 simpleYesNo(json, 'global', 'Applies Out of State | Does this ban apply for citizen who go out of state to get an abortion?', true);
@@ -273,6 +273,8 @@
                         data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value, true);
                     }
                 }
+                simpleYesNo(json, 'bansMiscarriages', 'Bans Miscarriages | Does this state also penalize miscarriages?', true);
+                simpleYesNo(json, 'bansContraceptives', 'Bans Contraceptives | Does this state also ban contraceptives?', true);
                 if ('exceptions' in json) {
                     const exceptions = json.exceptions;
                     simpleYesNo(exceptions, 'medical', 'Medical Exception | Is there an exemption to the ban for medical emergencies?');

@@ -200,7 +200,7 @@
             }
             const titleState = JSX.createState('Overview')
             titleState.connectCallback(v=>document.title=`U.S. Abortion Ban Map | ${v}`)
-            const toYesNo = (b, invertColors = false) => <>{<b style={`font-size:1.25em;color: var(--status-color-${b && !invertColors ? 'ok' : 'banned'});`}> {b ? <>&check;</> : <>&times;</>}</b>} {b ? 'Yes' : 'No'}</>;
+            const toYesNo = (b, invertColors = false) => <>{<b style={`font-size:1.25em;color: var(--status-color-${invertColors ? (b ? 'banned' : 'ok') : (b ? 'ok' : 'banned')});`}> {b ? <>&check;</> : <>&times;</>}</b>} {b ? 'Yes' : 'No'}</>;
             function showDetails($state) {
                 titleState.set($state.dataset.name);
                 window.location.hash = $state.dataset.postalCode;
@@ -217,9 +217,9 @@
                     data['Ban Applicable After'] = value;
                 }
 
-                function simpleYesNo(object, property, info, invert = true) {
+                function simpleYesNo(object, property, info, invert = false) {
                     if(property in object) {                            
-                        data[info] = toYesNo(object[property], false);
+                        data[info] = toYesNo(object[property], invert);
                     }
                 }
 
@@ -243,9 +243,12 @@
                     }
                     if('isMurder' in penalties) {
                         const value = penalties.isMurder;
-                           data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value, true);
+                        data['Counts as Murder | Does getting an abortion count as murder?'] = toYesNo(value, true);
                     }
                 }
+
+                simpleYesNo(json, 'bansMiscarriages', 'Bans Miscarriages | Does this state also penalize miscarriages?', true);
+                simpleYesNo(json, 'bansContraceptives', 'Bans Contraceptives | Does this state also ban contraceptives?', true);
 
                 if('exceptions' in json) {
                     const exceptions = json.exceptions;
