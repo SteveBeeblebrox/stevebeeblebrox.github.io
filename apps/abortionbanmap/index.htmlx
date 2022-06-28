@@ -238,9 +238,11 @@
                             data['Fine | Could you face a fine for getting an abortion?'] = toYesNo(value, true);
                     }
                     if('jail' in penalties) {
-                        const value = penalties.fine;
+                        const value = penalties.jail;
                         if(typeof value === 'number')
                             data['Jail Time | Maximum jail time you could face'] = `${value} years`;
+                        else if(typeof value === 'string')
+                            data['Jail Time | Maximum jail time you could face'] = value;
                         else 
                             data['Jail Time | Could you face jail time for getting an abortion?'] = toYesNo(value, true);    
                     }
