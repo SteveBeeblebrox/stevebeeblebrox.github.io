@@ -94,7 +94,7 @@
     },
     ny: {
         status: 'protected',
-        applyAfter: 24
+        applyAfter: 24,
         links: [
             'https://www.nydailynews.com/news/politics/new-york-elections-government/ny-abortion-rights-supreme-court-roe-v-wade-explainer-20220624-tjeb4pldqrfpdivl2l75qpb5qa-story.html'
         ]
