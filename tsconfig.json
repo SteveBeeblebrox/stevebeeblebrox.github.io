@@ -2,6 +2,9 @@
     "compilerOptions": {
         "lib": ["ESNext","DOM"],
         "downlevelIteration": true,
-        "target":"ES2019"
+        "target":"ESnext",
+        "jsx": "react",
+        "jsxFactory": "JSX.createElement",
+        "jsxFragmentFactory": "null"
     },
 }

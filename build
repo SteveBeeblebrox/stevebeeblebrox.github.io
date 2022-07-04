@@ -36,7 +36,7 @@ if [ ! $(ls | grep globals.py) ]; then
 fi
 
 function tsc() {
-    tools/mtsc.exe --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $(tools/pt.exe $1 ts~js '(?<=\.m|\.)ts$~~js' '(?=\..?js.?$)~~.min')
+    tools/mtsc.exe --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $(tools/pt.exe $1 ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')
 }
 
 function less() {
@@ -51,6 +51,8 @@ function compile() {
     filename=$(basename "$1")
     type="${filename##*.}"
     if [ "$type" == 'ts' ]; then
+        tsc $1
+    elif [ "$type" == 'tsx' ]; then
         tsc $1
     elif [ "$type" == 'less' ]; then
         less $1
@@ -134,6 +136,10 @@ elif [ "$ACTION" == '' ]; then
 
     echo "Compiling TypeScript..."
     for file in $(_findext ts); do
+       tsc $file
+    done;
+
+    for file in $(_findext tsx); do
        tsc $file
     done;
 
