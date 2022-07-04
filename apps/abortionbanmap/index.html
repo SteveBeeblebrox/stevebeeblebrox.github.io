@@ -50,40 +50,49 @@
               --status-color-protected: #1414d7;
               --show-details: 0;
             }
-            svg .dccircle {
-              display: none;
-            }
+            svg circle.state,
             svg .state > path {
               cursor: pointer;
             }
+            svg circle.state:active,
             svg .state > path:active {
               cursor: grabbing;
             }
+            svg circle.state:hover,
             svg .state > path:hover {
               filter: brightness(85%);
             }
+            svg circle.state.status-trigger,
             svg .state > path.status-trigger {
               fill: var(--status-color-trigger);
             }
+            svg circle.state.status-banned,
             svg .state > path.status-banned {
               fill: var(--status-color-banned);
             }
+            svg circle.state.status-limited,
             svg .state > path.status-limited {
               fill: var(--status-color-limited);
             }
+            svg circle.state,
             svg .state > path,
+            svg circle.state .status-unknown,
             svg .state > path .status-unknown {
               fill: var(--status-color-unknown);
             }
+            svg circle.state.status-ok,
             svg .state > path.status-ok {
               fill: var(--status-color-ok);
             }
+            svg circle.state.status-protected,
             svg .state > path.status-protected {
               fill: var(--status-color-protected);
             }
+            svg circle.state.status-at-risk,
             svg .state > path.status-at-risk {
               fill: var(--status-color-at-risk);
             }
+            svg circle.state.status-other,
             svg .state > path.status-other {
               fill: var(--status-color-other);
             }
@@ -165,7 +174,7 @@
             }
         </style>
         <script type="module">
-            var _a, _b, _c;
+            var _a, _b, _c, _d, _e, _f;
             function nanCoalesce(...args) {
                 let a = +args[0];
                 for (let i = 0; i < args.length; i++)
@@ -207,11 +216,17 @@
             $ `header`.$on('click', function () {
                 hideDetails();
             });
+            const $dc = $map.$self `circle.dc`;
+            $dc.$on('click', function (event) {
+                $ `path.dc`.dispatchEvent(new Event('click'));
+                event.stopPropagation();
+            }, { capture: true });
+            $dc.classList.add(`status-${(_c = (_b = (_a = DATA['dc']) === null || _a === void 0 ? void 0 : _a.status) === null || _b === void 0 ? void 0 : _b.replace(/ /g, '-')) !== null && _c !== void 0 ? _c : 'unknown'}`);
             if (Object.keys(DATA).includes(window.location.hash.substring(1))) {
                 showDetails($map.$self(`.${window.location.hash.substring(1)}`));
             }
             const $time = $ `time`;
-            const dataChangedTimestamp = new Date(((_c = (_b = (_a = JSON.parse(await text(`/sitemap.json?v=${Math.random().toString().substring(2)}`))) === null || _a === void 0 ? void 0 : _a['apps']) === null || _b === void 0 ? void 0 : _b['abortionbanmap']) === null || _c === void 0 ? void 0 : _c['data.jsion']) * 1000);
+            const dataChangedTimestamp = new Date(((_f = (_e = (_d = JSON.parse(await text(`/sitemap.json?v=${Math.random().toString().substring(2)}`))) === null || _d === void 0 ? void 0 : _d['apps']) === null || _e === void 0 ? void 0 : _e['abortionbanmap']) === null || _f === void 0 ? void 0 : _f['data.jsion']) * 1000);
             $time.datetime = dataChangedTimestamp.toISOString();
             $time.textContent = dataChangedTimestamp.toLocaleString();
         </script>

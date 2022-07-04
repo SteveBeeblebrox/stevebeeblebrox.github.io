@@ -44,8 +44,7 @@
                 --show-details: 0;
             }
             svg {
-                .dccircle {display:none;}
-                .state > path {
+                circle.state, .state > path {
                     cursor: pointer;
                     &:active {
                         cursor: grabbing;
@@ -182,6 +181,14 @@
             $`header`.$on('click', function() {
                 hideDetails();
             });
+
+            const $dc = $map.$self`circle.dc`;
+            $dc.$on('click', function(event) {
+                $`path.dc`.dispatchEvent(new Event('click'));
+                event.stopPropagation();
+            }, {capture: true});
+            $dc.classList.add(`status-${DATA['dc']?.status?.replace(/ /g, '-') ?? 'unknown'}`);   
+
             if(Object.keys(DATA).includes(window.location.hash.substring(1))) {
                 showDetails($map.$self(`.${window.location.hash.substring(1)}`));
             }

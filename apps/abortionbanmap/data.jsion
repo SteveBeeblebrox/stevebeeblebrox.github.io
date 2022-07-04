@@ -1,130 +1,298 @@
 {
     al: {
-        status: 'trigger'
+        status: 'trigger',
+        parentalConsent: true,
+        applyAfter: 20,
+        links: [
+            'https://reproductiverights.org/maps/state/alabama/',
+        ],
     },
     ak: {
-        
+        status: 'ok',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     az: {
-
+        exceptions: {
+            medical: true,
+        }
     },
     ar: {
-
+        status: 'at risk',
+        exceptions: {
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ca: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     co: {
-
+        status: 'protected',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ct: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     de: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
+    },
+    dc: {
+        (District of Columbia)
+        status: 'protected',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     fl: {
-
+        status: 'ok',
+        applyAfter: 'see notes',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
+        notes: 'Legal up to 15 weeks since pregnant person\'s last menstrual period',
     },
     ga: {
 
     },
     hi: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     id: {
-        status: 'trigger'
+        status: 'trigger',
+        exceptions: {
+            medical: true,
+            rape: true,
+            incest: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     il: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     in: {
-
+        status: 'ok',
+        applyAfter: 20,
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ia: {
-
+        status: 'ok',
+        applyAfter: 20,
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ks: {
-
+        status: 'at risk',
+        applyAfter: 'see notes',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
+        notes: 'Legal up to 22 weeks since pregnant person\'s last menstrual period',
     },
     ky: {
-        status: 'trigger'
+        status: 'trigger',
+        exceptions: {
+            rape: false,
+            incest: false,
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     la: {
-        status: 'trigger'
+        status: 'trigger',
+        exceptions: {
+            rape: false,
+            incest: false,
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     me: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     md: {
-        
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ma: {
-
+        status: 'protected',
+        applyAfter: 24,
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     mi: {
 
     },
     mn: {
-
+        status: 'ok',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ms: {
-        status: 'trigger'
+        status: 'trigger',
+        exceptions: {
+            rape: true,
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     mo: {
-        status: 'trigger'
+        status: 'trigger',
+        exceptions: {
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     mt: {
-
+        status: 'ok',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ne: {
-
+        status: 'ok',
+        applyAfter: 20,
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     nv: {
-
+        status: 'protected',
+        applyAfter: 24,
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
+        notes: 'Protection cannot be changed without a vote by the people.'
     },
     nh: {
-
+        status: 'ok',
+        applyAfter: 'see notes',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
+        notes: 'Legal up to 24 weeks since pregnant person\'s last menstrual period',
     },
     nj: {
-
+        status: 'protected',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     nm: {
-
+        status: 'ok',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ny: {
         status: 'protected',
         applyAfter: 24,
         links: [
-            'https://www.nydailynews.com/news/politics/new-york-elections-government/ny-abortion-rights-supreme-court-roe-v-wade-explainer-20220624-tjeb4pldqrfpdivl2l75qpb5qa-story.html'
+            'https://www.nydailynews.com/news/politics/new-york-elections-government/ny-abortion-rights-supreme-court-roe-v-wade-explainer-20220624-tjeb4pldqrfpdivl2l75qpb5qa-story.html',
         ]
     },
     nc: {
-
+        status: 'at risk',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     nd: {
-        status: 'trigger'
+        status: 'trigger',
     },
     oh: {
-
+        status: 'at risk',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     ok: {
-        status: 'trigger'
+        status: 'trigger',
     },
     or: {
-
+        status: 'protected',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     pa: {
-
+        status: 'ok',
+        applyAfter: 'see notes',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
+        notes: 'Legal up to 24 weeks since pregnant person\'s last menstrual period',
     },
     ri: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     sc: {
-
+        status: 'at risk',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     sd: {
-        status: 'trigger'
+        status: 'trigger',
+        exceptions: {
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     tn: {
         status: 'trigger',
@@ -138,9 +306,10 @@
         },
         parentalConsent: true,
         applyAfter: 'Viability',
-        notes: 'Patient must recieve inconvient counseling dcesigned to discourage the abortion.',
+        notes: 'Patient must receive inconvenient counseling designed to discourage the abortion.',
         links: [
-            'https://www.guttmacher.org/fact-sheet/state-facts-about-abortion-tennessee'
+            'https://www.guttmacher.org/fact-sheet/state-facts-about-abortion-tennessee',
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
         ]
     },
     tx: {
@@ -154,32 +323,59 @@
         exceptions: {
             medical: true,
             incest: false,
-            rape: false
+            rape: false,
         },
         notes: "For some clinics, abortions up to 6 weeks are temporarily allowed while the courts decide on a more permanent decision.",
         links: [
-            "https://www.texastribune.org/2022/06/24/texas-abortion-law-supreme-court-ruling/",
+            'https://www.texastribune.org/2022/06/24/texas-abortion-law-supreme-court-ruling/',
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
         ]
     },
     ut: {
-        status: 'trigger'
+        status: 'trigger',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     vt: {
-
+        status: 'protected',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     va: {
-
+        status: 'ok',
+        applyAfter: 'until third trimester',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     wa: {
-
+        status: 'protected',
+        applyAfter: 'viability',
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     wv: {
-
+        status: 'trigger',
+        exceptions: {
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     wi: {
-
+        status: 'trigger',
+        exceptions: {
+            medical: true,
+        },
+        links: [
+            'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
+        ],
     },
     wy: {
-        status: 'trigger'
+        status: 'trigger',
     }
 }
