@@ -44,7 +44,7 @@ namespace DomLib {
     // export const VERSION
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 2, minor: 1, patch: 0
+        major: 2, minor: 2, patch: 0
     });
 
     // internal let _lastQueryValue
@@ -295,7 +295,7 @@ namespace DomLib {
                 else if(property.startsWith('$'))
                     return Reflect.set(target, property.substring(1), value);
                 else
-                    return target.every(item => Reflect.set(item, property, value));
+                    return target.every(item => Reflect.set(item, property, value instanceof Box ? value.value() : value));
             },
             get(target: T[], property: string | symbol, reciever: any): ArrayProxy<T> | {():T[]} | boolean | any {
                 if(typeof property === 'symbol')
@@ -316,9 +316,9 @@ namespace DomLib {
                 }
                 else if(target.some(item => typeof Reflect.get(item, property) === 'function'))
                     return function() {
-                        return ArrayProxy(target.map(function(item: T) {
+                        return ArrayProxy(target.map((item: T) => {
                             const value = Reflect.get(item, property);
-                            return typeof value === 'function' ? value.bind(item)(...arguments) : value;
+                            return typeof value === 'function' ? value.bind(item)(...[...arguments].map(argument => argument instanceof Box ? argument.value() : argument)) : value;
                         }))
                     }    
                 else return ArrayProxy(target.map(item => Reflect.get(item, property)));
@@ -458,16 +458,15 @@ namespace DomLib {
     // export alias MathMlNode for MATHMLNode
     export const MathMlNode = MATHMLNode;
 
-
     // export const TextNode
-    export const TextNode = function TextNode(content: string = ''): Text {
+    export const TextNode: (new (content?: string)=>Text) & ((content?: string)=>Text) = function TextNode(content: string = ''): Text {
         return document.createTextNode(content);
-    }
+    } as (new (content?: string)=>Text) & ((content?: string)=>Text)
 
     // export const CommentNode
-    export const CommentNode = function CommentNode(content: string = ''): Comment {
+    export const CommentNode: (new (content?: string)=>Comment) & ((content?: string)=>Comment) = function CommentNode(content: string = ''): Comment {
         return document.createComment(content);
-    }
+    } as (new (content?: string)=>Comment) & ((content?: string)=>Comment)
 
     // export const $host
     // define $host on ShadowRoot, Element, Document, DocumentFragment
@@ -503,6 +502,19 @@ namespace DomLib {
         [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$ctx', {enumerable:true,configurable:!!options.debug,get(){return this},set(other:string|Node){this.replaceWith(other)}}));
     }
 
+    // internal class Box
+    class Box<T> {
+        constructor(public readonly value: ()=>T) {};
+        get [Symbol.toStringTag]() {
+            return 'Box';
+        }
+    }
+
+    // export class BoxedNode
+    export class BoxedNode extends Box<Node> {
+        constructor(node: Node) {super(()=>node.cloneNode(true))}
+    }
+
     // define $on on EventTarget
     Object.defineProperty(EventTarget.prototype,'$on', {
         value(this: globalThis.EventTarget, type: string, callback: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions | undefined) {
@@ -519,6 +531,7 @@ namespace DomLib {
             });
         }
     }
+
     export declare interface Extensions {
         $children: Node[]
         $self: typeof DomLib.$
