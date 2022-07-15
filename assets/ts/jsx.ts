@@ -51,6 +51,11 @@ namespace JSX {
                     weakCallback(t, ...refs as K);
             });
         }
+        update() {
+            this.callbacks.forEach((f: (t:T)=>void) => {
+                f(this.get());
+            });
+        }
         abstract get(): T;
     }
     export class State<T extends Object> extends StateBase<T> {
@@ -60,9 +65,7 @@ namespace JSX {
         }
         set(t:T): T {
             this.value = t;
-            this.callbacks.forEach((f: (t:T)=>void) => {
-                f(this.get());
-            });
+            this.update();
             return this.value;
         }
         consume(f: (...args:any[])=>T) {
@@ -79,11 +82,6 @@ namespace JSX {
     }
     class StateFormatter<T extends Object,K> extends StateBase<K> {
         constructor(private readonly state: State<T>, private readonly formatter: (t:T)=>K) {super()}
-        update() {
-            this.callbacks.forEach((f: (k:K)=>void) => {
-                f(this.get());
-            });
-        }
         set(t:T): T {
             return this.state.set(t);
         }
