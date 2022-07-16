@@ -18,10 +18,7 @@
             * {
               -webkit-print-color-adjust: exact !important;
             }
-            pre {
-              position: relative;
-            }
-            pre button {
+            pre + button {
               color: inherit;
               position: absolute;
               background-color: transparent;
@@ -33,10 +30,10 @@
               font-weight: bold;
               cursor: pointer;
             }
-            pre button:hover {
+            pre + button:hover {
               filter: brightness(150%);
             }
-            pre button:active {
+            pre + button:active {
               top: 1px;
             }
         </style>
@@ -100,8 +97,11 @@
                         anchor.appendChild(EXTERNAL_LINK.cloneNode(true));
 
                      
-                for(const block of $$`pre`.$toArray())
-                    block.appendChild(
+                for(const block of $$`pre`.$toArray()) {
+                    const div = new HTMLNode('div', {style:{position:'relative'}});
+                    block.replaceWith(div);
+                    div.appendChild(block);
+                    div.appendChild(
                         new HTMLNode('button', {title: 'Copy Code', children: [
                             // Copy icon by Heroicons
                             new SVGNode('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', children: [
@@ -113,10 +113,12 @@
                             }})
                         ], onclick() {
                             const code = block.cloneNode(true);
-                            code.$$self`[data-code-token="line-number"]`.remove();
+                            if(code.$$self`[data-code-token="line-number"]`.$length)
+                                $$it.remove();
                             navigator.clipboard.writeText(code.innerText);
                         }})
                     );
+                }
             })();
         </script>
     </body>
