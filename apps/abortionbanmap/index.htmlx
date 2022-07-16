@@ -220,7 +220,7 @@
                 const json = JSON.parse($state.dataset.json)
                 const data = {}
 
-                data['Status'] = <>{STATUSES[json.status] ?? 'Unknown'}<hr style={`--color: var(--status-color-${json.status?.replace?.(/ /g,'-') ?? 'unknown'});background-color:var(--color);border: 1px solid var(--color);height:2px;margin-bottom:0;margin-top:4px;`}/></>;
+                data['Status'] = <>{STATUSES[json.status?.replace?.(/ /g,'-') ?? 'unknown'] ?? 'Unknown'}<hr style={`--color: var(--status-color-${json.status?.replace?.(/ /g,'-') ?? 'unknown'});background-color:var(--color);border: 1px solid var(--color);height:2px;margin-bottom:0;margin-top:4px;`}/></>;
 
                 if('applyAfter' in json) {
                     let value = json.applyAfter;

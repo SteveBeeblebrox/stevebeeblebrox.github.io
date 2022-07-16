@@ -14,6 +14,7 @@
         ],
     },
     az: {
+        notes: 'Courts will not finalize divorces while a women is pregnant.',
         exceptions: {
             medical: true,
         }
@@ -23,6 +24,7 @@
         exceptions: {
             medical: true,
         },
+        notes: 'Courts will not finalize divorces while a women is pregnant.',
         links: [
             'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
         ],
@@ -187,6 +189,7 @@
         exceptions: {
             medical: true,
         },
+        notes: 'Courts will not finalize divorces while a women is pregnant.',
         links: [
             'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
         ],
@@ -325,7 +328,7 @@
             incest: false,
             rape: false,
         },
-        notes: "For some clinics, abortions up to 6 weeks are temporarily allowed while the courts decide on a more permanent decision.",
+        notes: "For some clinics, abortions up to 6 weeks are temporarily allowed while the courts decide on a more permanent decision. Courts will not finalize divorces while a women is pregnant.",
         links: [
             'https://www.texastribune.org/2022/06/24/texas-abortion-law-supreme-court-ruling/',
             'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',

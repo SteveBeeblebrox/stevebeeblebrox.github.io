@@ -252,14 +252,14 @@
                 " ",
                 b ? 'Yes' : 'No');
             function showDetails($state) {
-                var _a, _b, _c, _d;
+                var _a, _b, _c, _d, _e, _f, _g;
                 titleState.set($state.dataset.name);
                 window.location.hash = $state.dataset.postalCode;
                 document.documentElement.style.setProperty('--show-details', +true);
                 const json = JSON.parse($state.dataset.json);
                 const data = {};
-                data['Status'] = JSX.createElement(null, null, (_a = STATUSES[json.status]) !== null && _a !== void 0 ? _a : 'Unknown',
-                    JSX.createElement("hr", { style: `--color: var(--status-color-${(_d = (_c = (_b = json.status) === null || _b === void 0 ? void 0 : _b.replace) === null || _c === void 0 ? void 0 : _c.call(_b, / /g, '-')) !== null && _d !== void 0 ? _d : 'unknown'});background-color:var(--color);border: 1px solid var(--color);height:2px;margin-bottom:0;margin-top:4px;` }));
+                data['Status'] = JSX.createElement(null, null, (_d = STATUSES[(_c = (_b = (_a = json.status) === null || _a === void 0 ? void 0 : _a.replace) === null || _b === void 0 ? void 0 : _b.call(_a, / /g, '-')) !== null && _c !== void 0 ? _c : 'unknown']) !== null && _d !== void 0 ? _d : 'Unknown',
+                    JSX.createElement("hr", { style: `--color: var(--status-color-${(_g = (_f = (_e = json.status) === null || _e === void 0 ? void 0 : _e.replace) === null || _f === void 0 ? void 0 : _f.call(_e, / /g, '-')) !== null && _g !== void 0 ? _g : 'unknown'});background-color:var(--color);border: 1px solid var(--color);height:2px;margin-bottom:0;margin-top:4px;` }));
                 if ('applyAfter' in json) {
                     let value = json.applyAfter;
                     if (typeof value == 'number')
