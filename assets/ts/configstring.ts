@@ -19,14 +19,17 @@
  * This can be used to force a value to a string or include whitespace.
  */
  namespace ConfigString {
-    const SPECIAL_CHARS = '%=;'.split('').map(c=>[c,encodeURIComponent(c)]); // Encode % first, decode last
+    const
+        SPECIAL_CHARS = '%=;'.split('').map(c=>[c,encodeURIComponent(c)]), // Encode % first, decode last
+        REVERSE_SPECIAL_CHARS = [...SPECIAL_CHARS].reverse();
+    ;
     function minimalEncode(text: string) {
         for(const [char, encoding] of SPECIAL_CHARS)
             text = text.replaceAll(char,encoding);
         return text;
     }
     function minimalDecode(text: string) {
-        for(const [char, encoding] of SPECIAL_CHARS.reverse())
+        for(const [char, encoding] of REVERSE_SPECIAL_CHARS)
             text = text.replaceAll(encoding,char);
         return text;
     }
