@@ -19,10 +19,12 @@ const toast = (function() {
             :host>span {
                 transition: opacity 0.15s linear;
                 align-self: flex-end;
-                margin-bottom: 1em;
+                margin-bottom: 2em;
                 border-radius: 99999px;
                 z-index: 99999;
-                background-color: rgba(1.0, 1.0, 1.0, 0.25);
+                color: #444;
+                background-color: rgb(245 245 245 / 85%);
+                box-shadow:0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
                 padding: 0.5em 1em;
                 pointer-events: all;
                 cursor: pointer;
