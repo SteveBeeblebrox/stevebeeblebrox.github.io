@@ -44,7 +44,7 @@ namespace DomLib {
     // export const VERSION
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 2, minor: 2, patch: 0
+        major: 2, minor: 2, patch: 1
     });
 
     // internal let _lastQueryValue
@@ -314,6 +314,8 @@ namespace DomLib {
                     else
                         return Array.isArray(value) ? ArrayProxy(value) : value;
                 }
+                else if(target.length <= 0)
+                    return undefined;
                 else if(target.some(item => typeof Reflect.get(item, property) === 'function'))
                     return function() {
                         return ArrayProxy(target.map((item: T) => {
@@ -331,6 +333,16 @@ namespace DomLib {
                         return Reflect.deleteProperty(target, property.substring(1));
                 else if(!property.startsWith('$'))
                     return target.every(item => Reflect.deleteProperty(item, property));
+                else
+                    return false;
+            },
+            has(target: T[], property: string | symbol) {
+                if(typeof property === 'symbol')
+                    return Reflect.has(target, property);
+                else if(/^\$\d+/.test(property))
+                    return Reflect.has(target, property.substring(1));
+                else if(!property.startsWith('$'))
+                    return target.every(item => Reflect.has(item, property));
                 else
                     return false;
             }
