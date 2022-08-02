@@ -44,7 +44,7 @@ namespace DomLib {
     // export const VERSION
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 2, minor: 2, patch: 1
+        major: 2, minor: 2, patch: 2
     });
 
     // internal let _lastQueryValue
@@ -298,8 +298,10 @@ namespace DomLib {
                     return target.every(item => Reflect.set(item, property, value instanceof Box ? value.value() : value));
             },
             get(target: T[], property: string | symbol, reciever: any): ArrayProxy<T> | {():T[]} | boolean | any {
-                if(typeof property === 'symbol')
-                    return Reflect.get([...target], property);
+                if(typeof property === 'symbol') {
+                    const array = [...target], value = Reflect.get(array, property);
+                    return typeof value === 'function' ? value.bind(array) : value;
+                }
                 else if(property === '$toArray')
                     return function $toArray() {return [...target]};
                 else if(property === '$any')
