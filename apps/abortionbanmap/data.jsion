@@ -100,7 +100,7 @@
         ],
     },
     in: {
-        status: 'ok',
+        status: 'at risk',
         applyAfter: 20,
         links: [
             'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
@@ -114,7 +114,7 @@
         ],
     },
     ks: {
-        status: 'at risk',
+        status: 'protected',
         applyAfter: 'see notes',
         links: [
             'https://www.politico.com/news/2022/06/24/abortion-laws-by-state-roe-v-wade-00037695',
