@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        %{SCRIPTS}
+        %{VFS_SCRIPTS}
+        <script src="/assets/js/emojis.min.js"></script>
+        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/shml/blob/main/shml.ts"></script>
+        <title>Markup Anywhere</title>
+        <script>console.log(`Loaded at ${new Date()}`)</script>
+        <style type="text/less">
+            html {
+                &,body {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                }
+                body {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    font-family: Arial, Helvetica, sans-serif;
+                }
+            }
+            pre {
+                font-family: inherit;
+                user-select: auto;
+            }
+            div[contenteditable="true"] {
+                min-width: 10ch;
+                outline: none;
+                background-color: gainsboro;
+                border-radius: calc(1ch + 0.5em);
+                padding: 0.5em 1em;
+            }
+            span {
+                color: gray;
+                position: fixed;
+                bottom: 1em;
+                right: 1em;
+            }
+            [contenteditable="true"]:empty:before {
+                content: attr(data-placeholder);
+                color: gray;
+                font-style: italic;
+            }
+        </style>
+        <script>
+            const titleState = JSX.createState('');
+            const initialTitle = document.title;
+            titleState.connectCallback(value => document.title = `${initialTitle}${value ? ` | ${value}` : ''}`);
+            window.$on('load', function() {
+                const outputMessage = $`pre`, editableDiv = $`div[contenteditable]`;
+                new MutationObserver(async function() {
+                    const result = SHML.parseUnicodeMarkup(editableDiv.innerText, {get(key) {
+                        return Object.hasOwn(emojis, key) ? emojis[key] : `:${key}:`
+                    }});
+                    
+                    titleState.set(result);
+
+                    outputMessage.innerText = result;
+                }).observe(editableDiv, {childList: true, subtree: true, characterData: true});
+            });  
+        </script>
+    </head>
+    <body>
+        <script %{TS}>
+            $ctx=<pre onclick={function() {
+                navigator.clipboard.writeText(this.innerText);
+                toast('Text copied!')
+            }} title="Click to copy text"></pre>
+        </script>
+        <script %{TS}>
+            $ctx=<div data-placeholder="Type Here!" contenteditable="true" onpaste={function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return false;
+                selection.deleteFromDocument();
+                selection.getRangeAt(0).insertNode(document.createTextNode(event.clipboardData.getData('Text')));
+                window.getSelection().collapseToEnd();
+            }} onmouseover={function(){this.focus()}} autofocus></div>
+        </script>
+        <br>
+        <script %{TS}>
+            $ctx=<span>SHML v{SHML.VERSION}</span>
+        </script>
+    </body>
+</html>

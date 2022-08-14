@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="/assets/js/compression.min.js"></script>
+        <script src="/assets/js/domlib.min.js?bind=globalThis"></script>
+        <script src="/assets/js/encryption.min.js"></script>
+        <script src="/assets/js/jsion.min.js"></script>
+        <script src="/assets/js/jsx.min.js"></script>
+        <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/elementfactory.min.js"></script>
+        <script src="/assets/js/elements.min.js"></script>
+        <script src="/assets/js/configstring.min.js"></script>
+        <script src="/assets/js/toast.min.js"></script>
+        <script src="/assets/js/arraymap.min.js"></script>
+        <script src="/assets/js/vfs.min.js"></script>
+        <script src="/assets/js/emojis.min.js"></script>
+        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/shml/blob/main/shml.ts"></script>
+        <title>Markup Anywhere</title>
+        <script>console.log(`Loaded at ${new Date()}`)</script>
+        <style>
+            html,
+            html body {
+              height: 100%;
+              margin: 0;
+              padding: 0;
+            }
+            html body {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-direction: column;
+              font-family: Arial, Helvetica, sans-serif;
+            }
+            pre {
+              font-family: inherit;
+              user-select: auto;
+            }
+            div[contenteditable="true"] {
+              min-width: 10ch;
+              outline: none;
+              background-color: gainsboro;
+              border-radius: calc(1ch + 0.5em);
+              padding: 0.5em 1em;
+            }
+            span {
+              color: gray;
+              position: fixed;
+              bottom: 1em;
+              right: 1em;
+            }
+            [contenteditable="true"]:empty:before {
+              content: attr(data-placeholder);
+              color: gray;
+              font-style: italic;
+            }
+        </style>
+        <script>
+            const titleState = JSX.createState('');
+            const initialTitle = document.title;
+            titleState.connectCallback(value => document.title = `${initialTitle}${value ? ` | ${value}` : ''}`);
+            window.$on('load', function() {
+                const outputMessage = $`pre`, editableDiv = $`div[contenteditable]`;
+                new MutationObserver(async function() {
+                    const result = SHML.parseUnicodeMarkup(editableDiv.innerText, {get(key) {
+                        return Object.hasOwn(emojis, key) ? emojis[key] : `:${key}:`
+                    }});
+                    
+                    titleState.set(result);
+
+                    outputMessage.innerText = result;
+                }).observe(editableDiv, {childList: true, subtree: true, characterData: true});
+            });  
+        </script>
+    </head>
+    <body>
+        <script>
+            $ctx = JSX.createElement("pre", { onclick: function () {
+                    navigator.clipboard.writeText(this.innerText);
+                    toast('Text copied!');
+                }, title: "Click to copy text" });
+        </script>
+        <script>
+            $ctx = JSX.createElement("div", { "data-placeholder": "Type Here!", contenteditable: "true", onpaste: function (event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const selection = window.getSelection();
+                    if (!selection.rangeCount)
+                        return false;
+                    selection.deleteFromDocument();
+                    selection.getRangeAt(0).insertNode(document.createTextNode(event.clipboardData.getData('Text')));
+                    window.getSelection().collapseToEnd();
+                }, onmouseover: function () { this.focus(); }, autofocus: true });
+        </script>
+        <br>
+        <script>
+            $ctx = JSX.createElement("span", null,
+                "SHML v",
+                SHML.VERSION);
+        </script>
+    </body>
+</html>
