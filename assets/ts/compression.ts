@@ -76,3 +76,30 @@ namespace LZWCompression {
         return decodeURIComponent(escape(atob(str)))
     }
 }
+
+/*
+ * GZip Compression
+ * (c) MDN Contributors - https://creativecommons.org/licenses/by-sa/4.0/
+ * Adapted for TypeScript
+ * https://developer.mozilla.org/en-US/docs/Web/API/Compression_Streams_API
+ */
+namespace GZipCompression {
+    export function unzipBlob(blob: Blob) {
+        const ds = new DecompressionStream('gzip');
+        const decompressedStream = blob.stream().pipeThrough(ds);
+        return new Response(decompressedStream).blob();
+    }
+
+    export function zipBlob(blob: Blob) {
+        const cs = new CompressionStream('gzip');
+        const compressedStream = blob.stream().pipeThrough(cs);
+        return new Response(compressedStream).blob();
+    }
+
+    export async function zip(text: string) {
+        return Base64.encodeBase64FromArray(new Uint8Array(await (await GZipCompression.zipBlob(new Blob([text]))).arrayBuffer()));
+    }
+    export async function unzip(text: string) {
+        return (await GZipCompression.unzipBlob(new Blob([Base64.decodeBase64ToArray(text)]))).text();
+    }
+}
