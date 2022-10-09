@@ -1,4 +1,5 @@
 SCRIPTS = '''
+        <script src="/assets/js/base64.min.js"></script>
         <script src="/assets/js/compression.min.js"></script>
         <script src="/assets/js/domlib.min.js?bind=globalThis"></script>
         <script src="/assets/js/encryption.min.js"></script>
