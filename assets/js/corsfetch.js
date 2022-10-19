@@ -1,18 +1,8 @@
 (function(proxy) {
-    const _fetch = globalThis.fetch;
-    globalThis.fetch = function fetch(resource, options) {
-        const isRequest = resource instanceof Request, href = isRequest ? resource.url : resource;
-        if(
-            (!options?.method || options?.method === 'GET')
-            && options?.mode !== 'no-cors'
-            && Object.assign(document.createElement('a'),{href}).origin !== window.location.origin
-        ) {
-            if(isRequest)
-                resource = new Request(`${proxy}/${href}`, resource);
-            else
-                resource = `${proxy}/${href}`;
-        }
-
-        return _fetch(resource, options);
+    globalThis.corsFetch = function corsFetch(resource, options) {
+        if(options?.method === 'POST')
+            return fetch(resource, Object.assign(options??{},{mode:'no-cors'}));
+        else
+            return fetch(resource instanceof Request ? new Request(proxy+resource.url,resource) : proxy+resource, options);
     }
-})('https://sianabeeblebrox-cors-fetch.glitch.me');
+})('https://sianabeeblebrox-cors-fetch.glitch.me/');
