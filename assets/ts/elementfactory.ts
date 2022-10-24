@@ -1,5 +1,5 @@
 namespace ElementFactory {
-    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect}: {attributes?: Map<string,any>,render?:()=>void,connect?:()=>void} = {} as any) {
+    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect,on}: {attributes?: Map<`data-${string}`,any>,render?:()=>void,connect?:()=>void,on?:Map<keyof HTMLElementEventMap, ((event: Event)=>void) | (()=>void)>} = {} as any) {
         window.customElements.define(`${name}`, class extends HTMLElement {
             #attributes: Map<string, any>;
             #observer: MutationObserver;
@@ -29,15 +29,19 @@ namespace ElementFactory {
                                 this.setAttribute(key, newValue);
                             
                             if(render)
-                                window.requestAnimationFrame(render.bind(this))
+                                window.requestAnimationFrame(render.bind(this));
     
                             return this.#attributes.set(key, newValue).get(key)
                         }
                     });
                 }
+
+                for(const [event, listener] of on?.entries()??[]) {
+                    this.addEventListener(event,e=>listener(e));
+                }
             }
     
-            attributeChangedCallback(name: string, oldValue: any, newValue: any) {
+            attributeChangedCallback(name: `data-${string}`, oldValue: any, newValue: any) {
                 if(oldValue === newValue) return;
                 this.#attributes.set(name, typeof attributes.get(name)  === 'boolean' ? !!newValue : newValue);
             }
@@ -66,9 +70,11 @@ namespace ElementFactory {
                 this.#observer.disconnect()
             }
     
-            static get observedAttributes() { return Object.keys(attributes); }
+            static get observedAttributes() {
+                return [...attributes.keys()];
+            }
         });
     
-        return window.customElements.get(name)
+        return window.customElements.get(name);
     }
 }
