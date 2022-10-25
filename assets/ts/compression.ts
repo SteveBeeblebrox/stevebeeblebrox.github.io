@@ -493,76 +493,78 @@ namespace LZCompression {
  * Adapted for TypeScript
  * https://stackoverflow.com/a/56680172
  */
+/**
+ * @deprecated LZWCompression is problematic with higher Unicode characters; consider using LZCompression instead
+ */
 namespace LZWCompression {
     // Apply LZW-compression to a string and return base64 compressed string
-    export function zip(str: string) {
+    export function compress(str: string) {
         try {
-            const dictionary: {[key: string]: number} = {}
-            const data = (str + '').split('')
-            const out = []
-            let currentChar
-            let phrase = data[0]
-            let code = 256
+            const dictionary: {[key: string]: number} = {};
+            const data = (str + '').split('');
+            const out = [];
+            let currentChar;
+            let phrase = data[0];
+            let code = 256;
             for (let i = 1; i < data.length; i++) {
-                currentChar = data[i]
+                currentChar = data[i];
                 if (dictionary[phrase + currentChar] != null) {
-                    phrase += currentChar
+                    phrase += currentChar;
                 } else {
-                    out.push(phrase.length > 1 ? dictionary[phrase] : phrase.charCodeAt(0))
-                    dictionary[phrase + currentChar] = code
-                    code++
-                    phrase = currentChar
+                    out.push(phrase.length > 1 ? dictionary[phrase] : phrase.charCodeAt(0));
+                    dictionary[phrase + currentChar] = code;
+                    code++;
+                    phrase = currentChar;
                 }
             }
-            out.push(phrase.length > 1 ? dictionary[phrase] : phrase.charCodeAt(0))
+            out.push(phrase.length > 1 ? dictionary[phrase] : phrase.charCodeAt(0));
             for (var j = 0; j < out.length; j++) {
-                out[j] = String.fromCharCode(out[j] as number)
+                out[j] = String.fromCharCode(out[j] as number);
             }
-            return utoa(out.join(''))
+            return utoa(out.join(''));
         } catch (e) {
-            throw 'Failed to zip string.'
+            throw 'Failed to zip string';
         }
     }
 
     // Decompress an LZW-encoded base64 string
-    export function unzip (base64ZippedString: string) {
+    export function decompress(base64ZippedString: string) {
         try {
-            const s = atou(base64ZippedString)
-            const dictionary: {[key: number]: string} = {}
-            const data = (s + '').split('')
-            let currentChar = data[0]
-            let oldPhrase = currentChar
-            const out = [currentChar]
-            let code = 256
-            let phrase
+            const s = atou(base64ZippedString);
+            const dictionary: {[key: number]: string} = {};
+            const data = (s + '').split('');
+            let currentChar = data[0];
+            let oldPhrase = currentChar;
+            const out = [currentChar];
+            let code = 256;
+            let phrase;
             for (let i = 1; i < data.length; i++) {
-                let currentCode = data[i].charCodeAt(0)
+                let currentCode = data[i].charCodeAt(0);
                 if (currentCode < 256) {
-                    phrase = data[i]
+                    phrase = data[i];
                 } else {
-                    phrase = dictionary[currentCode] ? dictionary[currentCode] : oldPhrase + currentChar
+                    phrase = dictionary[currentCode] ? dictionary[currentCode] : oldPhrase + currentChar;
                 }
-                out.push(phrase as string)
-                currentChar = (phrase as string).charAt(0)
-                dictionary[code] = oldPhrase + currentChar
-                code++
-                oldPhrase = phrase
+                out.push(phrase as string);
+                currentChar = (phrase as string).charAt(0);
+                dictionary[code] = oldPhrase + currentChar;
+                code++;
+                oldPhrase = phrase;
             }
-            return out.join('')
+            return out.join('');
         } catch (e) {
-            console.log('Failed to unzip string return empty string', e)
-            return ''
+            throw 'Failed to unzip string';
         }
     }
 
     // ucs-2 string to base64 encoded ascii
     function utoa (str: string) {
-        return btoa(unescape(encodeURIComponent(str)))
+        return btoa(unescape(encodeURIComponent(str)));
     }
 
     // base64 encoded ascii to ucs-2 string
     function atou (str: string) {
-        return decodeURIComponent(escape(atob(str)))
+        return decodeURIComponent(escape(atob(str)));
     }
 }
 
@@ -573,22 +575,22 @@ namespace LZWCompression {
  * https://developer.mozilla.org/en-US/docs/Web/API/Compression_Streams_API
  */
 namespace GZipCompression {
-    export async function unzipBlob(blob: Blob) {
+    export async function decompressBlob(blob: Blob) {
         const ds = new DecompressionStream('gzip');
         const decompressedStream = blob.stream().pipeThrough(ds);
         return new Blob([await new Response(decompressedStream).blob()]);
     }
 
-    export async function zipBlob(blob: Blob) {
+    export async function compressBlob(blob: Blob) {
         const cs = new CompressionStream('gzip');
         const compressedStream = blob.stream().pipeThrough(cs);
         return new Blob([await new Response(compressedStream).blob()], {type: 'application/gzip'});
     }
 
     export async function zip(text: string) {
-        return Base64.encodeBase64FromArray(new Uint8Array(await (await GZipCompression.zipBlob(new Blob([text]))).arrayBuffer()));
+        return Base64.encodeBase64FromArray(new Uint8Array(await (await GZipCompression.compressBlob(new Blob([text]))).arrayBuffer()));
     }
     export async function unzip(text: string) {
-        return (await GZipCompression.unzipBlob(new Blob([Base64.decodeBase64ToArray(text)]))).text();
+        return (await GZipCompression.decompressBlob(new Blob([Base64.decodeBase64ToArray(text)]))).text();
     }
 }
