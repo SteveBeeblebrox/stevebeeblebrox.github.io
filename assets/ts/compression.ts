@@ -84,16 +84,16 @@ namespace LZWCompression {
  * https://developer.mozilla.org/en-US/docs/Web/API/Compression_Streams_API
  */
 namespace GZipCompression {
-    export function unzipBlob(blob: Blob) {
+    export async function unzipBlob(blob: Blob) {
         const ds = new DecompressionStream('gzip');
         const decompressedStream = blob.stream().pipeThrough(ds);
-        return new Response(decompressedStream).blob();
+        return new Blob([await new Response(decompressedStream).blob()]);
     }
 
-    export function zipBlob(blob: Blob) {
+    export async function zipBlob(blob: Blob) {
         const cs = new CompressionStream('gzip');
         const compressedStream = blob.stream().pipeThrough(cs);
-        return new Response(compressedStream).blob();
+        return new Blob([await new Response(compressedStream).blob()], {type: 'application/gzip'});
     }
 
     export async function zip(text: string) {
