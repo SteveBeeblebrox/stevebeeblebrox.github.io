@@ -264,7 +264,7 @@ namespace VFS {
         }
         private constructor(private readonly root: Base.Directory, public readonly PATH_SEPARATOR: string) {}
         
-        public createInterface({homeDir = '/', unrestricted: unrestricted = false} = {}) {
+        public createInterface({homeDir = '/', unrestricted = false} = {}) {
             const PATH_SEPARATOR = this.PATH_SEPARATOR;
             class AbstractFile implements Types.AbstractFile {
                 protected wrap(base: Base.Directory | Base.File) {
@@ -481,23 +481,40 @@ namespace VFS {
     }
 
     export namespace Streams {
-        export function FileWriteStream(file: Types.File) {
-            return new WritableStream<Uint8Array | number>({
-                write(chunk) {
-                    if(typeof chunk === 'number') chunk = new Uint8Array([chunk]);
-                    file.write(chunk);
-                }
-            }, new CountQueuingStrategy({ highWaterMark: 1 }));
+        export function FileWriteStream(file: Types.File, {mode}?: {mode?: 'number'}): WritableStream<number>;
+        export function FileWriteStream(file: Types.File, {mode}: {mode: 'Uint8Array'}): WritableStream<Uint8Array>;
+        export function FileWriteStream(file: Types.File, {mode = 'number'}: {mode?: 'number' | 'Uint8Array'} = {}) {
+            const cqs = new CountQueuingStrategy({ highWaterMark: 1 });
+            return mode === 'number' ?
+                new WritableStream<number>({
+                    write(chunk) {
+                        file.write(new Uint8Array([chunk]));
+                    }
+                }, cqs)
+            :
+                new WritableStream<Uint8Array>({
+                    write(chunk) {
+                        file.write(chunk);
+                    }
+                }, cqs);
         }
 
-        export function DocumentWriteStream(document = globalThis.document) {
-            const decoder = new TextDecoder();
-            return new WritableStream<Uint8Array | number>({
-                write(chunk) {
-                    if(typeof chunk === 'number') chunk = new Uint8Array([chunk]);
-                    document.write(decoder.decode(chunk, {stream: true}));
-                }
-            });
+        export function DocumentWriteStream(document: Document, {mode}?: {mode?: 'number'}): WritableStream<number>;
+        export function DocumentWriteStream(document: Document, {mode}: {mode: 'Uint8Array'}): WritableStream<Uint8Array>;
+        export function DocumentWriteStream(document: Document = globalThis.document, {mode = 'number'}: {mode?: 'number' | 'Uint8Array'} = {}) {
+            const cqs = new CountQueuingStrategy({ highWaterMark: 1 }), decoder = new TextDecoder();
+            return mode === 'number' ?
+                new WritableStream<number>({
+                    write(chunk) {
+                        document.write(decoder.decode(new Uint8Array([chunk]), {stream: true}));
+                    }
+                }, cqs)
+            :
+                new WritableStream<Uint8Array>({
+                    write(chunk) {
+                        document.write(decoder.decode(chunk, {stream: true}));
+                    }
+                }, cqs);
         }
 
         export function FileReadStream(file: Types.File) {
