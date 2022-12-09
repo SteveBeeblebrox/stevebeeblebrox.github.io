@@ -1,0 +1,8 @@
+<script>
+    const options = new URLSearchParams(window.location.search);
+    if(options.get('type') === 'rfc') window.location = `https://www.rfc-editor.org/rfc/${options.get('value').toLowerCase().replaceAll(' ', '')}.html`
+    else if(options.get('type') === 'domain') document.write(`
+        <h1>Domain: ${options.get('value')}</h1>
+        <p>Lorem ipsum</p>
+    `)
+</script>

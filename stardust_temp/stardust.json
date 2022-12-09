@@ -1,0 +1,12 @@
+{
+    "route": "index.html",
+    "targets": {
+        "rfc": {
+            "pattern": "RFC ?\\d+",
+            "color": "cyan"
+        },
+        "domain": {
+            "pattern": "[a-z-_]+\\.[a-z_]+"
+        }
+    }
+}
