@@ -3,7 +3,7 @@
     "targets": {
         "rfc": {
             "pattern": "RFC ?\\d+",
-            "color": "cyan"
+            "color": "cadetblue"
         }
     }
 }
