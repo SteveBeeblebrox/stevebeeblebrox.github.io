@@ -1,5 +1,5 @@
 {
-    "route": "https://stevebeeblebrox.github.io/stardust_temp/index.html",
+    "route": "https://stevebeeblebrox.github.io/stardust/index.html",
     "targets": {
         "rfc": {
             "pattern": "RFC ?\\d+",
