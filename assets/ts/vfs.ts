@@ -194,7 +194,7 @@ namespace VFS {
             }
             static fromObject(object: any) {
                 assert(object.type === Directory.name, `Unable restore directory from object that is not a directory representation`);
-                return new Directory(object.name, object.dateCreated, object.dateModified, object.dateAccessed, object.permissions, object.attributes, object.files.map((o: any)=>o.name), object.files, object.isRoot);
+                return new Directory(object.name, object.dateCreated, object.dateModified, object.dateAccessed, object.permissions, object.attributes, object.files.map((o: any)=>o.name), object.files.map((o: any)=>o.type === Directory.name ? Directory.fromObject(o) : File.fromObject(o)), object.isRoot);
             }
             public constructor(
                 name: string | null,
@@ -530,5 +530,13 @@ namespace VFS {
                 }
             });
         }
+    }
+
+    export function download(resource: BlobPart, name?: string) {
+        if(!(resource instanceof Blob)) resource = new Blob([resource]);
+        const objectURL = URL.createObjectURL(resource);
+        Object.assign(document.createElement('a'), {href: objectURL, download: name ?? '', onclick() {
+            requestAnimationFrame(()=>URL.revokeObjectURL(objectURL));
+        }}).click();
     }
 }
