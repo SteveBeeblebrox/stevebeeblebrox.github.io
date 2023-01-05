@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2022 S. Beeblebrox
+ * Copyright (c) 2022-2023 S. Beeblebrox
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,9 +85,9 @@ namespace VFS {
         }
     }
 
-    function assert(condition: false, message?: string): never
-    function assert(condition: boolean, message?: string): void
-    function assert(condition: boolean, message: string = '') {
+    export function assert(condition: false, message?: string): never
+    export function assert(condition: boolean, message?: string): void
+    export function assert(condition: boolean, message: string = '') {
         if(!condition) throw new AssertionError(message);
     }
 

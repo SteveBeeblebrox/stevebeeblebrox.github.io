@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>File System</title>
+        <script src="/assets/js/base64.min.js"></script>
+        <script src="/assets/js/compression.min.js"></script>
+        <script src="/assets/js/domlib.min.js?bind=globalThis"></script>
+        <script src="/assets/js/encryption.min.js"></script>
+        <script src="/assets/js/jsion.min.js"></script>
+        <script src="/assets/js/jsx.min.js"></script>
+        <script src="/assets/js/shml.min.js"></script>
+        <script src="/assets/js/elementfactory.min.js"></script>
+        <script src="/assets/js/elements.min.js"></script>
+        <script src="/assets/js/configstring.min.js"></script>
+        <script src="/assets/js/toast.min.js"></script>
+        <script src="/assets/js/vfs.js"></script>
+    </head>
+    <body>
+        <script>
+            (async function () {
+                const { FileSystem } = VFS;
+                async function openFileSystem(name) {
+                    var _a;
+                    try {
+                        return VFS.FileSystem.fromObject(JSON.parse(await GZipCompression.unzip((_a = window.localStorage.getItem(`vfs:${name}`)) !== null && _a !== void 0 ? _a : '')));
+                    }
+                    catch {
+                        return VFS.FileSystem.new('/');
+                    }
+                }
+                async function saveFileSystem(name, fs) {
+                    window.localStorage.setItem(`vfs:${name}`, await GZipCompression.zip(JSON.stringify(fs.toObject())));
+                }
+                const fs = await openFileSystem('main');
+                const { Directory, File, root } = fs.createInterface({ homeDir: '/usr/webdev', unrestricted: true });
+                if (root.typeof('usr') !== 'Directory')
+                    root.set('usr', Directory.new());
+                if (root.typeof('usr/webdev') !== 'Directory')
+                    root.set('usr/webdev', Directory.new());
+                if (root.typeof('usr/webdev/Hello.txt') !== 'File') {
+                    const file = File.new();
+                    file.write('Hello World!');
+                    root.set('usr/webdev/Hello.txt', file);
+                }
+                if (root.typeof('usr/webdev/Hola.txt') !== 'File') {
+                    const file = File.new();
+                    file.write('Hola Mundo!');
+                    root.set('usr/webdev/Hola.txt', file);
+                }
+                saveFileSystem('main', fs);
+                (function f() {
+                    saveFileSystem('main', fs);
+                    requestIdleCallback(() => f());
+                })();
+                return { File, Directory, root };
+            })().catch(e => console.error(e)).then(v => ({ root, File, Directory } = v));
+        </script>
+    </body>
+</html>

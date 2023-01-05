@@ -5,7 +5,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         %{SCRIPTS}
-        %{VFS_SCRIPTS}
+        <script src="/assets/js/arraymap.min.js"></script>
+        <script src="/assets/js/vfs-legacy.min.js"></script>
         <script src="/assets/js/emojis.min.js"></script>
         <title>Untitled</title>
         <script>console.log(`Loaded at ${new Date()}`)</script>
