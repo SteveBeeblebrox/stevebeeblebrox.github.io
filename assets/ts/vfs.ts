@@ -46,6 +46,7 @@ namespace VFS {
             getContentSize(): number;
             isExecutable(): boolean;
             locked(mode: FileSystem.LockMode.READ | FileSystem.LockMode.WRITE, func: (lockedFile: File)=>void): Promise<void>;
+            [Symbol.toStringTag]: 'File'
         }
 
         export interface Directory extends AbstractFile {
@@ -56,6 +57,7 @@ namespace VFS {
             keys({includeHidden,includeSpecial}: {includeHidden?:boolean,includeSpecial?:boolean}): string[];
             isRoot(): boolean;
             typeof(path: string): 'File' | 'Directory' | 'undefined';
+            [Symbol.toStringTag]: 'Directory'
         }
     }
     namespace BitHelper {
@@ -328,6 +330,8 @@ namespace VFS {
 
                 constructor(protected base: Base.File) {super(base);}
 
+                get [Symbol.toStringTag](): 'File' { return 'File' }
+
                 public read(): ArrayBuffer;
                 public read(asString: true): string;
                 public read(asString = false): ArrayBuffer | string {
@@ -357,6 +361,9 @@ namespace VFS {
                     return new Directory(base ?? new Base.Directory(null,now(),now(),now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], []));
                 }
                 constructor(protected base: Base.Directory) {super(base);}
+
+                get [Symbol.toStringTag](): 'Directory' { return 'Directory' }
+                
                 private splitfp(path: Types.Path) {
                     if(typeof path === 'string') {
                         path = path.replace(new RegExp(String.raw`${escapeRegex(PATH_SEPARATOR)}$`, 'g'), '').split(new RegExp(String.raw`(?<!^)${escapeRegex(PATH_SEPARATOR)}|(?<=^${escapeRegex(PATH_SEPARATOR)})`, 'g'));
@@ -532,7 +539,14 @@ namespace VFS {
         }
     }
 
-    export function download(resource: BlobPart, name?: string) {
+    export function download(resource: BlobPart | FileSystem.File, name?: string) {
+        function isFile(resource: BlobPart | FileSystem.File): resource is FileSystem.File {
+            return typeof resource !== 'string' && Reflect.get(resource, Symbol.toStringTag) === 'File';
+        }
+        if(isFile(resource)) {
+            name ??= resource.getName() ?? undefined;
+            resource = resource.read();
+        }
         if(!(resource instanceof Blob)) resource = new Blob([resource]);
         const objectURL = URL.createObjectURL(resource);
         Object.assign(document.createElement('a'), {href: objectURL, download: name ?? '', onclick() {
