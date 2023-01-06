@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Copyright (c) 2020-2023 S. Beeblebrox
+ * Copyright (c) 2023 S. Beeblebrox
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,7 @@ class TarBuilder {
         const {Octal, ASCIIString} = TarBuilder;
         return new Uint8ClampedArray(Object.assign([
             ASCIIString(100, name), // File name
-            Octal(8,0o6777), // File mode
+            Octal(8,0o6000 | parseInt(file.getPermissions().toString().repeat(3),8)), // File mode
             Octal(8), // Owner's numerical ID (NS)
             Octal(8), // Groups's numerical ID (NS)
             Octal(12, file.getContentSize()), // File size in bytes
