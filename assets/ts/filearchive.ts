@@ -36,11 +36,14 @@ class TarBuilder {
 
         return num + multiple - remainder;
     }
+    private fixfp(path: string, srcPathSeparator: string) {
+        return srcPathSeparator === '/' ? path : path.replaceAll(srcPathSeparator, '/'); // Convert arbitrary path seperators to standard '/'
+    }
     constructor() {}
-    public add(name: string, file: VFS.FileSystem.File | VFS.FileSystem.Directory) {
+    public add(name: string, file: VFS.FileSystem.File | VFS.FileSystem.Directory, srcPathSeparator = '/') {
         this.bytes = new Uint8ClampedArray([
             this.bytes,
-            this.createHeader(name, file), // Header
+            this.createHeader(this.fixfp(name, srcPathSeparator), file), // Header
             this.createBody(VFS.FileSystem.isFile(file) ? new Uint8ClampedArray(file.read()) : new Uint8ClampedArray(0)) // Body
         ].flatMap(o=>[...o]));
     }
