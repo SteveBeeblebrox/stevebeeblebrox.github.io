@@ -265,7 +265,7 @@ namespace VFS {
         }
         private constructor(private readonly root: Base.Directory, public readonly PATH_SEPARATOR: string) {}
         
-        public createInterface({homeDir = '/', unrestricted = false} = {}) {
+        public createInterface({homeDir = this.PATH_SEPARATOR, unrestricted = false} = {}) {
             const PATH_SEPARATOR = this.PATH_SEPARATOR;
             class AbstractFile implements Types.AbstractFile {
                 protected wrap(base: Base.Directory | Base.File) {
@@ -364,7 +364,7 @@ namespace VFS {
                 private splitfp(path: Types.Path) {
                     if(typeof path === 'string') {
                         path = path.replace(new RegExp(String.raw`${escapeRegex(PATH_SEPARATOR)}$`, 'g'), '').split(new RegExp(String.raw`(?<!^)${escapeRegex(PATH_SEPARATOR)}|(?<=^${escapeRegex(PATH_SEPARATOR)})`, 'g'));
-                        if(path[0] === '~') path[0] = homeDir;
+                        if(path[0] === '~') path.splice(0, 1, ...this.splitfp(homeDir));
                     }
                     return path;
                 }
