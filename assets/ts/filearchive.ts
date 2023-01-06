@@ -65,7 +65,7 @@ class TarBuilder {
             Octal(8), // Owner's numerical ID (NS)
             Octal(8), // Groups's numerical ID (NS)
             Octal(12, isFile ? file.getContentSize() : 0), // File size in bytes
-            Octal(12, +file.getDateModified()), // Last modification time in numeric Unix time format
+            Octal(12, Math.floor(+file.getDateModified() / 1000)), // Last modification time in numeric Unix time format
             (
                 dummyChecksum
                     ? ASCIIString(8, ' '.repeat(8))
