@@ -37,25 +37,31 @@ class TarBuilder {
         return num + multiple - remainder;
     }
     constructor() {}
-    public addFile(name: string, file: VFS.FileSystem.File) {
+    public add(name: string, file: VFS.FileSystem.File | VFS.FileSystem.Directory) {
         this.bytes = new Uint8ClampedArray([
             this.bytes,
             this.createHeader(name, file), // Header
-            this.createBody(new Uint8ClampedArray(file.read())) // Body
+            this.createBody(VFS.FileSystem.isFile(file) ? new Uint8ClampedArray(file.read()) : new Uint8ClampedArray(0)) // Body
         ].flatMap(o=>[...o]));
     }
     private createBody(source: Uint8ClampedArray): Uint8ClampedArray {
-        return new Uint8ClampedArray(Object.assign([...source], {length: TarBuilder.roundUp(source.length,512)}));
+        return new Uint8ClampedArray(Object.assign([...source], {length: TarBuilder.roundUp(source.length, 512)}));
     }
-    private createHeader(name: string, file: VFS.FileSystem.File, dummyChecksum: boolean  = false): Uint8ClampedArray {
+    private createHeader(name: string, file: VFS.FileSystem.File | VFS.FileSystem.Directory, dummyChecksum: boolean  = false): Uint8ClampedArray {
         VFS.assert(name.length <= 100, `File name '${name}' must be no more than 100 characters`)
         const {Octal, ASCIIString} = TarBuilder;
+        const isFile = VFS.FileSystem.isFile(file);
+        
+        if(!isFile && !name.endsWith('/')) {
+            name += '/';
+        }
+
         return new Uint8ClampedArray(Object.assign([
             ASCIIString(100, name), // File name
             Octal(8,0o6000 | parseInt(file.getPermissions().toString().repeat(3),8)), // File mode
             Octal(8), // Owner's numerical ID (NS)
             Octal(8), // Groups's numerical ID (NS)
-            Octal(12, file.getContentSize()), // File size in bytes
+            Octal(12, isFile ? file.getContentSize() : 0), // File size in bytes
             Octal(12, +file.getDateModified()), // Last modification time in numeric Unix time format
             (
                 dummyChecksum
