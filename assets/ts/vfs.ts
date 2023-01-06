@@ -292,9 +292,10 @@ namespace VFS {
                     return this.base.attributes;
                 }
                 setAttributes(arg: number | ((attributes: number)=>number) | {[key in Types.EnumKeys<typeof FileSystem.Attributes>]?: boolean}) {
-                    this.assertPermission(FileSystem.Permissions.WRITE);if(typeof arg === 'object') {
-                    for(const [key, value] of Object.entries(arg)) setBit(this.base.permissions, Reflect.get(FileSystem.Attributes, key), value);
-                        return this.base.permissions;
+                    this.assertPermission(FileSystem.Permissions.WRITE);
+                    if(typeof arg === 'object') {
+                        for(const [key, value] of Object.entries(arg)) setBit(this.base.attributes, Reflect.get(FileSystem.Attributes, key), value);
+                        return this.base.attributes;
                     }
                     return this.base.attributes = typeof arg === 'function' ? arg(this.base.attributes) : arg;
                 }
@@ -470,9 +471,9 @@ namespace VFS {
         export type File = Types.File;
         export type Directory = Types.Directory;
         export enum Permissions {
-            READ = 1,
+            READ = 4,
             WRITE = 2,
-            EXECUTE = 4
+            EXECUTE = 1
         }
         
         export enum Attributes {
