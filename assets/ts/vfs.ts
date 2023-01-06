@@ -37,6 +37,7 @@ namespace VFS {
             getPermissions(): number;
             setPermissions(arg: number | ((permissions: number)=>number) | {[key in EnumKeys<typeof FileSystem.Permissions>]?: boolean}): number;
             isExecutable(): boolean;
+            [Symbol.toStringTag]: string;
         }
 
         export interface File extends AbstractFile {
@@ -46,7 +47,6 @@ namespace VFS {
             getContentSize(): number;
             isExecutable(): boolean;
             locked(mode: FileSystem.LockMode.READ | FileSystem.LockMode.WRITE, func: (lockedFile: File)=>void): Promise<void>;
-            [Symbol.toStringTag]: 'File'
         }
 
         export interface Directory extends AbstractFile {
@@ -57,7 +57,6 @@ namespace VFS {
             keys({includeHidden,includeSpecial}: {includeHidden?:boolean,includeSpecial?:boolean}): string[];
             isRoot(): boolean;
             typeof(path: string): 'File' | 'Directory' | 'undefined';
-            [Symbol.toStringTag]: 'Directory'
         }
     }
     namespace BitHelper {
@@ -273,6 +272,7 @@ namespace VFS {
                     return base instanceof Base.Directory ? new Directory(base) : new File(base);
                 }
                 constructor(protected base: Base.Directory | Base.File) {}
+                get [Symbol.toStringTag](): string {return this.constructor.name}
                 getName() {
                     return this.base.name;
                 }
@@ -331,8 +331,6 @@ namespace VFS {
 
                 constructor(protected base: Base.File) {super(base);}
 
-                get [Symbol.toStringTag](): 'File' { return 'File' }
-
                 public read(): ArrayBuffer;
                 public read(asString: true): string;
                 public read(asString = false): ArrayBuffer | string {
@@ -362,8 +360,6 @@ namespace VFS {
                     return new Directory(base ?? new Base.Directory(null,now(),now(),now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], []));
                 }
                 constructor(protected base: Base.Directory) {super(base);}
-
-                get [Symbol.toStringTag](): 'Directory' { return 'Directory' }
                 
                 private splitfp(path: Types.Path) {
                     if(typeof path === 'string') {
@@ -464,6 +460,10 @@ namespace VFS {
         static fromObject(object: any) {
             assert(object.type === FileSystem.name, `Unable restore file system from object that is not a file system representation`);
             return FileSystem.new(object.pathSeparator, Base.Directory.fromObject(object.root));
+        }
+
+        static isFile(resource: VFS.FileSystem.File | VFS.FileSystem.Directory): resource is VFS.FileSystem.File {
+            return typeof resource !== 'string' && Reflect.get(resource, Symbol.toStringTag) === 'File';
         }
     }
 
