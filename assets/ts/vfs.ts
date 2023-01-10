@@ -27,6 +27,7 @@ namespace VFS {
         export type EnumKeys<E> = keyof Partial<Record<keyof E, number>>
         export type JSONValue = {[key: string]: JSONValue} | boolean | null | string | number | JSONValue[];
         export interface AbstractFile {
+            PATH_SEPERATOR: string;
             getName(): string | null;
             getDateCreated(): Date;
             getDateModified(): Date;
@@ -268,6 +269,7 @@ namespace VFS {
         public createInterface({homeDir = this.PATH_SEPARATOR, unrestricted = false} = {}) {
             const PATH_SEPARATOR = this.PATH_SEPARATOR;
             class AbstractFile implements Types.AbstractFile {
+                public readonly PATH_SEPERATOR = PATH_SEPARATOR;
                 protected wrap(base: Base.Directory | Base.File) {
                     return base instanceof Base.Directory ? new Directory(base) : new File(base);
                 }
