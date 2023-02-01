@@ -1,5 +1,5 @@
 namespace ElementFactory {
-    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect,on}: {attributes?: Map<`data-${string}`,any>,render?:()=>void,connect?:()=>void,on?:Map<keyof HTMLElementEventMap, ((event: Event)=>void) | (()=>void)>} = {} as any) {
+    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect,on,properties=Object.create(null)}: {attributes?: Map<`data-${string}`,any>,render?:()=>void,connect?:()=>void,on?:Map<keyof HTMLElementEventMap, ((event: Event)=>void) | (()=>void)>,properties:object} = {} as any) {
         window.customElements.define(`${name}`, class extends HTMLElement {
             #attributes: Map<string, any>;
             #observer: MutationObserver;
@@ -8,14 +8,13 @@ namespace ElementFactory {
                 super();
                 this.#attributes = new Map(attributes.entries());
     
-                const _render = render
-                render = () => {
+                const _render = () => {
                     this.#observer.disconnect()
-                    _render?.bind(this)?.()
+                    render?.bind(this)?.()
                     window.requestAnimationFrame(()=>this.#observer.observe(this, {attributes: true, childList: true, subtree: true, characterData: true}))
                 }
     
-                this.#observer = new MutationObserver(render?.bind?.(this) ?? function() {});
+                this.#observer = new MutationObserver(render ? _render : function(){});
     
                 for(const [key, defaultValue] of this.#attributes.entries()) {
                     Object.defineProperty(this, key, {
@@ -29,7 +28,7 @@ namespace ElementFactory {
                                 this.setAttribute(key, newValue);
                             
                             if(render)
-                                window.requestAnimationFrame(render.bind(this));
+                                window.requestAnimationFrame(_render.bind(this));
     
                             return this.#attributes.set(key, newValue).get(key)
                         }
@@ -39,6 +38,8 @@ namespace ElementFactory {
                 for(const [event, listener] of on?.entries()??[]) {
                     this.addEventListener(event,e=>listener(e));
                 }
+
+                Object.assign(this, properties)
             }
     
             attributeChangedCallback(name: `data-${string}`, oldValue: any, newValue: any) {
@@ -50,16 +51,13 @@ namespace ElementFactory {
                 for(const attribute of this.#attributes.keys())
                     if(this.hasAttribute(attribute)) this.#attributes.set(attribute, this.getAttribute(attribute))
                 
-                const _render = render
-                render = () => {
-                    this.#observer.disconnect()
-                    _render?.bind(this)?.()
-                    window.requestAnimationFrame(()=>this.#observer.observe(this, {attributes: true, childList: true, subtree: true, characterData: true}))
-                }
-                
                 if(render) {
                     this.#observer.observe(this, {attributes: true, childList: true, subtree: true, characterData: true})
-                    window.requestAnimationFrame(render.bind(this));
+                    window.requestAnimationFrame(() => {
+                        this.#observer.disconnect()
+                        render?.bind(this)?.()
+                        window.requestAnimationFrame(()=>this.#observer.observe(this, {attributes: true, childList: true, subtree: true, characterData: true}))
+                    });
                 }
                 if(connect)
                     window.requestAnimationFrame(connect.bind(this));
