@@ -12,8 +12,7 @@ SCRIPTS = '''
         <script src="/assets/js/toast.min.js"></script>
 '''
 VFS_SCRIPTS = '''
-        <script src="/assets/js/arraymap.min.js"></script>
-        <script src="/assets/js/vfs.min.js"></script>
+        <script src="/assets/js/vfs.js"></script>
 '''
 TS='type="text/typescript"'
 TSMODULE='type="tsmodule"'

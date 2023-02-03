@@ -128,7 +128,7 @@ namespace DomLib {
     // define $self on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$self', {
-            enumerable: true, configurable: !!options.debug,
+            enumerable: false, configurable: !!options.debug,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
                     selector = interpolate(selector, ...[...arguments].slice(1));
@@ -210,7 +210,7 @@ namespace DomLib {
     // define $$self on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$$self', {
-            enumerable: true, configurable: !!options.debug,
+            enumerable: false, configurable: !!options.debug,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
                     selector = interpolate(selector, ...[...arguments].slice(1));
@@ -263,7 +263,7 @@ namespace DomLib {
     // define $xself on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$xself', {
-            enumerable: true, configurable: !!options.debug,
+            enumerable: false, configurable: !!options.debug,
             value: function(query: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(query)) {
                     query = interpolate(query, ...[...arguments].slice(1));
@@ -391,7 +391,7 @@ namespace DomLib {
     // define $children on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$children', {
-            enumerable: true, configurable: !!options.debug,
+            enumerable: false, configurable: !!options.debug,
             get() {
                 return ChildNodeArray(this);
             },
@@ -487,7 +487,7 @@ namespace DomLib {
     export const $host: Element | null | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$host', {get() {return document.currentScript?.parentElement ?? null}});
-        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:true,configurable:!!options.debug,get(){return this}}));
+        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:false,configurable:!!options.debug,get(){return this}}));
     }
 
     
@@ -513,7 +513,7 @@ namespace DomLib {
                 document.currentScript?.replaceWith?.(other);
             }
         });
-        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$ctx', {enumerable:true,configurable:!!options.debug,get(){return this},set(other:string|Node){this.replaceWith(other)}}));
+        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$ctx', {enumerable:false,configurable:!!options.debug,get(){return this},set(other:string|Node){this.replaceWith(other)}}));
     }
 
     // internal class Box
@@ -534,7 +534,7 @@ namespace DomLib {
         value(this: globalThis.EventTarget, type: string, callback: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions | undefined) {
             this.addEventListener(type, callback, options)
             return {detach:()=>this.removeEventListener(type, callback, options)};
-        },enumerable:true,configurable:!!options.debug})
+        },enumerable:false,configurable:!!options.debug})
 
     // Binding Control
     if(document.currentScript) {

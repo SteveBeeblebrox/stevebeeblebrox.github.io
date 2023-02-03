@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2022 S. Beeblebrox
+ * Copyright (c) 2022-2023 S. Beeblebrox
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ namespace VFS {
         export type EnumKeys<E> = keyof Partial<Record<keyof E, number>>
         export type JSONValue = {[key: string]: JSONValue} | boolean | null | string | number | JSONValue[];
         export interface AbstractFile {
+            PATH_SEPERATOR: string;
             getName(): string | null;
             getDateCreated(): Date;
             getDateModified(): Date;
@@ -37,6 +38,7 @@ namespace VFS {
             getPermissions(): number;
             setPermissions(arg: number | ((permissions: number)=>number) | {[key in EnumKeys<typeof FileSystem.Permissions>]?: boolean}): number;
             isExecutable(): boolean;
+            [Symbol.toStringTag]: string;
         }
 
         export interface File extends AbstractFile {
@@ -85,9 +87,9 @@ namespace VFS {
         }
     }
 
-    function assert(condition: false, message?: string): never
-    function assert(condition: boolean, message?: string): void
-    function assert(condition: boolean, message: string = '') {
+    export function assert(condition: false, message?: string): never
+    export function assert(condition: boolean, message?: string): void
+    export function assert(condition: boolean, message: string = '') {
         if(!condition) throw new AssertionError(message);
     }
 
@@ -264,13 +266,15 @@ namespace VFS {
         }
         private constructor(private readonly root: Base.Directory, public readonly PATH_SEPARATOR: string) {}
         
-        public createInterface({homeDir = '/', unrestricted = false} = {}) {
+        public createInterface({homeDir = this.PATH_SEPARATOR, unrestricted = false} = {}) {
             const PATH_SEPARATOR = this.PATH_SEPARATOR;
             class AbstractFile implements Types.AbstractFile {
+                public readonly PATH_SEPERATOR = PATH_SEPARATOR;
                 protected wrap(base: Base.Directory | Base.File) {
                     return base instanceof Base.Directory ? new Directory(base) : new File(base);
                 }
                 constructor(protected base: Base.Directory | Base.File) {}
+                get [Symbol.toStringTag](): string {return this.constructor.name}
                 getName() {
                     return this.base.name;
                 }
@@ -290,9 +294,10 @@ namespace VFS {
                     return this.base.attributes;
                 }
                 setAttributes(arg: number | ((attributes: number)=>number) | {[key in Types.EnumKeys<typeof FileSystem.Attributes>]?: boolean}) {
-                    this.assertPermission(FileSystem.Permissions.WRITE);if(typeof arg === 'object') {
-                    for(const [key, value] of Object.entries(arg)) setBit(this.base.permissions, Reflect.get(FileSystem.Attributes, key), value);
-                        return this.base.permissions;
+                    this.assertPermission(FileSystem.Permissions.WRITE);
+                    if(typeof arg === 'object') {
+                        for(const [key, value] of Object.entries(arg)) setBit(this.base.attributes, Reflect.get(FileSystem.Attributes, key), value);
+                        return this.base.attributes;
                     }
                     return this.base.attributes = typeof arg === 'function' ? arg(this.base.attributes) : arg;
                 }
@@ -357,10 +362,11 @@ namespace VFS {
                     return new Directory(base ?? new Base.Directory(null,now(),now(),now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], []));
                 }
                 constructor(protected base: Base.Directory) {super(base);}
+                
                 private splitfp(path: Types.Path) {
                     if(typeof path === 'string') {
                         path = path.replace(new RegExp(String.raw`${escapeRegex(PATH_SEPARATOR)}$`, 'g'), '').split(new RegExp(String.raw`(?<!^)${escapeRegex(PATH_SEPARATOR)}|(?<=^${escapeRegex(PATH_SEPARATOR)})`, 'g'));
-                        if(path[0] === '~') path[0] = homeDir;
+                        if(path[0] === '~') path.splice(0, 1, ...this.splitfp(homeDir));
                     }
                     return path;
                 }
@@ -457,15 +463,19 @@ namespace VFS {
             assert(object.type === FileSystem.name, `Unable restore file system from object that is not a file system representation`);
             return FileSystem.new(object.pathSeparator, Base.Directory.fromObject(object.root));
         }
+
+        static isFile(resource: VFS.FileSystem.File | VFS.FileSystem.Directory): resource is VFS.FileSystem.File {
+            return typeof resource !== 'string' && Reflect.get(resource, Symbol.toStringTag) === 'File';
+        }
     }
 
     export namespace FileSystem {
         export type File = Types.File;
         export type Directory = Types.Directory;
         export enum Permissions {
-            READ = 1,
+            READ = 4,
             WRITE = 2,
-            EXECUTE = 4
+            EXECUTE = 1
         }
         
         export enum Attributes {
@@ -532,7 +542,14 @@ namespace VFS {
         }
     }
 
-    export function download(resource: BlobPart, name?: string) {
+    export function download(resource: BlobPart | FileSystem.File, name?: string) {
+        function isFile(resource: BlobPart | FileSystem.File): resource is FileSystem.File {
+            return typeof resource !== 'string' && Reflect.get(resource, Symbol.toStringTag) === 'File';
+        }
+        if(isFile(resource)) {
+            name ??= resource.getName() ?? undefined;
+            resource = resource.read();
+        }
         if(!(resource instanceof Blob)) resource = new Blob([resource]);
         const objectURL = URL.createObjectURL(resource);
         Object.assign(document.createElement('a'), {href: objectURL, download: name ?? '', onclick() {
