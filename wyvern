@@ -124,7 +124,7 @@ function htmlx() {
 function grc() {
     out="$("$WYVERN_DIR/pt.exe" $1 --ext=)"
     if isnewer "$1" "$out"; then
-        curl "$(cat $1)" > $out
+        curl "$(cat $1)" 2>/dev/null > $out
     fi
 }
 
