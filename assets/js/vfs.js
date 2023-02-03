@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 S. Beeblebrox
+ * Copyright (c) 2022-2023 S. Beeblebrox
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,23 +50,18 @@ var VFS;
     const setBit = BitHelper.set;
     class AssertionError extends Error {
         constructor(message) {
-            super(`Assertion failed` + (message ? ': ' : '') + message ?? '');
+            var _a;
+            super((_a = `Assertion failed` + (message ? ': ' : '') + message) !== null && _a !== void 0 ? _a : '');
         }
     }
     function assert(condition, message = '') {
         if (!condition)
             throw new AssertionError(message);
     }
+    VFS.assert = assert;
     let Base;
     (function (Base) {
         class AbstractFile {
-            name;
-            dateCreated;
-            dateModified;
-            dateAccessed;
-            permissions;
-            attributes;
-            parentDirectory = null;
             constructor(name, dateCreated, dateModified, dateAccessed, permissions, attributes) {
                 this.name = name;
                 this.dateCreated = dateCreated;
@@ -74,6 +69,7 @@ var VFS;
                 this.dateAccessed = dateAccessed;
                 this.permissions = permissions;
                 this.attributes = attributes;
+                this.parentDirectory = null;
             }
             toObject() {
                 return {
@@ -89,12 +85,10 @@ var VFS;
         }
         Base.AbstractFile = AbstractFile;
         class File extends AbstractFile {
-            data;
-            lockMode = FileSystem.LockMode.UNLOCKED;
-            lockObject;
             constructor(name, dateCreated, dateModified, dateAccessed, data, permissions, attributes) {
                 super(name, dateCreated, dateModified, dateAccessed, permissions, attributes);
                 this.data = data;
+                this.lockMode = FileSystem.LockMode.UNLOCKED;
             }
             get contentSize() {
                 return this.data.byteLength;
@@ -139,10 +133,10 @@ var VFS;
             }
             write(data, startoffset, trim, lockObject) {
                 this.assertUnlocked(FileSystem.LockMode.WRITE, lockObject);
-                const size = trim ? startoffset + data.byteLength : Math.max((startoffset ?? this.data.byteLength) + data.byteLength, this.data.byteLength);
+                const size = trim ? startoffset + data.byteLength : Math.max((startoffset !== null && startoffset !== void 0 ? startoffset : this.data.byteLength) + data.byteLength, this.data.byteLength);
                 const t = new Uint8Array(size);
                 t.set(new Uint8Array(this.data).slice(0, size), 0);
-                t.set(new Uint8Array(data), startoffset ?? this.data.byteLength);
+                t.set(new Uint8Array(data), startoffset !== null && startoffset !== void 0 ? startoffset : this.data.byteLength);
                 this.dateModified = now();
                 this.data = t.buffer;
             }
@@ -152,9 +146,6 @@ var VFS;
         }
         Base.File = File;
         class Directory extends AbstractFile {
-            names;
-            files;
-            isRoot;
             toObject() {
                 return Object.assign(super.toObject(), {
                     files: this.files.map(file => file.toObject()),
@@ -228,25 +219,24 @@ var VFS;
         Base.Directory = Directory;
     })(Base || (Base = {}));
     class FileSystem {
-        root;
-        PATH_SEPARATOR;
         static new(pathSeparator = '/', root) {
-            return new FileSystem(root ?? new Base.Directory(null, now(), now(), now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], [], true), pathSeparator);
+            return new FileSystem(root !== null && root !== void 0 ? root : new Base.Directory(null, now(), now(), now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], [], true), pathSeparator);
         }
         constructor(root, PATH_SEPARATOR) {
             this.root = root;
             this.PATH_SEPARATOR = PATH_SEPARATOR;
         }
-        createInterface({ homeDir = '/', unrestricted = false } = {}) {
+        createInterface({ homeDir = this.PATH_SEPARATOR, unrestricted = false } = {}) {
             const PATH_SEPARATOR = this.PATH_SEPARATOR;
             class AbstractFile {
-                base;
                 wrap(base) {
                     return base instanceof Base.Directory ? new Directory(base) : new File(base);
                 }
                 constructor(base) {
                     this.base = base;
+                    this.PATH_SEPERATOR = PATH_SEPARATOR;
                 }
+                get [Symbol.toStringTag]() { return this.constructor.name; }
                 getName() {
                     return this.base.name;
                 }
@@ -269,8 +259,8 @@ var VFS;
                     this.assertPermission(FileSystem.Permissions.WRITE);
                     if (typeof arg === 'object') {
                         for (const [key, value] of Object.entries(arg))
-                            setBit(this.base.permissions, Reflect.get(FileSystem.Attributes, key), value);
-                        return this.base.permissions;
+                            setBit(this.base.attributes, Reflect.get(FileSystem.Attributes, key), value);
+                        return this.base.attributes;
                     }
                     return this.base.attributes = typeof arg === 'function' ? arg(this.base.attributes) : arg;
                 }
@@ -294,19 +284,19 @@ var VFS;
                     return this.base;
                 }
                 assertPermission(permission, file = this.base) {
-                    assert(unrestricted || getBit(file.permissions, permission), `File '${file.name ?? '<unknown>'} is not ${FileSystem.Permissions[permission].toLowerCase().replace(/[aeiou]$/, '')}able.'`);
+                    var _a;
+                    assert(unrestricted || getBit(file.permissions, permission), `File '${(_a = file.name) !== null && _a !== void 0 ? _a : '<unknown>'} is not ${FileSystem.Permissions[permission].toLowerCase().replace(/[aeiou]$/, '')}able.'`);
                 }
             }
             class File extends AbstractFile {
-                base;
                 static new() {
                     return new File(new Base.File(null, now(), now(), now(), new ArrayBuffer(0), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE, 0));
                 }
-                encoder = new TextEncoder();
-                decoder = new TextDecoder();
                 constructor(base) {
                     super(base);
                     this.base = base;
+                    this.encoder = new TextEncoder();
+                    this.decoder = new TextDecoder();
                 }
                 read(asString = false) {
                     this.assertPermission(FileSystem.Permissions.READ);
@@ -329,9 +319,8 @@ var VFS;
                 }
             }
             class Directory extends AbstractFile {
-                base;
                 static new(base) {
-                    return new Directory(base ?? new Base.Directory(null, now(), now(), now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], []));
+                    return new Directory(base !== null && base !== void 0 ? base : new Base.Directory(null, now(), now(), now(), FileSystem.Permissions.READ | FileSystem.Permissions.WRITE | FileSystem.Permissions.EXECUTE, 0, [], []));
                 }
                 constructor(base) {
                     super(base);
@@ -341,11 +330,12 @@ var VFS;
                     if (typeof path === 'string') {
                         path = path.replace(new RegExp(String.raw `${escapeRegex(PATH_SEPARATOR)}$`, 'g'), '').split(new RegExp(String.raw `(?<!^)${escapeRegex(PATH_SEPARATOR)}|(?<=^${escapeRegex(PATH_SEPARATOR)})`, 'g'));
                         if (path[0] === '~')
-                            path[0] = homeDir;
+                            path.splice(0, 1, ...this.splitfp(homeDir));
                     }
                     return path;
                 }
                 get(path) {
+                    var _a;
                     this.assertPermission(FileSystem.Permissions.READ);
                     const [first, ...rest] = this.splitfp(path);
                     const target = (() => {
@@ -362,15 +352,16 @@ var VFS;
                         }
                     })();
                     if (rest.length) {
-                        assert(target instanceof Directory, `Cannot resolve path. Expected a directory but found a file: '${target?.getName() ?? '<none>'}'`);
+                        assert(target instanceof Directory, `Cannot resolve path. Expected a directory but found a file: '${(_a = target === null || target === void 0 ? void 0 : target.getName()) !== null && _a !== void 0 ? _a : '<none>'}'`);
                         return target.get(rest);
                     }
                     return target;
                 }
                 set(path, file) {
+                    var _a, _b;
                     this.assertPermission(FileSystem.Permissions.WRITE);
                     const { target, last } = this.preparePath(path);
-                    assert(target instanceof Directory, `Cannot set '${last}' since ${target?.getName?.() ?? '<unknown>'} is not a directory`);
+                    assert(target instanceof Directory, `Cannot set '${last}' since ${(_b = (_a = target === null || target === void 0 ? void 0 : target.getName) === null || _a === void 0 ? void 0 : _a.call(target)) !== null && _b !== void 0 ? _b : '<unknown>'} is not a directory`);
                     if (target.has(last))
                         target.assertPermission(FileSystem.Permissions.WRITE, target.get(last)[baseGetterSymbol](baseGetterSymbol));
                     const newFile = target.base.set(last, file[baseGetterSymbol](baseGetterSymbol));
@@ -378,9 +369,10 @@ var VFS;
                 }
                 has(path, catchErrors = true) {
                     const impl = () => {
+                        var _a, _b;
                         this.assertPermission(FileSystem.Permissions.READ);
                         const { target, last } = this.preparePath(path);
-                        assert(target instanceof Directory, `Cannot check if '${last}' exists since ${target?.getName?.() ?? '<unknown>'} is not a directory`);
+                        assert(target instanceof Directory, `Cannot check if '${last}' exists since ${(_b = (_a = target === null || target === void 0 ? void 0 : target.getName) === null || _a === void 0 ? void 0 : _a.call(target)) !== null && _b !== void 0 ? _b : '<unknown>'} is not a directory`);
                         return target.base.has(last);
                     };
                     if (catchErrors)
@@ -409,9 +401,10 @@ var VFS;
                         return impl();
                 }
                 delete(path) {
+                    var _a, _b;
                     this.assertPermission(FileSystem.Permissions.WRITE);
                     const { target, last } = this.preparePath(path);
-                    assert(target instanceof Directory, `Cannot delete '${last}' exists since ${target?.getName?.() ?? '<unknown>'} is not a directory`);
+                    assert(target instanceof Directory, `Cannot delete '${last}' exists since ${(_b = (_a = target === null || target === void 0 ? void 0 : target.getName) === null || _a === void 0 ? void 0 : _a.call(target)) !== null && _b !== void 0 ? _b : '<unknown>'} is not a directory`);
                     return this.wrap(target.base.delete(last));
                 }
                 keys({ includeHidden = false, includeSpecial = false } = {}) {
@@ -444,14 +437,17 @@ var VFS;
             assert(object.type === FileSystem.name, `Unable restore file system from object that is not a file system representation`);
             return FileSystem.new(object.pathSeparator, Base.Directory.fromObject(object.root));
         }
+        static isFile(resource) {
+            return typeof resource !== 'string' && Reflect.get(resource, Symbol.toStringTag) === 'File';
+        }
     }
     VFS.FileSystem = FileSystem;
     (function (FileSystem) {
         let Permissions;
         (function (Permissions) {
-            Permissions[Permissions["READ"] = 1] = "READ";
+            Permissions[Permissions["READ"] = 4] = "READ";
             Permissions[Permissions["WRITE"] = 2] = "WRITE";
-            Permissions[Permissions["EXECUTE"] = 4] = "EXECUTE";
+            Permissions[Permissions["EXECUTE"] = 1] = "EXECUTE";
         })(Permissions = FileSystem.Permissions || (FileSystem.Permissions = {}));
         let Attributes;
         (function (Attributes) {
@@ -516,10 +512,18 @@ var VFS;
         }
     })(Streams = VFS.Streams || (VFS.Streams = {}));
     function download(resource, name) {
+        var _a;
+        function isFile(resource) {
+            return typeof resource !== 'string' && Reflect.get(resource, Symbol.toStringTag) === 'File';
+        }
+        if (isFile(resource)) {
+            name !== null && name !== void 0 ? name : (name = (_a = resource.getName()) !== null && _a !== void 0 ? _a : undefined);
+            resource = resource.read();
+        }
         if (!(resource instanceof Blob))
             resource = new Blob([resource]);
         const objectURL = URL.createObjectURL(resource);
-        Object.assign(document.createElement('a'), { href: objectURL, download: name ?? '', onclick() {
+        Object.assign(document.createElement('a'), { href: objectURL, download: name !== null && name !== void 0 ? name : '', onclick() {
                 requestAnimationFrame(() => URL.revokeObjectURL(objectURL));
             } }).click();
     }

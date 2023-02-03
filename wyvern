@@ -197,6 +197,13 @@ elif [ "$ACTION" == 'link' ]; then
     mkdir -p l
     echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta http-equiv=\"refresh\" content=\"0; url=$2\"></head><body><p>Redirecting you to $2</p></body></html>" > l/$1.html
 elif [ "$ACTION" == 'build' ]; then
+    echo "Starting..."
+    if [ $(ls | grep prebuild.sh) ]; then
+        source prebuild.sh
+    elif [ $(ls | grep pre-build.sh) ]; then
+        source pre-build.sh
+    fi
+
     echo "Updating project dependencies..."
     for file in $(lsext grc); do
         grc $file
@@ -231,6 +238,13 @@ elif [ "$ACTION" == 'build' ]; then
 
     echo "Generating Sitemap..."
     python3 "$WYVERN_DIR/sitemap.py"
+
+    echo "Finishing..."
+    if [ $(ls | grep postbuild.sh) ]; then
+        source postbuild.sh
+    elif [ $(ls | grep post-build.sh) ]; then
+        source post-build.sh
+    fi
 
     echo "Done!"
 else
