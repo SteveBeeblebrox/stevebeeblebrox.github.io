@@ -485,6 +485,9 @@ namespace LZCompression {
 
         }
     }
+    
+    export const zip = compress;
+    export const unzip = decompress;
 }
 
 /*
@@ -557,6 +560,9 @@ namespace LZWCompression {
         }
     }
 
+    export const zip = compress;
+    export const unzip = decompress;
+
     // ucs-2 string to base64 encoded ascii
     function utoa (str: string) {
         return btoa(unescape(encodeURIComponent(str)));
@@ -587,10 +593,14 @@ namespace GZipCompression {
         return new Blob([await new Response(compressedStream).blob()], {type: 'application/gzip'});
     }
 
-    export async function zip(text: string) {
+    export async function compress(text: string) {
         return Base64.encodeBase64FromArray(new Uint8Array(await (await GZipCompression.compressBlob(new Blob([text]))).arrayBuffer()));
     }
-    export async function unzip(text: string) {
+    
+    export async function decompress(text: string) {
         return (await GZipCompression.decompressBlob(new Blob([Base64.decodeBase64ToArray(text)]))).text();
     }
+
+    export const zip = compress;
+    export const unzip = decompress;
 }
