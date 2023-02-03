@@ -1,2 +1,3 @@
 build eol=lf
+wyvern eol=lf
 *.sh eol=lf
