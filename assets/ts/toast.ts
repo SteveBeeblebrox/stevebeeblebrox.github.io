@@ -24,7 +24,7 @@
 const toast = (function() {
     const div = document.createElement('div');
     if(document.readyState === 'complete')
-      document.body.appendChild(div)
+      document.body.appendChild(div);
     else
       window.addEventListener('load', () => document.body.appendChild(div));
     
