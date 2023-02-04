@@ -540,10 +540,14 @@ namespace DomLib {
     if(document.currentScript) {
         if('bind' in options) {
             const target = Reflect.get(globalThis, (options.bind || 'globalThis').toString())
-            Object.getOwnPropertyNames(DomLib).forEach(function(key: string) {
-                if(key !== 'VERSION') Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(DomLib, key)!);
-            });
+            bind(target);
         }
+    }
+
+    export function bind(target: any) {
+        Object.getOwnPropertyNames(DomLib).forEach(function(key: string) {
+            if(key !== 'VERSION') Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(DomLib, key)!);
+        });
     }
 
     export declare interface Extensions {
