@@ -1,5 +1,5 @@
 namespace ElementFactory {
-    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect,on,properties=Object.create(null)}: {attributes?: Map<`data-${string}`,any>,render?:()=>void,connect?:()=>void,on?:Map<keyof HTMLElementEventMap, ((event: Event)=>void) | (()=>void)>,properties:object} = {} as any) {
+    export function define(name: `${string}-${string}`, {attributes=new Map(),render,connect,on,stylesheet,properties=Object.create(null)}: {attributes?: Map<`data-${string}`,any>,render?:()=>void,connect?:()=>void,on?:Map<keyof HTMLElementEventMap, ((event: Event)=>void) | (()=>void)>,stylesheet?:string,properties:object} = {} as any) {
         window.customElements.define(`${name}`, class extends HTMLElement {
             #attributes: Map<string, any>;
             #observer: MutationObserver;
@@ -38,6 +38,13 @@ namespace ElementFactory {
                 for(const [event, listener] of on?.entries()??[]) {
                     this.addEventListener(event,e=>listener(e));
                 }
+
+               if(stylesheet) {
+                  const prop = 'kitsunedom' in document ? 'kitsuneGlobalAdoptedStyleSheets' : 'adoptedStyleSheets';
+                  const sheet = new CSSStyleSheet();
+                  sheet.replaceSync(stylesheet);
+                  document[prop] = [...document[prop], sheet];
+               }
 
                 Object.assign(this, properties)
             }
