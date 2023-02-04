@@ -91,7 +91,7 @@ if [ ! $(ls | grep globals.py) ]; then
 fi
 
 function isnewer {
-    [ $1 -nt $2 ]
+    [[ $1 -nt $2 || "$FORCE_REBUILD" ]]
 }
 
 function mkfile() {
@@ -150,6 +150,8 @@ function lsext() {
 
 POSITIONAL_ARGS=()
 
+FORCE_REBUILD=''
+
 # https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -163,10 +165,10 @@ while [[ $# -gt 0 ]]; do
     #   shift # past argument
     #   shift # past value
     #   ;;
-    # --default)
-    #   DEFAULT=YES
-    #   shift # past argument
-    #   ;;
+     --force)
+       FORCE_REBUILD='YES'
+       shift
+       ;;
     -*|--*)
       echo "Unknown option '$1'"
       exit 1
