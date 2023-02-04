@@ -34,3 +34,10 @@ function assert(condition: boolean, message: string = '') {
 }
 
 const throws = (e: any) => { throw e };
+
+function addLoadListener(f: ()=>any) {
+    if(document.readyState === 'complete')
+      f();
+    else
+      window.addEventListener('load', f);
+}

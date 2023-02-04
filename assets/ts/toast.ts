@@ -23,7 +23,10 @@
  */
 const toast = (function() {
     const div = document.createElement('div');
-    window.addEventListener('load', () => document.body.appendChild(div));
+    if(document.readyState === 'complete')
+      document.body.appendChild(div)
+    else
+      window.addEventListener('load', () => document.body.appendChild(div));
     
     const shadowRoot = div.attachShadow({mode: 'closed'});
     shadowRoot.appendChild(Object.assign(document.createElement('style'), {
