@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Copyright (c) 2020-2022 S. Beeblebrox
+ * Copyright (c) 2020-2023 S. Beeblebrox
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 namespace SHML {
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 1, minor: 7, patch: 0
+        major: 1, minor: 7, patch: 1
     });
 
     function cyrb64(text: string, seed = 0) {
@@ -326,7 +326,7 @@ namespace SHML {
             args.set('src_comment', inlineArgs.get('src_comment')!)
             args.set('comment', inlineArgs.get('comment')!)
 
-            args.set('code_block', {pattern: /(```+)(?<lines>#)?(?<language>[a-z]+)?(?<text>[\s\S]*?)\1/g, isInline: false, reviver({groups}, decode) {
+            args.set('code_block', {pattern: /(```+)(?<lines>#)?(?<language>c\+\+|[a-z]+)?(?<text>[\s\S]*?)\1/g, isInline: false, reviver({groups}, decode) {
                 return `<pre><code>${groups.language || groups.lines ? SHML.parseCode(decode(groups.text, true).replace(/&lt;|&gt;|&amp;|&quot;|&#x27;/g, (match: string) => {
                     switch(match) {
                         case '&lt;': return '<';
@@ -434,7 +434,7 @@ namespace SHML {
         }
 
         export namespace Code {
-            export const SUPPORTED_LANGUAGES = ['html', 'css', 'javascript', 'typescript', 'xml', 'json', 'python', 'diff', 'java', 'none'] as const;
+            export const SUPPORTED_LANGUAGES = ['html', 'css', 'js', 'javascript', 'ts', 'typescript', 'xml', 'json', 'py', 'python', 'diff', 'c', 'c++', 'cpp', 'java', 'none'] as const;
 
             function appendTokenMatcher(name: string, pattern: RegExp, args: FormatArgs): void {
                 args.set(name, {pattern, reviver({groups}) {
@@ -631,6 +631,27 @@ namespace SHML {
 
                 return args;
             }
+
+            export function cppHighlighter() {
+               const args: FormatArgs = new Map(), matchToken = (name: string, pattern: RegExp) => appendTokenMatcher(name, pattern, args);
+
+               args.set('compiler-directive', {pattern: /(?<directive>#\s*?[a-z]+)(?<text>(?:\\\n|[^\n])*?(?:\n|$))/g, reviver({groups}) {
+                  return `<span data-code-token="compiler-directive">${groups.directive}<span data-code-token="compiler-directive-value">${groups.text}</span></span>`;
+               }});
+
+               args.set('multiline-string', {pattern: /(?<text>R&quot;(?<what>[^\uffff\ufffe]{0,16}?)\([^\uffff\ufffe]*?\)\k<what>&quot;)/g, reviver: ({groups}) => `<span data-code-token="string">${groups.text}</span>`});
+               matchToken('string',/(?<text>(?:L|u8|u|U)?(?<what>&quot;|&#x27;)(?:.*?[^\\\n])?(?:\\\\)*\k<what>)/g);
+                
+               args.set('comment', {pattern: /(?<text>(?:\/\/.*)|(?:\/\*[\s\S]*?\*\/))/g, reviver({groups}, decode) {
+                  return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
+               }});
+               
+               const keywords = ['alignas','alignof','and','and_eq','asm','atomic_cancel','atomic_commit','atomic_noexcept','auto','bitand','bitor','bool','break','case','catch','char','char8_t','char16_t','char32_t','class','compl','concept','const','consteval','constexpr','constinit','const_cast','continue','co_await','co_return','co_yield','decltype','default','delete','do','double','dynamic_cast','else','enum','explicit','export','extern','false','float','for','friend','goto','if','inline','int','long','mutable','namespace','new','noexcept','not','not_eq','nullptr','operator','or','or_eq','private','protected','public','reflexpr','register','reinterpret_cast','requires','return','short','signed','sizeof','static','static_assert','static_cast','struct','switch','synchronized','template','this','thread_local','throw','true','try','typedef','typeid','typename','union','unsigned','using','virtual','void','volatile','wchar_t','while','xor','xor_eq','final','override','transaction_safe','transaction_safe_dynamic','import','module','_Pragma','NULL'];
+               matchToken('number', /(?<text>\b(?:0(?:x[0-9a-f](?:[0-9a-f]|&#x27;)*|b[01](?:[01]|&#x27;)*)(?<!&#x27;)|\d(?:\d|&#x27;)*\.?(?:\d|&#x27;)*((?<=[\d.])e[+\-]?\d(?:\d|&#x27;)*)?[fulz]{0,3}(?<!&#x27;))\b)/gi);
+               matchToken('keyword', new RegExp(String.raw`(?<text>\b(?:${keywords.join('|')})\b)`, 'g'));
+
+               return args;
+            }
         }
     }
 
@@ -685,12 +706,18 @@ namespace SHML {
                 switch(language) {
                     case 'html': return Configuration.Code.htmlHighlighter();
                     case 'css': return Configuration.Code.cssHighlighter();
-                    case 'javascript': return Configuration.Code.javascriptHighlighter();
-                    case 'typescript': return Configuration.Code.typescriptHighlighter();
+                    case 'js':
+                    case 'javascript': language = 'javascript'; return Configuration.Code.javascriptHighlighter();
+                    case 'ts':
+                    case 'typescript': language = 'typescript'; return Configuration.Code.typescriptHighlighter();
                     case 'xml': return Configuration.Code.xmlHighlighter();
                     case 'json': return Configuration.Code.jsonHighlighter();
-                    case 'python': return Configuration.Code.pythonHighlighter();
+                    case 'py':
+                    case 'python': language = 'python'; return Configuration.Code.pythonHighlighter();
                     case 'diff': return Configuration.Code.diffHighlighter();
+                    case 'c':
+                    case 'c++':
+                    case 'cpp': language = 'c++'; return Configuration.Code.cppHighlighter()
                     case 'java': return Configuration.Code.javaHighlighter();
                     default: return new Map();
                 }

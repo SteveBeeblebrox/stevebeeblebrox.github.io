@@ -108,8 +108,8 @@ function tsc() {
 
 function less() {
     out="$("$WYVERN_DIR/pt.exe" $1 less~css -e css)"
-    mkfile "$out"
     if isnewer "$1" "$out"; then
+        mkfile "$out"
         "$WYVERN_DIR/mless.exe" $1 --out= > $out
     fi
 }
@@ -124,7 +124,7 @@ function htmlx() {
 function grc() {
     out="$("$WYVERN_DIR/pt.exe" $1 --ext=)"
     if isnewer "$1" "$out"; then
-        curl "$(cat $1)" 2>/dev/null > $out
+        curl "$(cat $1)?$(date +%s)" 2>/dev/null > $out
     fi
 }
 

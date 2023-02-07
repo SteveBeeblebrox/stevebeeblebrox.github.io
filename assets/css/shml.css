@@ -100,6 +100,14 @@ body code [data-code-language="java"] [data-code-token="annotation"] {
   font-weight: bold;
   color: #008080;
 }
+body code [data-code-language="c++"] [data-code-token="compiler-directive"] {
+  color: #808080;
+  font-style: italic;
+}
+body code [data-code-language="c++"] [data-code-token="compiler-directive-value"] {
+  color: #137fc7;
+  font-style: italic;
+}
 body code [data-code-language] [data-code-token="string"] {
   color: #ad0000;
 }
