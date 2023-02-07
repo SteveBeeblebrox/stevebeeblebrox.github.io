@@ -331,6 +331,12 @@
             <script %{TS}>
                 (async function($last) {
                     const documentPreview = $last, editableDiv = $`div[contenteditable]`;
+                    editableDiv.addEventListener('keydown', event => {
+                        if (event.key === 'Enter') {
+                            document.execCommand('insertLineBreak')
+                            event.preventDefault()
+                        }
+                    });
                     new MutationObserver(async function() {
                         const result = SHML.parseMarkup(editableDiv.innerText, {get(key) {
                             return Object.hasOwn(emojis, key) ? `<img src="https://emojicdn.elk.sh/${emojis[key]}?style=google" style="height:1em;width:1em;vertical-align:text-top;"/>` : `:${key}:`
