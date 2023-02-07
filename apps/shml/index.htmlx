@@ -333,8 +333,8 @@
                     const documentPreview = $last, editableDiv = $`div[contenteditable]`;
                     editableDiv.addEventListener('keydown', event => {
                         if (event.key === 'Enter') {
-                            document.execCommand('insertLineBreak')
-                            event.preventDefault()
+                            document.execCommand('insertLineBreak');
+                            event.preventDefault();
                         }
                     });
                     new MutationObserver(async function() {
