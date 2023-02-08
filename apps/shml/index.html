@@ -346,6 +346,10 @@
                             document.execCommand('insertLineBreak');
                             event.preventDefault();
                         }
+                        else if (event.key === 'Tab') {
+                            document.execCommand('insertHTML', false, '	');
+                            event.preventDefault();
+                        }
                     });
                     new MutationObserver(async function () {
                         const result = SHML.parseMarkup(editableDiv.innerText, { get(key) {

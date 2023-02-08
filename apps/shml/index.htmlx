@@ -335,6 +335,9 @@
                         if (event.key === 'Enter') {
                             document.execCommand('insertLineBreak');
                             event.preventDefault();
+                        } else if(event.key === 'Tab') {
+                            document.execCommand('insertHTML', false, '&#009');
+                            event.preventDefault();
                         }
                     });
                     new MutationObserver(async function() {
