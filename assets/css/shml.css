@@ -41,6 +41,7 @@ body pre {
 body pre {
   padding: 0.5em;
   overflow-x: auto;
+  tab-size: 4;
 }
 body > code,
 body :not(pre) > code {
