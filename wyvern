@@ -1,12 +1,19 @@
 #!/bin/bash
-WYVERN_DIR='.wyvern'
-UNAME="SteveBeeblebrox"
+USE_EXE='No' #'Yes' if on WSL and you want to use Windows compatible .exe files
+WYVERN_DIR='.wyvern' # Where to put dependencies and other files wyvern needs to run
+
+
+if [[ $USE_EXE == 'Yes' ]]; then
+    EXE_SUFFIX=".exe"
+else
+    EXE_SUFFIX=''
+fi
 
 mkdir -p "$WYVERN_DIR"
 function dep() {
-    if [ ! $(ls "$WYVERN_DIR" | grep "$1.exe") ]; then
-        src="https://github.com/$UNAME/$1/releases/download/v$2/$1.exe"
-        # echo "Downloading $1.exe from $SRC..."
+    if [ ! $(ls "$WYVERN_DIR" | grep "$1$EXE_SUFFIX") ]; then
+        src="https://github.com/SteveBeeblebrox/$1/releases/download/v$2/$1$EXE_SUFFIX"
+        # echo "Downloading $1$EXE_SUFFIX from $SRC..."
         wget $src -P "$WYVERN_DIR" 2>/dev/null
     fi
 }
@@ -99,30 +106,30 @@ function mkfile() {
 }
 
 function tsc() {
-    out="$("$WYVERN_DIR/pt".exe $1 ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
+    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
     if isnewer "$1" "$out"; then
         mkfile "$out"
-        "$WYVERN_DIR/mtsc.exe" --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $out
+        "$WYVERN_DIR/mtsc$EXE_SUFFIX" --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $out
     fi
 }
 
 function less() {
-    out="$("$WYVERN_DIR/pt.exe" $1 less~css -e css)"
+    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 less~css -e css)"
     if isnewer "$1" "$out"; then
         mkfile "$out"
-        "$WYVERN_DIR/mless.exe" $1 --out= > $out
+        "$WYVERN_DIR/mless$EXE_SUFFIX" $1 --out= > $out
     fi
 }
 
 function htmlx() {
-    out="$("$WYVERN_DIR/pt.exe" $1 -e html)"
+    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 -e html)"
     if isnewer "$1" "$out"; then
-        python3 "$WYVERN_DIR/generator.py" $1 | "$WYVERN_DIR/mtsc.exe" --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out | "$WYVERN_DIR/mless.exe" --html --verbose --out= > $out
+        python3 "$WYVERN_DIR/generator.py" $1 | "$WYVERN_DIR/mtsc$EXE_SUFFIX" --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out | "$WYVERN_DIR/mless$EXE_SUFFIX" --html --verbose --out= > $out
     fi
 }
 
 function grc() {
-    out="$("$WYVERN_DIR/pt.exe" $1 --ext=)"
+    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 --ext=)"
     if isnewer "$1" "$out"; then
         curl "$(cat $1)?$(date +%s)" 2>/dev/null > $out
     fi
