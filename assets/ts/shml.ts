@@ -24,7 +24,7 @@
 namespace SHML {
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 1, minor: 7, patch: 1
+        major: 1, minor: 7, patch: 2
     });
 
     function cyrb64(text: string, seed = 0) {
@@ -436,9 +436,13 @@ namespace SHML {
         export namespace Code {
             export const SUPPORTED_LANGUAGES = ['html', 'css', 'js', 'javascript', 'ts', 'typescript', 'xml', 'json', 'py', 'python', 'diff', 'c', 'c++', 'cpp', 'java', 'none'] as const;
 
+            function wrapMultiline(open: string, text: string, close: string): string {
+               return text.split('\n').map(line=>open+line+close).join('\n');
+            }
+
             function appendTokenMatcher(name: string, pattern: RegExp, args: FormatArgs): void {
                 args.set(name, {pattern, reviver({groups}) {
-                    return `<span data-code-token="${name}">${groups.text}</span>`;
+                    return wrapMultiline(`<span data-code-token="${name}">`, groups.text, `</span>`);
                 }});
             }
 
@@ -460,7 +464,7 @@ namespace SHML {
                 }
 
                 args.set('comment', {pattern: /(?<text>(?:&lt;!--[\s\S]*?--&gt;))/g, reviver({groups}, decode) {
-                    return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
+                    return wrapMultiline('<span data-code-token="comment">', decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, ''), '</span>');
                 }});
                 args.set('doctype', {pattern: /^(?<whitespace>\s*)(?<text>&lt;!DOCTYPE\b.*?&gt;)/i, reviver({groups}) {
                     return `${groups.whitespace || ''}<span data-code-token="doctype">${groups.text}</span>`
@@ -496,7 +500,7 @@ namespace SHML {
                 matchToken('string',/(?<text>(?<what>&quot;|&#x27;)(?:.*?[^\\\n])?(?:\\\\)*\k<what>)/g);
         
                 args.set('comment', {pattern: /(?<text>(?:\/\*[\s\S]*?\*\/))/g, reviver({groups}, decode) {
-                    return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
+                    return wrapMultiline('<span data-code-token="comment">', decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, ''), '</span>');
                 }});
                 
                 matchToken('keyword', new RegExp(String.raw`(?<text>@(?:${CSS_AT_RULES.join('|')})\b)`, 'g'));
@@ -504,11 +508,11 @@ namespace SHML {
                 matchToken('selector', /(?<text>[^\s{};\uffff\ufffe][^{};\uffff\ufffe]*?[^\s{};\uffff\ufffe]?(?=\s*{))/g);
                 matchToken('property', /(?<text>\b[a-z\-]+:)/g);
 
-                matchToken('hexadecimal', /(?<text>#(?:(?:[0-9a-f]){8}|(?:[0-9a-f]){6}|(?:[0-9a-f]){3,4})\b)/gi);
+                matchToken('hexadecimal', /(?<text>(?<!&)#(?:(?:[0-9a-f]){8}|(?:[0-9a-f]){6}|(?:[0-9a-f]){3,4})\b)/gi);
                 matchToken('number', /(?<text>\b(\d[\d_]*\.?[\d_]*((?<=[\d.])e[+\-]?\d[\d_]*)?n?(?<!_))(?:%|\b|[a-z]+))/gi);
 
                 matchToken('function', /(?<text>\b[a-z\-]+\b(?=\())/g);
-                matchToken('other', /(?<text>\b[a-z\-]+\b)/g);
+                matchToken('other', /(?<text>(?<!&)\b[a-z\-]+\b)/g);
 
                 return args;
             }
@@ -527,11 +531,11 @@ namespace SHML {
             export function ecmascriptHighlighter(keywords: string[]): FormatArgs {
                 const args: FormatArgs = new Map(), matchToken = (name: string, pattern: RegExp) => appendTokenMatcher(name, pattern, args);
 
-                args.set('multiline-string', {pattern: /(?<text>(?<what>`)(?:[^\uffff\ufffe]*?[^\\])?(?:\\\\)*\k<what>)/g, reviver: ({groups}) => `<span data-code-token="string">${groups.text}</span>`});
+                args.set('multiline-string', {pattern: /(?<text>(?<what>`)(?:[^\uffff\ufffe]*?[^\\])?(?:\\\\)*\k<what>)/g, reviver: ({groups}) => wrapMultiline('<span data-code-token="string">', groups.text, '</span>')});
                 matchToken('string',/(?<text>(?<what>&quot;|&#x27;)(?:.*?[^\\\n])?(?:\\\\)*\k<what>)/g);
                 
                 args.set('comment', {pattern: /(?<text>(?:\/\/.*)|(?:\/\*[\s\S]*?\*\/))/g, reviver({groups}, decode) {
-                    return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
+                    return wrapMultiline('<span data-code-token="comment">', decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, ''), '</span>');
                 }});
                 
                 matchToken('number', /(?<text>\b(?:Infinity|NaN|0(?:[xX][0-9a-fA-F][0-9a-fA-F_]*|[bB][01][01_]*|[oO][0-7][0-7_]*)(?<!_)|\d[\d_]*\.?[\d_]*((?<=[\d.])[eE][+\-]?\d[\d_]*)?n?(?<!_))\b)/g);
@@ -552,7 +556,7 @@ namespace SHML {
                 }})
                 
                 args.set('cdata', {pattern: /(?<open>&lt;!\[CDATA\[)(?<content>[\s\S]*?)(?<close>\]\]&gt;)/g, reviver({groups}) {
-                    return `<span data-code-token="cdata">${groups.open}</span><span data-code-token="cdata-content">${groups.content}</span><span data-code-token="cdata">${groups.close}</span>`
+                    return `<span data-code-token="cdata">${groups.open}</span>` + wrapMultiline('<span data-code-token="cdata-content">', groups.content, '</span>') + `<span data-code-token="cdata">${groups.close}</span>`
                 }});
 
                 args.set('tag-open', {pattern: /(?<name>&lt;[a-z\-0-9]+(?:\:[a-z\-0-9]+)?)(?<DATA>[^\uffff\ufffe]*?)(?<close>\/?&gt;)/gi, reviver({groups}) {
@@ -582,10 +586,10 @@ namespace SHML {
             export function pythonHighlighter(): FormatArgs {
                 const args: FormatArgs = new Map(), matchToken = (name: string, pattern: RegExp) => appendTokenMatcher(name, pattern, args);
 
-                args.set('multiline-string', {pattern: /(?<text>(?<what>(?<qtype>&quot;|&#x27;)\k<qtype>{2})(?:[^\uffff\ufffe]*?[^\\])?(?:\\\\)*\k<what>)/g, reviver: ({groups}) => `<span data-code-token="string">${groups.text}</span>`});
+                args.set('multiline-string', {pattern: /(?<text>(?<what>(?<qtype>&quot;|&#x27;)\k<qtype>{2})(?:[^\uffff\ufffe]*?[^\\])?(?:\\\\)*\k<what>)/g, reviver: ({groups}) => wrapMultiline('<span data-code-token="string">', groups.text, '</span>')});
                 matchToken('string',/(?<text>(?<what>&quot;|&#x27;)(?:.*?[^\\\n])?(?:\\\\)*\k<what>)/g);
 
-                args.set('comment', {pattern: /(?<text>(?:#.*))/g, reviver({groups}, decode) {
+                args.set('comment', {pattern: /(?<text>(?:(?<!&)#.*))/g, reviver({groups}, decode) {
                     return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
                 }});
                 
@@ -616,11 +620,11 @@ namespace SHML {
             export function javaHighlighter(): FormatArgs {
                 const args: FormatArgs = new Map(), matchToken = (name: string, pattern: RegExp) => appendTokenMatcher(name, pattern, args);
 
-                args.set('multiline-string', {pattern: /(?<text>(?<what>(?<qtype>&quot;){3})(?:[^\uffff\ufffe]*?[^\\])?(?:\\\\)*\k<what>)/g, reviver: ({groups}) => `<span data-code-token="string">${groups.text}</span>`});
+                args.set('multiline-string', {pattern: /(?<text>(?<what>(?<qtype>&quot;){3})(?:[^\uffff\ufffe]*?[^\\])?(?:\\\\)*\k<what>)/g, reviver: ({groups}) => wrapMultiline('<span data-code-token="string">', groups.text, '</span>')});
                 matchToken('string',/(?<text>(?<what>&quot;|&#x27;)(?:.*?[^\\\n])?(?:\\\\)*\k<what>)/g);
                 
                 args.set('comment', {pattern: /(?<text>(?:\/\/.*)|(?:\/\*[\s\S]*?\*\/))/g, reviver({groups}, decode) {
-                    return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
+                    return wrapMultiline('<span data-code-token="comment">', decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, ''), '</span>');
                 }});
                 
                 const keywords = ['abstract','continue','for','new','switch','assert','default','goto','package','synchronized','boolean','do','if','private','this','break','double','implements','protected','throw','byte','else','import','public','throws','case','enum','instanceof','return','transient','catch','extends','int','short','try','char','final','interface','static','void','class','finally','long','strictfp','volatile','const','float','native','super','while','try','false','null','var'];
@@ -635,15 +639,15 @@ namespace SHML {
             export function cppHighlighter() {
                const args: FormatArgs = new Map(), matchToken = (name: string, pattern: RegExp) => appendTokenMatcher(name, pattern, args);
 
-               args.set('compiler-directive', {pattern: /(?<directive>#\s*?[a-z]+)(?<text>(?:\\\n|[^\n])*?(?:\n|$))/g, reviver({groups}) {
+               args.set('compiler-directive', {pattern: /(?<directive>(?<!&)#\s*?[a-z]+)(?<text>(?:\\\n|[^\n])*?(?:\n|$))/g, reviver({groups}) {
                   return `<span data-code-token="compiler-directive">${groups.directive}<span data-code-token="compiler-directive-value">${groups.text}</span></span>`;
                }});
 
-               args.set('multiline-string', {pattern: /(?<text>R&quot;(?<what>[^\uffff\ufffe]{0,16}?)\([^\uffff\ufffe]*?\)\k<what>&quot;)/g, reviver: ({groups}) => `<span data-code-token="string">${groups.text}</span>`});
+               args.set('multiline-string', {pattern: /(?<text>R&quot;(?<what>[^\uffff\ufffe]{0,16}?)\([^\uffff\ufffe]*?\)\k<what>&quot;)/g, reviver: ({groups}) => wrapMultiline('<span data-code-token="string">', groups.text, '</span>'});
                matchToken('string',/(?<text>(?:L|u8|u|U)?(?<what>&quot;|&#x27;)(?:.*?[^\\\n])?(?:\\\\)*\k<what>)/g);
                 
                args.set('comment', {pattern: /(?<text>(?:\/\/.*)|(?:\/\*[\s\S]*?\*\/))/g, reviver({groups}, decode) {
-                  return `<span data-code-token="comment">${decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, '')}</span>`;
+                  return wrapMultiline('<span data-code-token="comment">', decode(groups.text).replace(/<span data-code-token="string">|<\/span>/g, ''), '</span>');
                }});
                
                const keywords = ['alignas','alignof','and','and_eq','asm','atomic_cancel','atomic_commit','atomic_noexcept','auto','bitand','bitor','bool','break','case','catch','char','char8_t','char16_t','char32_t','class','compl','concept','const','consteval','constexpr','constinit','const_cast','continue','co_await','co_return','co_yield','decltype','default','delete','do','double','dynamic_cast','else','enum','explicit','export','extern','false','float','for','friend','goto','if','inline','int','long','mutable','namespace','new','noexcept','not','not_eq','nullptr','operator','or','or_eq','private','protected','public','reflexpr','register','reinterpret_cast','requires','return','short','signed','sizeof','static','static_assert','static_cast','struct','switch','synchronized','template','this','thread_local','throw','true','try','typedef','typeid','typename','union','unsigned','using','virtual','void','volatile','wchar_t','while','xor','xor_eq','final','override','transaction_safe','transaction_safe_dynamic','import','module','_Pragma','NULL'];
