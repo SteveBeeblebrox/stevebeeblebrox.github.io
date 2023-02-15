@@ -268,7 +268,7 @@ console.log(x + " World! " + 2**2)
 ```#json
 {
     "username": "Bob",
-    "id": 12345
+    "id": 12345,
     "payment info": null,
     "verified": true
 }
@@ -299,6 +299,18 @@ class Main {
         for(int i = 0; i < 10; i++)
             System.out.println("Hello World!");
     }
+}
+```
+#### C++
+```#c++
+//$(which g++) $0 -Wall -o ${out=$(mktemp)} || exit && exec $out $@
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << "Hello World" << endl;
+    cout << (1+1) << endl;
 }
 ```
 
