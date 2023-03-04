@@ -36,8 +36,11 @@ class Keybinds {
    private static readonly COMMAND_KEYS_ARRAY = Object.values(Keybinds.CommandKeys).filter(x=>typeof x === 'string') as string[];
    private static readonly COMMAND_KEYS = Keybinds.COMMAND_KEYS_ARRAY.filter(x=>x!=Keybinds.CommandKeys.Windows);
    private readonly levels = Array.apply(null, {length:5} as unknown[]).map(_=>new Map()) as Map<{char: string, ctrlKey: boolean, shiftKey: boolean, altKey: boolean, metaKey: boolean},Function>[];
+   private readonly keys = new Map<string, boolean>();
    constructor(private readonly target: EventTarget = window) {
-         target.addEventListener('keydown',this.onEvent);
+      target.addEventListener('keydown',this.onKeydownEvent);
+      target.addEventListener('keyup',this.onKeyupEvent);
+      target.addEventListener('blur',this.onBlurEvent);
    }
    static on(pattern: string, f: Function) {
       return Keybinds.DEFAULT_INSTANCE.on(pattern, f)
@@ -52,10 +55,19 @@ class Keybinds {
          char: reqs.find(c=>!Keybinds.COMMAND_KEYS_ARRAY.includes(c)) ?? (()=>{throw new Error(`Keybind '${pattern}' must contain a none command key`)})()
       },f);
    }
-   detach() {
-      this.target.removeEventListener('keydown',this.onEvent)
+   static isKeyDown(key: string): boolean {
+      return Keybinds.DEFAULT_INSTANCE.isKeyDown(key);
    }
-   private readonly onEvent = (function(this: Keybinds, event: KeyboardEvent) {
+   isKeyDown(key: string): boolean {
+      return !!this.keys.get(key.toLowerCase())
+   }
+   detach() {
+      this.target.removeEventListener('keydown',this.onKeydownEvent);
+      this.target.removeEventListener('keyup',this.onKeyupEvent);
+      this.target.removeEventListener('blur',this.onBlurEvent);
+   }
+   private readonly onKeydownEvent = (function(this: Keybinds, event: KeyboardEvent) {
+      this.keys.set(event.key, true);
       if((Keybinds.COMMAND_KEYS as string[]).includes(event.key.toLowerCase())) return;
       const length = +event.ctrlKey + +event.shiftKey + +event.altKey + +event.metaKey;
       const f  = [...this.levels[length].entries()].find(function([reqs]) {
@@ -69,5 +81,13 @@ class Keybinds {
          event.preventDefault();
          f();
       }
+   }).bind(this) as EventListener;
+
+   private readonly onKeyupEvent = (function(this: Keybinds, event: KeyboardEvent) {
+      this.keys.set(event.key.replace(/^ $/,'Space').toLowerCase(), false);
+   }).bind(this) as EventListener;
+
+   private readonly onBlurEvent = (function(this: Keybinds, event: Event) {
+      this.keys.clear();
    }).bind(this) as EventListener;
 }
