@@ -118,7 +118,7 @@ const chime = (function() {
                 let frequency = parseFloat(note);
                 if(Number.isNaN(frequency)) {
                     const [letter, octave] = note.split(/(?=\d)/)
-                    frequency = table[+octave][letter.toUpperCase()] ?? 0;
+                    frequency = table[+(octave??4)][letter.toUpperCase()] ?? 0;
                 }
                 return [frequency, +(time??defaultNoteTime)]
             });

@@ -19,7 +19,6 @@
 
 // === DOM Utils === //
 //#include domlib.ts
-DomLib.bind(globalThis);
 //#include jsx.ts
 //#include kitsunedom.ts
 //#include elementfactory.ts
@@ -32,6 +31,7 @@ DomLib.bind(globalThis);
 // sandbox.ts
 // githubshortcut.tsx (Include directly in script tag)
 
+DomLib.bind(globalThis);
 Object.defineProperty(globalThis, 'kitsunecore', {
     value: true
 });
