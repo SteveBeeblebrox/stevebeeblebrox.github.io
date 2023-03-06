@@ -67,7 +67,7 @@ class Keybinds {
       this.target.removeEventListener('blur',this.onBlurEvent);
    }
    private readonly onKeydownEvent = (function(this: Keybinds, event: KeyboardEvent) {
-      this.keys.set(event.key, true);
+      this.keys.set(event.key.replace(/^ $/,'Space').toLowerCase(), true);
       if((Keybinds.COMMAND_KEYS as string[]).includes(event.key.toLowerCase())) return;
       const length = +event.ctrlKey + +event.shiftKey + +event.altKey + +event.metaKey;
       const f  = [...this.levels[length].entries()].find(function([reqs]) {
