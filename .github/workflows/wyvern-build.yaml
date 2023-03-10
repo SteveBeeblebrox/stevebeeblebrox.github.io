@@ -28,6 +28,9 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
+          chmod +x ./.wyvern/mtsc
+          chmod +x ./.wyvern/mless
+          chmod +x ./.wyvern/pt
           chmod +x ./wyvern
           ./wyvern build
 
