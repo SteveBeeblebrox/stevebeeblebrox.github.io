@@ -15,6 +15,7 @@ function dep() {
         src="https://github.com/SteveBeeblebrox/$1/releases/download/v$2/$1$EXE_SUFFIX"
         # echo "Downloading $1$EXE_SUFFIX from $SRC..."
         wget $src -P "$WYVERN_DIR" 2>/dev/null
+        chmod +x "$WYVERN_DIR/$1$EXE_SUFFIX"
     fi
 }
 
@@ -256,6 +257,8 @@ elif [ "$ACTION" == 'build' ]; then
     fi
 
     echo "Done!"
+elif [ "$ACTION" == '' ]; then
+    echo "Wyvern is ready"
 else
     echo "Unknown action '$ACTION'"
 fi
