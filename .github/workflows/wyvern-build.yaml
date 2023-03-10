@@ -29,7 +29,7 @@ jobs:
       - name: Run a one-line script
         run: |
           sudo chmod +x ./wyvern
-          ./wyvern build
+          ./wyvern
           sudo chmod +x ./.wyvern/mtsc
           sudo chmod +x ./.wyvern/mless
           sudo chmod +x ./.wyvern/pt
