@@ -3004,7 +3004,7 @@ var JSX;
                     case null: return document.createDocumentFragment();
                     case 'svg': return document.createElementNS('http://www.w3.org/2000/svg', tag);
                     case 'math': return document.createElementNS('http://www.w3.org/1998/Math/MathML', tag);
-                    default: return document.createElement(tag);
+                    default: return document.createElement(tag, properties['is'] ? { is: properties['is'] } : {});
                 }
             })();
             if (element instanceof Element) {
@@ -3014,6 +3014,8 @@ var JSX;
                     element.setAttribute('xmlns', 'http://www.w3.org/1998/Math/MathML');
                 const prototype = Object.getPrototypeOf(element);
                 for (const [key, value] of Object.entries(properties !== null && properties !== void 0 ? properties : {})) {
+                    if (key === 'is')
+                        continue;
                     if (key === 'style' && typeof value === 'object' && key in prototype)
                         for (const [property, style] of (value instanceof Map ? value.entries() : Object.entries(value)))
                             Reflect.set(Reflect.get(element, key), property, style);
@@ -3099,39 +3101,71 @@ var JSX;
 })();
 var ElementFactory;
 (function (ElementFactory) {
-    function define(name, { attributes = new Map(), render, connect, on, stylesheet, properties = Object.create(null) } = {}) {
+    function define(name, { parentTagName, attributes = Object.create(null), cssVars = Object.create(null), onRender, onConnect, eventListeners = Object.create(null), stylesheet, extraProperties = Object.create(null) } = {}) {
         var _attributes, _observer, _a;
-        window.customElements.define(`${name}`, (_a = class extends HTMLElement {
+        const attributeMap = new Map(Object.entries(attributes));
+        const parentClass = parentTagName ? Object.getPrototypeOf(document.createElement(parentTagName)).constructor : HTMLElement;
+        function toCamelCase(text) {
+            return text.replace(/^data-/, '').replace(/-./g, match => match.substring(1).toUpperCase());
+        }
+        function fromCamelCase(text) {
+            return text.replace(/[A-Z]/g, match => '-' + match.toLowerCase());
+        }
+        window.customElements.define(`${name}`, (_a = class extends parentClass {
                 constructor() {
-                    var _a;
                     super();
                     _attributes.set(this, void 0);
                     _observer.set(this, void 0);
-                    __classPrivateFieldSet(this, _attributes, new Map(attributes.entries()), "f");
+                    __classPrivateFieldSet(this, _attributes, new Map(attributeMap.entries()), "f");
                     const _render = () => {
                         var _a;
                         __classPrivateFieldGet(this, _observer, "f").disconnect();
-                        (_a = render === null || render === void 0 ? void 0 : render.bind(this)) === null || _a === void 0 ? void 0 : _a();
+                        (_a = onRender === null || onRender === void 0 ? void 0 : onRender.bind(this)) === null || _a === void 0 ? void 0 : _a();
                         window.requestAnimationFrame(() => __classPrivateFieldGet(this, _observer, "f").observe(this, { attributes: true, childList: true, subtree: true, characterData: true }));
                     };
-                    __classPrivateFieldSet(this, _observer, new MutationObserver(render ? _render : function () { }), "f");
+                    __classPrivateFieldSet(this, _observer, new MutationObserver(onRender ? _render : function () { }), "f");
                     for (const [key, defaultValue] of __classPrivateFieldGet(this, _attributes, "f").entries()) {
-                        Object.defineProperty(this, key, {
+                        Object.defineProperty(this, toCamelCase(key), {
                             get() {
                                 return __classPrivateFieldGet(this, _attributes, "f").get(key);
                             },
                             set(newValue) {
-                                if (!newValue && typeof defaultValue === 'boolean')
+                                if ((newValue === null || newValue === false) && typeof defaultValue === 'boolean') {
                                     this.removeAttribute(key);
-                                else
+                                    newValue = false;
+                                }
+                                else if (typeof defaultValue === 'boolean') {
+                                    this.setAttribute(key, '');
+                                    newValue = true;
+                                }
+                                else {
                                     this.setAttribute(key, newValue);
-                                if (render)
+                                }
+                                if (onRender)
                                     window.requestAnimationFrame(_render.bind(this));
                                 return __classPrivateFieldGet(this, _attributes, "f").set(key, newValue).get(key);
                             }
                         });
                     }
-                    for (const [event, listener] of (_a = on === null || on === void 0 ? void 0 : on.entries()) !== null && _a !== void 0 ? _a : []) {
+                    for (const [key, defaultValue] of Object.entries(cssVars)) {
+                        this.style.setProperty('--' + key, defaultValue);
+                        Object.defineProperty(this, toCamelCase(key), {
+                            get() {
+                                if (typeof defaultValue === 'number')
+                                    return +this.style.getPropertyValue('--' + key);
+                                else
+                                    return this.style.getPropertyValue('--' + key);
+                            },
+                            set(newValue) {
+                                this.style.setProperty('--' + key, newValue);
+                                if (typeof defaultValue === 'number')
+                                    return +this.style.getPropertyValue('--' + key);
+                                else
+                                    return this.style.getPropertyValue('--' + key);
+                            }
+                        });
+                    }
+                    for (const [event, listener] of Object.entries(eventListeners)) {
                         this.addEventListener(event, e => listener(e));
                     }
                     if (stylesheet) {
@@ -3140,41 +3174,41 @@ var ElementFactory;
                         sheet.replaceSync(stylesheet);
                         document[prop] = [...document[prop], sheet];
                     }
-                    Object.assign(this, properties);
+                    Object.defineProperties(this, Object.getOwnPropertyDescriptors(extraProperties));
                 }
                 attributeChangedCallback(name, oldValue, newValue) {
                     if (oldValue === newValue)
                         return;
-                    __classPrivateFieldGet(this, _attributes, "f").set(name, typeof attributes.get(name) === 'boolean' ? !!newValue : newValue);
+                    __classPrivateFieldGet(this, _attributes, "f").set(fromCamelCase(name), typeof new Map(Object.entries(attributes)).get(name) === 'boolean' ? newValue !== null : newValue);
                 }
                 connectedCallback() {
                     for (const attribute of __classPrivateFieldGet(this, _attributes, "f").keys())
                         if (this.hasAttribute(attribute))
                             __classPrivateFieldGet(this, _attributes, "f").set(attribute, this.getAttribute(attribute));
-                    if (render) {
+                    if (onRender) {
                         __classPrivateFieldGet(this, _observer, "f").observe(this, { attributes: true, childList: true, subtree: true, characterData: true });
                         window.requestAnimationFrame(() => {
                             var _a;
                             __classPrivateFieldGet(this, _observer, "f").disconnect();
-                            (_a = render === null || render === void 0 ? void 0 : render.bind(this)) === null || _a === void 0 ? void 0 : _a();
+                            (_a = onRender === null || onRender === void 0 ? void 0 : onRender.bind(this)) === null || _a === void 0 ? void 0 : _a();
                             window.requestAnimationFrame(() => __classPrivateFieldGet(this, _observer, "f").observe(this, { attributes: true, childList: true, subtree: true, characterData: true }));
                         });
                     }
-                    if (connect)
-                        window.requestAnimationFrame(connect.bind(this));
+                    if (onConnect)
+                        window.requestAnimationFrame(onConnect.bind(this));
                 }
                 disconnectedCallback() {
-                    if (!render)
+                    if (!onRender)
                         return;
                     __classPrivateFieldGet(this, _observer, "f").disconnect();
                 }
                 static get observedAttributes() {
-                    return [...attributes.keys()];
+                    return [...attributeMap.keys()];
                 }
             },
             _attributes = new WeakMap(),
             _observer = new WeakMap(),
-            _a));
+            _a), parentTagName ? { extends: parentTagName } : {});
         return window.customElements.get(name);
     }
     ElementFactory.define = define;

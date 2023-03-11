@@ -1,0 +1,1 @@
+touch assets/ts/kitsunecore.ts

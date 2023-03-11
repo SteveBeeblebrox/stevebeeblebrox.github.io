@@ -107,7 +107,14 @@ namespace JSX {
                     case null: return document.createDocumentFragment();
                     case 'svg': return document.createElementNS('http://www.w3.org/2000/svg', tag);
                     case 'math': return document.createElementNS('http://www.w3.org/1998/Math/MathML', tag);
-                    default: return document.createElement(tag);
+                    default: 
+                        if(properties?.['is']) {
+                            const element = document.createElement(tag, {is: properties['is']});
+                            element.setAttribute('is', properties['is']);
+                            return element;
+                        } else {
+                            return document.createElement(tag);
+                        }
                 }
             })();
 
@@ -120,6 +127,7 @@ namespace JSX {
                 const prototype = Object.getPrototypeOf(element);
 
                 for(const [key, value] of Object.entries(properties ?? {})) {
+                    if(key === 'is') continue;
                     if(key === 'style' && typeof value === 'object' && key in prototype)
                         for(const [property, style] of (value instanceof Map ? value.entries() : Object.entries(value)))
                             Reflect.set(Reflect.get(element, key), property, style);
