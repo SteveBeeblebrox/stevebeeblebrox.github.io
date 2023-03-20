@@ -2,6 +2,9 @@
 USE_EXE='No' #'Yes' if on WSL and you want to use Windows compatible .exe files
 WYVERN_DIR='.wyvern' # Where to put dependencies and other files wyvern needs to run
 
+BUILD_DIR='.'
+
+shopt -s extglob
 
 if [[ $USE_EXE == 'Yes' ]]; then
     EXE_SUFFIX=".exe"
@@ -11,9 +14,9 @@ fi
 
 mkdir -p "$WYVERN_DIR"
 function dep() {
-    if [ ! $(ls "$WYVERN_DIR" | grep "$1$EXE_SUFFIX") ]; then
+    if [[ ! $(ls "$WYVERN_DIR" | grep "$1$EXE_SUFFIX") ]]; then
         src="https://github.com/SteveBeeblebrox/$1/releases/download/v$2/$1$EXE_SUFFIX"
-        # echo "Downloading $1$EXE_SUFFIX from $SRC..."
+        echo "Downloading $1$EXE_SUFFIX from $src..."
         wget $src -P "$WYVERN_DIR" 2>/dev/null
         chmod +x "$WYVERN_DIR/$1$EXE_SUFFIX"
     fi
@@ -23,39 +26,7 @@ dep mless 4.1.2
 dep mtsc 4.9.4
 dep pt 1.1.0
 
-if [ ! $(ls "$WYVERN_DIR" | grep sitemap.py) ]; then
-    cat << 'ENDPY' > "$WYVERN_DIR/sitemap.py"
-import os
-import json
-
-def dirmap(directory_path):
-    directory_map ={}
-
-    for entry_name in os.listdir(directory_path):
-        if entry_name.startswith('.'):
-            continue
-        entry_path = os.path.join(directory_path, entry_name)
-        if os.path.isfile(entry_path):
-            directory_map[entry_name] = os.path.getmtime(entry_path)
-        elif os.path.isdir(entry_path):
-            directory_map[entry_name] = dirmap(entry_path)
-
-    return directory_map
-
-
-# Sitemap
-# javascript:new Date($timestamp*1000)
-try:
-    sitemap = open("sitemap.json", "w")
-    json.dump(dirmap('.'), sitemap)
-except:
-    print('Error creating sitemap!')
-finally:
-    sitemap.close()
-ENDPY
-fi
-
-if [ ! $(ls "$WYVERN_DIR" | grep generator.py) ]; then
+if [[ ! $(ls "$WYVERN_DIR" | grep generator.py) ]]; then
     cat << 'ENDPY' > "$WYVERN_DIR/generator.py"
 import sys
 import os
@@ -94,7 +65,7 @@ with fileinput.input() as file:
 ENDPY
 fi
 
-if [ ! $(ls | grep globals.py) ]; then
+if [[ ! $(ls | grep globals.py) ]]; then
     touch globals.py
 fi
 
@@ -107,7 +78,7 @@ function mkfile() {
 }
 
 function tsc() {
-    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
+    out="$BUILD_DIR/$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
     if isnewer "$1" "$out"; then
         mkfile "$out"
         "$WYVERN_DIR/mtsc$EXE_SUFFIX" --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $out
@@ -115,7 +86,7 @@ function tsc() {
 }
 
 function less() {
-    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 less~css -e css)"
+    out="$BUILD_DIR/$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 less~css -e css)"
     if isnewer "$1" "$out"; then
         mkfile "$out"
         "$WYVERN_DIR/mless$EXE_SUFFIX" $1 --out= > $out
@@ -123,33 +94,39 @@ function less() {
 }
 
 function htmlx() {
-    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 -e html)"
+    out="$BUILD_DIR/$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 -e html)"
     if isnewer "$1" "$out"; then
+        mkfile "$out"
         python3 "$WYVERN_DIR/generator.py" $1 | "$WYVERN_DIR/mtsc$EXE_SUFFIX" --verbose --html --target=es2019 --jsx=JSX.createElement --module=es2020 --out | "$WYVERN_DIR/mless$EXE_SUFFIX" --html --verbose --out= > $out
     fi
 }
 
 function grc() {
-    out="$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 --ext=)"
+    out="$BUILD_DIR/$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 --ext=)"
     if isnewer "$1" "$out"; then
+        mkfile "$out"
         curl "$(cat $1)?$(date +%s)" 2>/dev/null > $out
     fi
 }
 
 function compile() {
     filename="$(basename "$1")"
+    echo "Compiling $filename..."
+
     type="${filename##*.}"
-    if [ "$type" == 'ts' || "$type" == 'mts' || "$type" == 'tsx' || "$type" == 'js' || "$type" == 'mjs' ]; then
+    if [[ "$type" == 'ts' || "$type" == 'mts' || "$type" == 'tsx' || "$type" == 'js' || "$type" == 'mjs' ]]; then
         tsc $1
-    elif [ "$type" == 'less' ]; then
+    elif [[ "$type" == 'less' ]]; then
         less $1
-    elif [ "$type" == 'htmlx' ]; then
+    elif [[ "$type" == 'htmlx' ]]; then
         htmlx $1
-    elif [ "$type" == 'grc' ]; then
+    elif [[ "$type" == 'grc' ]]; then
         grc $1
     else
         echo "Unsupported file type: '$type' for file '$1'"
     fi
+
+    echo 'Done!'
 }
 
 function lsext() {
@@ -160,6 +137,17 @@ POSITIONAL_ARGS=()
 
 FORCE_REBUILD=''
 
+if [[ $(ls | grep 'wyvern\.conf') ]]; then
+    echo "Reading config file..."
+    config=$(cat wyvern.conf)
+    if [[ $(echo "$config" | grep '^--out .') ]]; then
+        BUILD_DIR="$(echo "$config" | grep -Po '(?<=--out )[^\r\n]*')"
+    fi;
+    if [[ $(echo "$config" | grep '^--force') ]]; then
+        FORCE_REBUILD='YES'
+    fi;
+fi;
+
 # https://stackoverflow.com/a/14203146
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -168,12 +156,12 @@ while [[ $# -gt 0 ]]; do
     #   shift # past argument
     #   shift # past value
     #   ;;
-    # -s|--searchpath)
-    #   SEARCHPATH="$2"
-    #   shift # past argument
-    #   shift # past value
-    #   ;;
-     --force)
+     -o|--out)
+       BUILD_DIR="$2"
+       shift # past argument
+       shift # past value
+       ;;
+     -f|--force)
        FORCE_REBUILD='YES'
        shift
        ;;
@@ -193,8 +181,14 @@ set -- "${POSITIONAL_ARGS[@]}"
 ACTION=$1
 shift
 
+if [[ "$FORCE_REBUILD" == "YES" && "$BUILD_DIR" != '.' && -n "${BUILD_DIR// /}" && -n "${BUILD_DIR//\//}" ]]; then
+    rm -rf "$BUILD_DIR/"
+fi
+mkdir -p "$BUILD_DIR"
+
 if [ "$ACTION" == 'run' ]; then
-    python3 -m http.server --bind localhost
+    echo "Running webserver on localhost. Stop with ^C"
+    (cd "$BUILD_DIR" && python3 -m http.server --bind localhost)
 elif [ "$ACTION" == 'help' ]; then
     cat << HELPTEXT
 === Wyvern ===
@@ -246,8 +240,46 @@ elif [ "$ACTION" == 'build' ]; then
         htmlx $file
     done;
 
+    if [[ "$BUILD_DIR" != '.' ]]; then
+        echo "Copying static files to build dir..."
+        for file in $(find -type f | grep -vP '\.(?:htmlx|py|m?tsx?|less|grc|conf)$|^\.\/\.|^\.\/(?:_site|__pycache__)\/|^\.\/wyvern$'); do
+            out="$BUILD_DIR/$file"
+            mkdir -p $(dirname $out)
+            cp $file "$out"
+        done;
+    fi;
+
     echo "Generating Sitemap..."
-    python3 "$WYVERN_DIR/sitemap.py"
+    (cd "$BUILD_DIR" && python3 <(cat << 'ENDPY'
+import os
+import json
+
+def dirmap(directory_path):
+    directory_map ={}
+
+    for entry_name in os.listdir(directory_path):
+        if entry_name.startswith('.'):
+            continue
+        entry_path = os.path.join(directory_path, entry_name)
+        if os.path.isfile(entry_path):
+            directory_map[entry_name] = os.path.getmtime(entry_path)
+        elif os.path.isdir(entry_path):
+            directory_map[entry_name] = dirmap(entry_path)
+
+    return directory_map
+
+
+# Sitemap
+# javascript:new Date($timestamp*1000)
+try:
+    sitemap = open("sitemap.json", "w")
+    json.dump(dirmap('.'), sitemap)
+except:
+    print('Error creating sitemap!')
+finally:
+    sitemap.close()
+ENDPY
+    ))
 
     echo "Finishing..."
     if [ $(ls | grep postbuild.sh) ]; then
@@ -259,6 +291,15 @@ elif [ "$ACTION" == 'build' ]; then
     echo "Done!"
 elif [ "$ACTION" == '' ]; then
     echo "Wyvern is ready"
+elif [ "$ACTION" == 'watch' ]; then
+    echo "Watching $1. Stop with ^C"
+    while true; do
+        inotifywait -e modify $1 &>/dev/null && compile $1
+    done
+elif [ "$ACTION" == 'compile' ]; then
+    compile $1
+elif [ "$ACTION" == 'ghpages' ]; then
+    echo "GitHub Pages support NYI!"
 else
     echo "Unknown action '$ACTION'"
 fi
