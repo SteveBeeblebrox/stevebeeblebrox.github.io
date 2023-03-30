@@ -26,13 +26,11 @@
     const currentScript = document.currentScript;
 
     (async function() {
-        const src = new URL(document.currentScript.getAttribute('src')}).href;
-        if(!('JSX' in globalThis) && currentScript)
+        const src = currentScript ? Object.assign(Object.assign(document.createElement('a'), {href: currentScript.getAttribute('src')}), {search: '', hash: ''}).href : '/assets/js/githubshortcut.min.js';
+        if(!('JSX' in globalThis))
             eval(await (await (fetch(
                 src.replace(/(?<=\/)githubshortcut(?=\.)/, 'jsx')
             ))).text());
-                
-        const img = src.replace(/(?<=\/)js(?=\/)/, 'images').replace(/(?<=\/)githubshortcut\.js$/, 'github/mark-32.png');
         
         function toTitleCase(text: string): string {
             return text.replace(/(?<!')\b([a-z])([a-z]*)\b/gi, (match, $1, $2) => match.match(/^(?:a|and|as|an|at|but|by|if|for|in|into|that|nor|of|off|on|onto|or|so|than|that|till|to|up|with|when|yet)$/) ? match : $1.toUpperCase() + $2).replace(/^[a-z]/i, match => match.toUpperCase())
@@ -45,7 +43,6 @@
             return element;
         }
         
-
         document.body.appendChild(
             <Shadow>
                 <style>{`
@@ -78,7 +75,7 @@
                         opacity: 85%;
                     }
                 `}</style>
-                <a title={`${toTitleCase(options.title?.toString?.() ?? 'View')} on GitHub`} href={`https://github.com/${options.href ?? ''}`} class={options.position ?? ''} target="_blank" rel="noopener"><img src={img} alt="GitHub Mark"/></a>
+                <a title={`${toTitleCase(options.title?.toString?.() ?? 'View')} on GitHub`} href={`https://github.com/${options.href ?? ''}`} class={options.position ?? ''} target="_blank" rel="noopener"><img src={src.replace(/(?<=\/)js(?=\/)/, 'images').replace(/(?<=\/)githubshortcut(?:\.min)?\.js$/, 'github/mark-32.png')} alt="GitHub Mark"/></a>
             </Shadow>
         );
     })();
