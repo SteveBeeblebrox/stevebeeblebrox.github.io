@@ -28,7 +28,18 @@ namespace DomLib {
         querySelectorAll(selectors: string): NodeListOf<Element>,
         childElementCount?: number,
         closest?: (selectors: string)=>Element | null,
+        nodeType: number
     };
+
+    // internal function isElement
+    function isElement(node: Node | null): node is Element {
+        return node?.nodeType === Node.ELEMENT_NODE;
+    }
+
+    // internal function isIframeElement
+    function isIFrameElement(node: Node | null): node is HTMLIFrameElement {
+        return isElement(node) && node.tagName.toUpperCase() === 'IFRAME';
+    }
 
     // internal type XPathQueryValue
     type XPathQueryValue = null | number | string | boolean | Node | ArrayProxy<Node>;
@@ -44,7 +55,7 @@ namespace DomLib {
     // export const VERSION
     export const VERSION: Readonly<{major: number, minor: number, patch: number, metadata?: string, prerelease?: string, toString(): string}> = Object.freeze({
         toString() {return `${VERSION.major}.${VERSION.minor}.${VERSION.patch}${VERSION.prerelease !== undefined ? `-${VERSION.prerelease}` : ''}${VERSION.metadata !== undefined ? `+${VERSION.metadata}` : ''}`},
-        major: 2, minor: 2, patch: 2
+        major: 2, minor: 2, patch: 3
     });
 
     // internal let _lastQueryValue
@@ -96,10 +107,10 @@ namespace DomLib {
                 selector = interpolate(selector, ...[...arguments].slice(1)) as K;
                 target = document;
             }
-            
+
             let {deep,count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)?(?:\^(?<count>\d*))? ?(?<cssSelector>[\s\S]*)$/)!.groups!
             if(count !== undefined) {
-                if((count = +(count||'1')) === NaN || !(target instanceof Element)) return null;
+                if(Number.isNaN(count = +(count||'1')) || !isElement(target)) return null;
                 let element: Element | null = target;
                 for(let i = 0; i < count;i++) {
                     if(!element?.parentElement) {
@@ -144,17 +155,17 @@ namespace DomLib {
             const tw = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
             let node;
             while(node = tw.nextNode()) {
-                if(node instanceof Element && node.matches(selector))
+                if(isElement(node) && node.matches(selector))
                     elements.push(node);
-                if(node instanceof Element && node.shadowRoot) {
+                if(isElement(node) && node.shadowRoot) {
                     elements.push(...querySelectorAllDeep(selector,node.shadowRoot));
-                } else if (node instanceof HTMLIFrameElement && node.contentWindow) {
+                } else if (isIFrameElement(node) && node.contentWindow) {
                     elements.push(...querySelectorAllDeep(selector,node.contentWindow.document));
                 }
             }
-        } else if(root instanceof HTMLIFrameElement && root.contentWindow?.document) {
+        } else if(isIFrameElement(root) && root.contentWindow?.document) {
             elements.push(...querySelectorAllDeep(selector, root.contentWindow.document));
-        } else if(root instanceof Element && root.shadowRoot) {
+        } else if(isElement(root) && root.shadowRoot) {
             elements.push(...querySelectorAllDeep(selector, root.shadowRoot));
         }
         return elements;
@@ -166,20 +177,20 @@ namespace DomLib {
             const tw = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
             let node;
             while(node = tw.nextNode()) {
-                if(node instanceof Element && node.matches(selector))
+                if(isElement(node) && node.matches(selector))
                     return node;
-                if(node instanceof Element && node.shadowRoot) {
+                if(isElement(node) && node.shadowRoot) {
                     if(temp = querySelectorDeep(selector,node.shadowRoot))
                         return temp;
-                } else if (node instanceof HTMLIFrameElement && node.contentWindow) {
+                } else if (isIFrameElement(node) && node.contentWindow) {
                     if(temp = querySelectorDeep(selector,node.contentWindow.document))
                         return temp;
                 }
             }
-        } else if(root instanceof HTMLIFrameElement && root.contentWindow?.document) {
+        } else if(isIFrameElement(root) && root.contentWindow?.document) {
             if(temp = querySelectorDeep(selector, root.contentWindow.document))
                 return temp;
-        } else if(root instanceof Element && root.shadowRoot) {
+        } else if(isElement(root) && root.shadowRoot) {
             if(temp = querySelectorDeep(selector, root.shadowRoot))
                 return temp;
         }
@@ -353,7 +364,7 @@ namespace DomLib {
 
     // internal function ChildNodeArray
     function ChildNodeArray(element: Element): Node[] {
-        const getChildren = (): Node[] & {[key: string]: any} => [...element.childNodes].filter(n => !(n instanceof Text) || n.wholeText.trim() !== '' || n.parentElement instanceof HTMLPreElement || n.parentElement?.closest?.('pre'));
+        const getChildren = (): Node[] & {[key: string]: any} => [...element.childNodes].filter(n => !(n.nodeType === Node.TEXT_NODE) || (n as Text).wholeText.trim() !== '' || n.parentElement instanceof HTMLPreElement || n.parentElement?.closest?.('pre'));
         const mutators = ['push','pop','shift','unshift','splice','reverse','sort'];
         return new Proxy([...element.childNodes], {
             get(target: Node[] & {[key: string]: any}, property: string): unknown {
@@ -372,9 +383,9 @@ namespace DomLib {
             },
             set(target: Node[] & {[key: string]: any}, property: string, value: unknown, reciever?: any): boolean {
                 if(+property > -1) {
-                    if(value instanceof Node) {
+                    if(value !== null && typeof value === 'object' && 'nodeType' in value) {
                         const children = getChildren();
-                        children[+property] = value;
+                        children[+property] = value as Node;
                         element.replaceChildren(...children);
                         return true;
                     } else {
