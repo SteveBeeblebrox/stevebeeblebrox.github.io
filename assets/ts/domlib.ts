@@ -108,7 +108,7 @@ namespace DomLib {
                 target = document;
             }
 
-            let {deep,count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)?(?:\^(?<count>\d*))? ?(?<cssSelector>[\s\S]*)$/)!.groups!
+            let {deep,count,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)?\s*(?:\^(?<count>\d*))?(?<cssSelector>[\s\S]*)$/)!.groups!
             if(count !== undefined) {
                 if(Number.isNaN(count = +(count||'1')) || !isElement(target)) return null;
                 let element: Element | null = target;
@@ -208,7 +208,7 @@ namespace DomLib {
                 target = document;
             }
 
-            let {deep,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)? ?(?<cssSelector>[\s\S]*)$/)!.groups!
+            let {deep,cssSelector}: {[key: string]: string | number} = selector.match(/^(?<deep>%)?(?<cssSelector>[\s\S]*)$/)!.groups!
             if(deep !== undefined) {
                 return _lastQueryAllValue = ArrayProxy(querySelectorAllDeep(cssSelector, target));
             } else {
@@ -410,6 +410,22 @@ namespace DomLib {
                 return this.replaceChildren(...value);
             }
         });
+
+    // define $computedStyle on Element
+    Object.defineProperty(Element.prototype, '$computedStyle', {
+        enumerable: false, configurable: !!options.debug,
+        get() {
+            return this.ownerDocument.defaultView.getComputedStyle(this);
+        }
+    });
+
+    // define $visible on Element
+    Object.defineProperty(Element.prototype, '$visible', {
+        enumerable: false, configurable: !!options.debug,
+        get() {
+            return !!(this.offsetWidth || this.offsetHeight || this.getClientRects().length);
+        }
+    });
 
     // export const HTMLNode
     export const HTMLNode = function HTMLNode<K extends keyof HTMLElementTagNameMap>(type: K, data?: string | {[key: string]: any} | Map<string, any>, ...children: Node[]): HTMLElementTagNameMap[K] {
