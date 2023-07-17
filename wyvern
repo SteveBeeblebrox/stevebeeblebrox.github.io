@@ -2,6 +2,7 @@
 USE_EXE='No' #'Yes' if on WSL and you want to use Windows compatible .exe files
 WYVERN_DIR='.wyvern' # Where to put dependencies and other files wyvern needs to run
 
+RESOURCE_DIR='.grc' # Where to store fetched grc content
 BUILD_DIR='.'
 
 shopt -s extglob
@@ -11,6 +12,8 @@ if [[ $USE_EXE == 'Yes' ]]; then
 else
     EXE_SUFFIX=''
 fi
+
+PT="$WYVERN_DIR/pt$EXE_SUFFIX"
 
 mkdir -p "$WYVERN_DIR"
 function dep() {
@@ -102,10 +105,21 @@ function htmlx() {
 }
 
 function grc() {
-    out="$BUILD_DIR/$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 --ext=)"
+    out="$RESOURCE_DIR/$("$PT" $1 --ext=)"
     if isnewer "$1" "$out"; then
         mkfile "$out"
         curl "$(cat $1)?$(date +%s)" 2>/dev/null > $out
+        t_out="$out"
+        if compile $out > /dev/null; then
+            target="$("$PT" "$out" "$RESOURCE_DIR~.")"
+            mkfile "$target"
+            mv "$out" "$target"
+            find "$BUILD_DIR" -type d -empty -delete
+        else
+            target="$("$PT" "$t_out" "$RESOURCE_DIR~~$t_BUILD_DIR")"
+            mkfile "$target"
+            mv "$t_out" "$target"
+        fi
     fi
 }
 
@@ -124,9 +138,11 @@ function compile() {
         grc $1
     else
         echo "Unsupported file type: '$type' for file '$1'"
+        return 1
     fi
 
     echo 'Done!'
+    return 0
 }
 
 function lsext() {
@@ -212,7 +228,7 @@ elif [ "$ACTION" == 'build' ]; then
     for file in $(lsext grc); do
         grc $file
     done
-    
+
     echo "Compiling Less..."
     for file in $(lsext less); do
        less $file
