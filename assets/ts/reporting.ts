@@ -49,7 +49,18 @@
 
     console.log(`Reporting errors to ${apiEndpoint} (Rate: ${rate.messages}/${rate.duration} ${unitText}${rate.duration !== 1 ? 's' : ''}${options.group ? ` Group: ${options.group}` : ''})`);
 
-    async function sendErrorReport({message, lineno, colno, filename = '<unknown>'}: {message?: string, lineno?: number | string, colno?: number | string, filename?: string} = {}) {
+    function shiftChar(char: string, base: string, to: string): string {
+        return String.fromCharCode(0xD835,char.charCodeAt(0)+(to.charCodeAt(1)-base.charCodeAt(0)))
+    }
+
+    function bold(text: string) {
+        if(options.plaintext !== undefined) return text;
+        return text.replace(/[a-z]/g,char=>shiftChar(char,'a','𝗮'))
+            .replace(/[A-Z]/g,char=>shiftChar(char,'A','𝗔'))
+            .replace(/\d/g,char=>shiftChar(char,'1','𝟭'));
+    }
+
+    async function sendErrorReport({message, lineno, colno, filename = '<unknown>', stack}: {message?: string, lineno?: number | string, colno?: number | string, filename?: string, stack?: string} = {}) {
         const sendLog: Date[] = (localStorage.getItem(lsKey) ?? '').split(';').flatMap((t: string) => t ? [new Date(parseInt(t,36))] : []), now = Date.now();
 
         if(!(sendLog.filter(d => now - +d < +rate.deltaMS).length < +rate.messages))
@@ -57,14 +68,16 @@
 
         const browser = navigator.userAgentData?.brands.at(-1);
         const body = 
-`${message}
+`${stack ?? message}
 
-URL: ${window.location}
-Source: ${filename}${lineno !== undefined ? ` (${lineno}${colno !== undefined ? ':' + colno : ''})` : ''}
-Time: ${new Date()}
-Browser: ${browser ? browser.brand : '<unknown>'} ${browser ? browser.version : ''}
-Platform: ${navigator.userAgentData?.platform ?? '<unknown>'}
-Mobile: ${navigator.userAgentData?.mobile ?? '<unknown>'}`
+${bold('URL')}: ${window.location}
+${bold('Source')}: ${filename}${lineno !== undefined ? ` (${lineno}${colno !== undefined ? ':' + colno : ''})` : ''}
+${bold('Time')}: ${new Date()}
+${bold('Browser')}: ${browser ? browser.brand : '<unknown>'} ${browser ? browser.version : ''}
+${bold('Platform')}: ${navigator.userAgentData?.platform ?? '<unknown>'}
+${bold('Mobile')}: ${navigator.userAgentData?.mobile ?? '<unknown>'}
+${bold('Group')}: ${options.group ?? '<default>'}`
+            .replace(/^ +/gm, match => '\u00a0'.repeat(match.length));
         ;
 
         sendLog.push(new Date());
@@ -82,16 +95,20 @@ Mobile: ${navigator.userAgentData?.mobile ?? '<unknown>'}`
         });
     }
     window.addEventListener('error', async function(event) {
-        let {message,lineno,colno,filename} = event;
+        let {message,lineno,colno,filename} = event, stack = undefined;
+        
         if(event.error === undefined)
-            message = '<unknown error>'
-        sendErrorReport({message, lineno, colno, filename});
+            message = '<unknown error>';
+        else
+            stack = 'Uncaught ' + event.error.stack;
+        sendErrorReport({message, lineno, colno, filename, stack});
     });
 
     window.addEventListener('unhandledrejection', function(event) {
         sendErrorReport({
             message: event.reason === undefined ? '<unknown error>' : 'Uncaught ' + event.reason,
-            filename: '<promise>'
+            filename: '<promise>',
+            stack: event.reason?.stack ? 'Uncaught ' + event.reason.stack : undefined
         });
     });
 })();
