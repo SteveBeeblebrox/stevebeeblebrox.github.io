@@ -60,6 +60,12 @@
             .replace(/\d/g,char=>shiftChar(char,'1','𝟭'));
     }
 
+    async function queueErrorReport(...args: Parameters<typeof sendErrorReport>): ReturnType<typeof sendErrorReport> {
+        return await navigator.locks.request(lsKey, async (lock) => {
+            return await sendErrorReport(...args);
+        });
+    }
+
     async function sendErrorReport({message, lineno, colno, filename = '<unknown>', stack}: {message?: string, lineno?: number | string, colno?: number | string, filename?: string, stack?: string} = {}) {
         const sendLog: Date[] = (localStorage.getItem(lsKey) ?? '').split(';').flatMap((t: string) => t ? [new Date(parseInt(t,36))] : []), now = Date.now();
 
@@ -101,11 +107,11 @@ ${bold('Group')}: ${options.group ?? '<default>'}`
             message = '<unknown error>';
         else
             stack = 'Uncaught ' + event.error.stack;
-        sendErrorReport({message, lineno, colno, filename, stack});
+        queueErrorReport({message, lineno, colno, filename, stack});
     });
 
     window.addEventListener('unhandledrejection', function(event) {
-        sendErrorReport({
+        queueErrorReport({
             message: event.reason === undefined ? '<unknown error>' : 'Uncaught ' + event.reason,
             filename: '<promise>',
             stack: event.reason?.stack ? 'Uncaught ' + event.reason.stack : undefined
