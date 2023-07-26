@@ -38,6 +38,33 @@ const assert = (function() {
 
 const throws = (e: any) => { throw e };
 
+declare interface PromiseConstructor {
+    isPromise(arg: any): arg is Promise<any>;
+}
+
+Promise.isPromise??=function isPromise(arg: any): arg is Promise<any> {
+    return !!arg && (arg as any)[Symbol.toStringTag] === 'Promise';
+}
+
+function tryOr<T,R extends T | Promise<T>>(f: ()=>R, fallback: T): R {
+    try {
+        const value = f();
+        return (Promise.isPromise(value) ? (async function() {
+            try {
+                return await value;
+            } catch {
+                return fallback
+            }
+        })() : value) as R;
+    } catch {
+        return fallback as R;
+    }
+}
+
+function Mapping<T extends Record<K, V>, K extends PropertyKey, V extends PropertyKey>(values: T): T & {[P in keyof T as T[P]]: P} & Record<keyof Object, never> {
+    return Object.defineProperties(Object.create(null), Object.fromEntries([...Object.entries(values), ...Object.entries(values).map(o=>o.toReversed())].map(([key, value]) => [key, {value, enumerable: true}])));
+}
+
 namespace DecoratorFactory {
     function isDecoratorContext(arg: unknown): arg is DecoratorContext {
         return typeof arg === 'object' && arg !== null && ['kind','name'].every(key=>Object.hasOwn(arg,key))
