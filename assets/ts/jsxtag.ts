@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-function JSX(strings: TemplateStringsArray, ...args: any[]): HTMLElement {
+function JSX(strings: TemplateStringsArray, ...args: any[]): Node {
     const UNC = '\u{10ffff}';
     if(strings.some(str=>str.includes(UNC))) {
         throw new Error('JSX Parser Error: Invalid Unicode Noncharacter present in source');
@@ -33,28 +33,33 @@ function JSX(strings: TemplateStringsArray, ...args: any[]): HTMLElement {
         throw new Error(`JSX Parser Error: ${error.querySelector('div')?.innerText ?? 'Unexpected error'}`);
     }
 
-    const nodes = document.createTreeWalker(document,NodeFilter.SHOW_ALL);
-    let node: Node | null;
+    const MATCH = /\u{10ffff}(\d+)\u{10ffff}/gu, BOUND_CHECKED = /^\u{10ffff}(\d+)\u{10ffff}$/u, SPLITTER = /(\u{10ffff}\d+\u{10ffff})/ug;
 
     function formatString(str: string | undefined | null = '') {
-        return (str ?? '').replace(/\u{10ffff}(\d+)\u{10ffff}/gu, (_,$1) => args[+$1])
+        return (str ?? '').replace(MATCH, (_,$1) => args[+$1])
     }
 
-    while (node = nodes.nextNode()) {
-        if(node instanceof Text) {
-            const PATTERN = /(\u{10ffff}\d+\u{10ffff})/ug;
-            node.replaceWith(...(node.textContent??'').split(PATTERN).flatMap(function(item) {
-                let t;
-                if(!item) return [];
-                else if(t = item.match(PATTERN)) return [args[+t[0].substring(UNC.length,t[0].length-UNC.length)]];
-                else return [item];
-            }));
-        } else if(node instanceof Element) {
+    function reduce(node: Node | string): Node[] {
+        let t;
+        if(node instanceof Element) {
+            const properties = new Map<string,unknown>();
             for(const attr of node.attributes) {
-                attr.value = formatString(attr.value);
+                properties.set(
+                    formatString(attr.name),
+                    (t = attr.value.match(BOUND_CHECKED)) ?  args[+t[1]] : formatString(attr.value)
+                );
             }
+            return [JSX.createElement(node.tagName as keyof HTMLElementTagNameMap, properties, ...[...node.childNodes].flatMap(reduce))];
+        } else if(node instanceof Text) {
+            return (node.textContent??'').split(SPLITTER).flatMap(reduce);
+        } else if(typeof node === 'string') {
+            if(!(node?.trim())) return [];
+            else if(t = node.match(BOUND_CHECKED)) return [args[+t[1]]];
+            else return [new Text(node)];
+        } else {
+            return [];
         }
     }
 
-    return document.documentElement;
+    return reduce(document.documentElement)[0];
 }
