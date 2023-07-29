@@ -13,11 +13,14 @@ namespace ElementFactory {
         const parentClass: typeof HTMLElement = parentTagName ? Object.getPrototypeOf(document.createElement(parentTagName)).constructor : HTMLElement;
         
         if(stylesheet) {
-            const prop = 'kitsunedom' in document ? 'kitsuneGlobalAdoptedStyleSheets' : 'adoptedStyleSheets';
             const sheet = new CSSStyleSheet();
             sheet.replaceSync(stylesheet);
-            document[prop] = [...document[prop], sheet];
-         }
+            if('KitsuneDOM' in globalThis) {
+                KitsuneDOM.globalAdoptedStyleSheets = [...KitsuneDOM.globalAdoptedStyleSheets, sheet]
+            } else {
+                document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet]
+            }
+        }
 
         function toCamelCase(text: string) {
             return text.replace(/^data-/,'').replace(/-./g,match=>match.substring(1).toUpperCase())

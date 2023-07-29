@@ -1,0 +1,2 @@
+#!/bin/bash
+wget https://raw.githubusercontent.com/SteveBeeblebrox/wyvern/main/wyvern -O wyvern

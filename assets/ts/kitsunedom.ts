@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2023 S. Beeblebrox
+ * Copyright (c) 2023 Trin Wasinger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,39 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-(function () {
-    const __attachShadow__ = Element.prototype.attachShadow, shadowRoots: ShadowRoot[] = [];
-    let globalAdoptedStyleSheets: CSSStyleSheet[] = [];
+class KitsuneDOM {
+    private constructor() {}
 
-    Element.prototype.attachShadow = function attachShadow(...args) {
-        const rValue = __attachShadow__.bind(this)(...args);
-        shadowRoots.push(this.shadowRoot!);
-        this.shadowRoot!.adoptedStyleSheets = [...this.shadowRoot!.adoptedStyleSheets, ...globalAdoptedStyleSheets];
-        return rValue;
+    public static readonly shadowRoots: ShadowRoot[] = [];
+
+    public static get documentSource() {
+        return (document.doctype ? new XMLSerializer().serializeToString(document.doctype) + '\n' : '') + document.documentElement.outerHTML;
     }
 
-    Object.defineProperty(document, 'kitsuneGlobalAdoptedStyleSheets', {
-        get() {
-            return globalAdoptedStyleSheets;
-        },
-        set(value: CSSStyleSheet[]) {
-            globalAdoptedStyleSheets = [...value];
-            for (const d of [document, ...shadowRoots])
-                d.adoptedStyleSheets = [...new Set([...d.adoptedStyleSheets, ...globalAdoptedStyleSheets])];
+    static #globalAdoptedStyleSheets: CSSStyleSheet[] = [];
+    public static get globalAdoptedStyleSheets() {
+        return KitsuneDOM.#globalAdoptedStyleSheets;
+    }
+    public static set globalAdoptedStyleSheets(value: CSSStyleSheet[]) {
+        KitsuneDOM.#globalAdoptedStyleSheets = [...value];
+        for (const d of [document, ...KitsuneDOM.shadowRoots])
+            d.adoptedStyleSheets = [...new Set([...d.adoptedStyleSheets, ...KitsuneDOM.#globalAdoptedStyleSheets])];
+    }
+    static {
+        const __attachShadow__ = Element.prototype.attachShadow;
+        Element.prototype.attachShadow = function attachShadow(...args) {
+            const rValue = __attachShadow__.bind(this)(...args);
+            KitsuneDOM.shadowRoots.push(this.shadowRoot!);
+            this.shadowRoot!.adoptedStyleSheets = [...this.shadowRoot!.adoptedStyleSheets, ...KitsuneDOM.#globalAdoptedStyleSheets];
+            return rValue;
         }
-    });
-    Object.defineProperty(document, 'kitsuneShadowRoots', {
-        get() {
-            return shadowRoots;
-        }
-    });
-    Object.defineProperty(document, 'kitsunedom', {
-        value: true
-    });
-})();
+    }
 
-declare interface Document {
-    kitsuneGlobalAdoptedStyleSheets: CSSStyleSheet[];
-    kitsuneShadowRoots: ShadowRoot[];
-    kitsunedom: true;
+    public static addLoadListener(f: ()=>any) {
+        if(document.readyState === 'complete')
+            f();
+        else
+            window.addEventListener('load', f);
+    }
 }
+
+declare interface Window {
+    KitsuneDOM: typeof KitsuneDOM
+}
+window.KitsuneDOM = KitsuneDOM;

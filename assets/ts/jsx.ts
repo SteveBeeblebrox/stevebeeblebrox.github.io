@@ -58,7 +58,7 @@ namespace JSX {
         }
         abstract get(): T;
     }
-    export class State<T extends Object> extends StateBase<T> {
+    export class State<T> extends StateBase<T> {
         constructor(private value: T) {super()}
         get(): T {
             return this.value;
@@ -80,7 +80,7 @@ namespace JSX {
             return stateFormatter;
         }
     }
-    class StateFormatter<T extends Object,K> extends StateBase<K> {
+    class StateFormatter<T,K> extends StateBase<K> {
         constructor(private readonly state: State<T>, private readonly formatter: (t:T)=>K) {super()}
         set(t:T): T {
             return this.state.set(t);
@@ -99,6 +99,10 @@ namespace JSX {
     export const createElement = (function() {
         function createElement<K extends keyof HTMLElementTagNameMap>(name: K, properties: Properties | null, ...children: Node[]): HTMLElementTagNameMap[K]
         function createElement(tag: ElementType, properties: Properties | null, ...children: (Node|HTMLCollection)[]): Node {
+            if(properties instanceof Map) {
+                properties = Object.fromEntries([...properties.entries()]);
+            }
+
             if(typeof tag === 'function')
                 return tag(properties, ...children.map(o=>o instanceof HTMLCollection ? [...o]:o).flat())
             
