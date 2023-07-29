@@ -3,7 +3,6 @@
 
 <!--
 TODO:
-migrate/refactor kitsunedom.ts and deps
 RENAME
 JSON decycle
 types

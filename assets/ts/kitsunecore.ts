@@ -19,6 +19,7 @@
 
 // === DOM Utils === //
 //#include domlib.ts
+//#include jsxtag.ts
 //#include jsx.ts
 //#include kitsunedom.ts
 //#include elementfactory.ts
@@ -30,8 +31,6 @@
 // filearchive.ts
 // sandbox.ts
 // githubshortcut.tsx (Include directly in script tag)
+// reporting.ts (Include directly in script tag)
 
 DomLib.bind(globalThis);
-Object.defineProperty(globalThis, 'kitsunecore', {
-    value: true
-});

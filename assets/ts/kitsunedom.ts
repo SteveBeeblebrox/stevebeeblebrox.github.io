@@ -56,3 +56,8 @@ class KitsuneDOM {
             window.addEventListener('load', f);
     }
 }
+
+declare interface Window {
+    KitsuneDOM: typeof KitsuneDOM
+}
+window.KitsuneDOM = KitsuneDOM;
