@@ -1,0 +1,104 @@
+<script src="assets/js/kitsunecore.min.js"></script>
+<script>
+    ElementFactory.define('sortable-list',{
+        extraProperties: {selected: null},
+        onRender() {
+            function isBefore(element1, element2) {
+                if (element2.parentNode === element1.parentNode)
+                    for (let current = element1.previousSibling; current; current = current.previousSibling)
+                        if (current === element2)
+                            return true;
+                return false;
+            }
+            this.querySelectorAll('li:not([draggable="true"],[data-sortable-li="false"])').forEach(li => {
+                li.draggable = true;
+                li.addEventListener('dragstart', event => {
+                    if(!(event.target instanceof HTMLLIElement))
+                        return;
+                        
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', event.target.textContent);
+                    this.selected = event.target;
+                });
+                li.addEventListener('dragover', event => {                    
+                    if(!this.selected || !(event.target instanceof HTMLLIElement))
+                        return;
+
+                    event.preventDefault();
+
+                    if (isBefore(this.selected, event.target))
+                        event.target.parentNode.insertBefore(this.selected, event.target);
+                    else
+                        event.target.parentNode.insertBefore(this.selected, event.target.nextSibling);
+                });
+                li.addEventListener('dragend', () => this.selected = null);
+                li.setAttribute('data-sortable-li','');
+            });
+            this.querySelectorAll('ul').forEach(ul => {
+                ul.addEventListener('dragover', event => {
+                    if(!this.selected || !(event.target instanceof HTMLUListElement)) {
+                        event.dataTransfer.effectAllowed = 'none';
+                        return;
+                    }
+
+                    event.preventDefault();
+                    
+                    event.target.appendChild(this.selected);
+                });
+            });
+        }
+    });
+    
+    ElementFactory.define('shadow-root', {
+        onConnect() {
+            this.attachShadow({mode: 'open'});
+            this.shadowRoot.replaceChildren(...this.children);
+        }
+    });
+</script>
+<style>
+    p {
+        color: red;
+    }
+    ul {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        min-height: 1em;
+        min-width: 1em;
+        background-color: gray;
+    }
+    li {
+        display: block;
+        padding: 1em;
+    }
+</style>
+<sortable-list>
+    <ul>
+        <li data-sortable-li="false">Fruits</li>
+        <li style="background-color: red;">Apples</li>
+        <li style="background-color: blueviolet;">Oranges</li>
+        <li style="background-color: silver;">Bananas</li>
+    </ul>
+</sortable-list>
+<hr>
+<sortable-list>
+    <ul>
+        <li data-sortable-li="false">Desserts</li>
+        <li style="background-color: rgb(219, 135, 9);">Pie</li>
+        <li style="background-color: rgb(226, 43, 165);">Cookies</li>
+        <li style="background-color: rgb(19, 228, 88);">Cake</li>
+    </ul>
+    <hr>
+    <ul>
+        <li style="background-color: rgb(34, 201, 159);">Pie</li>
+        <li style="background-color: rgb(119, 0, 0);">Cookies</li>
+        <li style="background-color: rgb(229, 255, 0);">Cake</li>
+    </ul>
+</sortable-list>
+
+
+<p>I'm red</p>
+<shadow-root>
+    <p>Not red lol!</p>
+</shadow-root>
