@@ -2,7 +2,18 @@
 
 
 <!--
-TODO: types, migrate/refactor kitsunedom.ts and deps, jsxtag.ts, json decycle, sql, qr codes, shml rev/aster, zip?
-pre-ts?, update corsfetch (OCI?), update options on scripts to string only (domlib)
+TODO:
+migrate/refactor kitsunedom.ts and deps
 RENAME
+JSON decycle
+types
+update options on scripts to string only (domlib)
+cors-fetch (OCI?)
+
+Eventual stuff (new projects):
+spl, qr codes, zip
+pre-ts
+
+Reworks:
+SHML/ASTER
 -->
