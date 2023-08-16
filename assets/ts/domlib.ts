@@ -45,7 +45,7 @@ namespace DomLib {
     type XPathQueryValue = null | number | string | boolean | Node | ArrayProxy<Node>;
 
     // internal const options
-    const options: {[option: string]: string} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries().map(([key, value]: [string, string]) => [key, value || 'true'])]) : {debug: 'true'});
+    const options: {[option: string]: string} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key, value]: [string, string]) => [key, value || 'true'])) : {debug: 'true'});
 
     // internal const DEBUG
     const DEBUG = options.debug === 'true';

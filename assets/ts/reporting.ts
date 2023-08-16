@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 (function() {
-    const options: {[option: string]: string} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries().map(([key, value]: [string, string]) => [key, value || 'true'])]) : {});
+    const options: {[option: string]: string} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key, value]: [string, string]) => [key, value || 'true'])) : {});
 
     const apiEndpoint = options.target || (()=>{throw new Error('Query parameter "target" is required for error reporting!')})();
     const lsKey = `Recent error reports to  ${options.group || apiEndpoint}`;
