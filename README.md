@@ -5,7 +5,6 @@
 TODO:
 JSON decycle
 types
-update options on scripts to string only (domlib)
 
 Eventual stuff (new projects):
 spl, qr codes, zip

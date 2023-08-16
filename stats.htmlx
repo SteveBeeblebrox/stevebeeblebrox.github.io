@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Loading...</title>
+        <script src="/assets/js/kitsunecore.min.js"></script>
+        <script>
+            const eDate = new Date('2023-09-14T16:40:00.000-06:00');
+            const eTimeState = JSX.createState();
+            
+            const eFormattedTimeState = eTimeState.format(function(ms) {
+                const sign = -ms<0 ? '-' : '+';
+                
+                const yy = Math.floor(ms / 1000 / 60 / 60 / 24 / 365);
+                ms -= yy * 1000 * 60 * 60 *24 * 365;
+                
+                const dd = Math.floor(ms / 1000 / 60 / 60 / 24);
+                ms -= dd * 1000 * 60 * 60 *24;
+                
+                const hh = Math.floor(ms / 1000 / 60 / 60);
+                ms -= hh * 1000 * 60 * 60;
+                
+                const mm = Math.floor(ms / 1000 / 60);
+                ms -= mm * 1000 * 60;
+
+                const ss = Math.floor(ms / 1000);
+                ms -= ss * 1000;
+                
+                const p2 = n => n.toString().padStart(2,'0');
+
+                return `E${sign}${yy > 0 ? `${yy}y `: ''}${yy > 0 || dd > 0 ? `${dd}d ` : ''}${hh}:${p2(mm)}:${p2(ss)}.${(Math.abs(ms)%1000).toString().padStart(3,'0')}`;
+            });
+            
+            eFormattedTimeState.connectCallback(s => document.title = `⚧️ ${s}`);
+
+            setInterval((function refresh() {
+                eTimeState.set(eDate - Date.now());
+                return refresh;
+            })(), 75);
+        </script>
+        <style %{LESS}>
+            html, body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                font-family: Arial, Helvetica, sans-serif;
+                background-color: #eee;
+                color: #333;
+
+                span {
+                    font-size: large;
+                    padding: 1em;
+                    border-radius: 2em;
+                    color: #fff;
+                    background-color: #b00b69;
+                    font-weight: bold;
+                    user-select: none;
+                }
+
+                h1 {
+                    font-size: 5em;
+                    margin: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>⚧️</h1>
+        <script %{TS}>
+            $ctx = <span>{eFormattedTimeState}</span>
+        </script>
+    </body>
+</html>

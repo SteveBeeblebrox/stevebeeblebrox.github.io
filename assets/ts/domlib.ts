@@ -45,7 +45,10 @@ namespace DomLib {
     type XPathQueryValue = null | number | string | boolean | Node | ArrayProxy<Node>;
 
     // internal const options
-    const options: {[option: string]: string | boolean} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries()].map(([key,value]: [string, string]) => [key, value === 'false' ? false : value])) : {debug: true});
+    const options: {[option: string]: string} = Object.freeze(document.currentScript ? Object.fromEntries([...new URLSearchParams(Object.assign(document.createElement('a'),{href:document.currentScript.getAttribute('src')}).search).entries().map(([key, value]: [string, string]) => [key, value || 'true'])]) : {debug: 'true'});
+
+    // internal const DEBUG
+    const DEBUG = options.debug === 'true';
 
     // internal function interpolate
     function interpolate(strings: TemplateStringsArray, ...values: any[]): string {
@@ -64,7 +67,7 @@ namespace DomLib {
     // export const $it
     export const $it: Element | undefined | null = undefined;
     {
-        Object.defineProperty(DomLib, '$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryValue}})
+        Object.defineProperty(DomLib, '$it', {enumerable:true,configurable:DEBUG,get(){return _lastQueryValue}})
     }
 
     // internal let _lastQueryAllValue
@@ -73,7 +76,7 @@ namespace DomLib {
     // export const $$it
     export const $$it: ArrayProxy<Element> | undefined = undefined;
     {
-        Object.defineProperty(DomLib, '$$it', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryAllValue}})
+        Object.defineProperty(DomLib, '$$it', {enumerable:true,configurable:DEBUG,get(){return _lastQueryAllValue}})
     }
 
     // internal let _lastQueryAllValue
@@ -82,7 +85,7 @@ namespace DomLib {
     // export const $$it
     export const $xit: XPathQueryValue | undefined = undefined;
     {
-        Object.defineProperty(DomLib, '$xit', {enumerable:true,configurable:!!options.debug,get(){return _lastQueryXValue}})
+        Object.defineProperty(DomLib, '$xit', {enumerable:true,configurable:DEBUG,get(){return _lastQueryXValue}})
     }
 
     // internal function closestDeep
@@ -139,7 +142,7 @@ namespace DomLib {
     // define $self on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$self', {
-            enumerable: false, configurable: !!options.debug,
+            enumerable: false, configurable: DEBUG,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
                     selector = interpolate(selector, ...[...arguments].slice(1));
@@ -221,7 +224,7 @@ namespace DomLib {
     // define $$self on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$$self', {
-            enumerable: false, configurable: !!options.debug,
+            enumerable: false, configurable: DEBUG,
             value: function(selector: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(selector)) {
                     selector = interpolate(selector, ...[...arguments].slice(1));
@@ -274,7 +277,7 @@ namespace DomLib {
     // define $xself on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$xself', {
-            enumerable: false, configurable: !!options.debug,
+            enumerable: false, configurable: DEBUG,
             value: function(query: string | TemplateStringsArray) {
                 if(isTemplateStringsArray(query)) {
                     query = interpolate(query, ...[...arguments].slice(1));
@@ -402,7 +405,7 @@ namespace DomLib {
     // define $children on ShadowRoot, Element, Document, DocumentFragment
     for(const type of [ShadowRoot, Element, Document, DocumentFragment])
         Object.defineProperty(type.prototype, '$children', {
-            enumerable: false, configurable: !!options.debug,
+            enumerable: false, configurable: DEBUG,
             get() {
                 return ChildNodeArray(this);
             },
@@ -413,7 +416,7 @@ namespace DomLib {
 
     // define $computedStyle on Element
     Object.defineProperty(Element.prototype, '$computedStyle', {
-        enumerable: false, configurable: !!options.debug,
+        enumerable: false, configurable: DEBUG,
         get() {
             return this.ownerDocument.defaultView.getComputedStyle(this);
         }
@@ -421,7 +424,7 @@ namespace DomLib {
 
     // define $visible on Element
     Object.defineProperty(Element.prototype, '$visible', {
-        enumerable: false, configurable: !!options.debug,
+        enumerable: false, configurable: DEBUG,
         get() {
             return !!(this.offsetWidth || this.offsetHeight || this.getClientRects().length);
         }
@@ -514,7 +517,7 @@ namespace DomLib {
     export const $host: Element | null | undefined = undefined;
     {
         Object.defineProperty(DomLib, '$host', {get() {return document.currentScript?.parentElement ?? null}});
-        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:false,configurable:!!options.debug,get(){return this}}));
+        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$host', {enumerable:false,configurable:DEBUG,get(){return this}}));
     }
 
     
@@ -525,7 +528,7 @@ namespace DomLib {
         const observer = new MutationObserver(mutations => mutations.forEach(mutation => {const node = [...mutation.addedNodes].pop(); if(node instanceof HTMLElement && !(node instanceof HTMLScriptElement)) _lastAddedElement = node}));
         observer.observe(document.documentElement, {childList: true, subtree: true});
         window.addEventListener('load', () => {observer.disconnect(); _lastAddedElement = null});
-        Object.defineProperty(DomLib, '$last', {enumerable:true,configurable:!!options.debug,get(){return _lastAddedElement}});
+        Object.defineProperty(DomLib, '$last', {enumerable:true,configurable:DEBUG,get(){return _lastAddedElement}});
     }
 
     // export const $ctx
@@ -540,7 +543,7 @@ namespace DomLib {
                 document.currentScript?.replaceWith?.(other);
             }
         });
-        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$ctx', {enumerable:false,configurable:!!options.debug,get(){return this},set(other:string|Node){this.replaceWith(other)}}));
+        [ShadowRoot, Element, Document, DocumentFragment].forEach(e => Object.defineProperty(e.prototype, '$ctx', {enumerable:false,configurable:DEBUG,get(){return this},set(other:string|Node){this.replaceWith(other)}}));
     }
 
     // internal class Box
@@ -561,7 +564,7 @@ namespace DomLib {
         value(this: globalThis.EventTarget, type: string, callback: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions | undefined) {
             this.addEventListener(type, callback, options)
             return {detach:()=>this.removeEventListener(type, callback, options)};
-        },enumerable:false,configurable:!!options.debug})
+        },enumerable:false,configurable:DEBUG})
 
     // Binding Control
     if(document.currentScript) {
