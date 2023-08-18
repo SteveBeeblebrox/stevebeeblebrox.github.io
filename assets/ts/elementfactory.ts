@@ -1,10 +1,11 @@
 namespace ElementFactory {
-    export function define(name: `${string}-${string}`, {parentTagName,attributes=Object.create(null),cssVars=Object.create(null),onRender,onConnect,eventListeners=Object.create(null),stylesheet,extraProperties=Object.create(null)}: {
+    export function define(name: `${string}-${string}`, {parentTagName,attributes=Object.create(null),cssVars=Object.create(null),onRender,onConnect,onDisconnect,eventListeners=Object.create(null),stylesheet,extraProperties=Object.create(null)}: {
         parentTagName?: string, // An html tag name to inherit from, if set use <parent is="name"></parent> instead of <name></name>
         attributes?: {[key: `data-${string}`]: string | boolean},
         cssVars?: {[key: string]: string | null},
         onRender?: ()=>void, // Called when element children or attribute changes
         onConnect?: ()=>void, // Called when attached to DOM
+        onDisconnect?: ()=>void, // Called when detached from DOM
         eventListeners?:{[key in keyof HTMLElementEventMap]: ((event: Event)=>void) | (()=>void)},
         stylesheet?: string, // Style sheet for this object, if Kitsune DOM is avalible, this pierces shadows
         extraProperties?: object // Use to add extra properties, getters, setters, etc... to the element
@@ -117,8 +118,11 @@ namespace ElementFactory {
             }
     
             disconnectedCallback() {
-                if(!onRender) return;
+                if(onRender)
                 this.#observer.disconnect()
+
+                if(onDisconnect)
+                    window.requestAnimationFrame(onDisconnect.bind(this));
             }
     
             static get observedAttributes() {
