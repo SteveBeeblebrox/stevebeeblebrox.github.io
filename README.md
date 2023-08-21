@@ -5,10 +5,10 @@
 TODO:
 JSON decycle
 types
+wyvern update to new mtsc (and refactor includes)
 
 Eventual stuff (new projects):
 spl, qr codes, zip
-pre-ts
 
 Reworks:
 RENAME

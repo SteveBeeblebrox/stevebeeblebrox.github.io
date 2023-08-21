@@ -2,7 +2,7 @@ console.warn('This type system is a WIP!');
 
 // TODO complex types like nullable<t>, array<t>, map<k,v>, set<t>, typed objects, typed functions?
 // maybe cast(a, T) should be the same as T(a) and not have T(a) => Parent(T)(a)?
-// TODO finish casting
+// TODO finish casting, catch instanceof?
 namespace TypeUtil {
     let typeIndex = -1;
     namespace Symbols {
