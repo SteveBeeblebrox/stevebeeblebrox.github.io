@@ -104,3 +104,5 @@ const importScript = async function importScript(src: string): Promise<unknown> 
     }
     return eval(await result.text());
 }
+
+///#include "awaitchains.ts"

@@ -57,7 +57,7 @@
                                     }
                                 }
                             } else if(property2 === Symbol.toStringTag) {
-                                return 'Promise'
+                                return 'Promise';
                             } else if(property2 === 'await') {
                                 return inlineAwaiter((async ()=>((await target) as any)[property])());
                             } else {

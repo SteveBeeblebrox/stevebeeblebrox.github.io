@@ -25,9 +25,11 @@ namespace CSV {
     function validateDelimiter(delimiter: string): void {
         if(delimiter.length !== 1) throw new Error('CSV delimiter must be exactly one character (code unit) long');
     }
+    
     function escapeDelimiterForRegExp(delimiter: string): string {
         return delimiter.replace(/[.*+?^${}()|[\]\\\-]/g,String.raw`\$&`);
     }
+
     export function stringify(values: object[] | any[][], replacer?: ((this: any, key: string | null, value: any) => any) | undefined, {header = true, delimiter = ','}: {header?: boolean, delimiter?: string} = {}): string {
         validateDelimiter(delimiter);
         const quotePattern = new RegExp(String.raw`[\n${escapeDelimiterForRegExp(delimiter)}"]`);

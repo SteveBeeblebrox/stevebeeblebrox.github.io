@@ -26,7 +26,7 @@ function dep() {
 }
 
 dep mless 4.1.2
-dep mtsc 4.9.4
+dep mtsc 5.1.6
 dep pt 1.1.0
 
 if [[ ! $(ls "$WYVERN_DIR" | grep generator.py) ]]; then
@@ -84,7 +84,7 @@ function tsc() {
     out="$BUILD_DIR/$("$WYVERN_DIR/pt$EXE_SUFFIX" $1 ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
     if isnewer "$1" "$out"; then
         mkfile "$out"
-        "$WYVERN_DIR/mtsc$EXE_SUFFIX" --target=es2019 --jsx=JSX.createElement $1 --minify --out=- > $out
+        "$WYVERN_DIR/mtsc$EXE_SUFFIX" --target=es2019 --jsx=JSX.createElement $1 --minify --preprocessor=comment --out=- > $out
     fi
 }
 
@@ -314,8 +314,6 @@ elif [ "$ACTION" == 'watch' ]; then
     done
 elif [ "$ACTION" == 'compile' ]; then
     compile $1
-elif [ "$ACTION" == 'ghpages' ]; then
-    echo "GitHub Pages support NYI!"
 else
     echo "Unknown action '$ACTION'"
 fi

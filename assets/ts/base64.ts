@@ -17,7 +17,8 @@ namespace Base64 {
             : nChr === 47 ?
             63
             :
-            0;
+            0
+        ;
     }
 
     export function decodeBase64ToArray(sBase64: string, nBlocksSize?: number){ 
@@ -60,7 +61,8 @@ namespace Base64 {
             : nUint6 === 63 ?
             47
             :
-            65;
+            65
+        ;
     }
 
     export function encode(text: string) {
