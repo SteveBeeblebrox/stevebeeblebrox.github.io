@@ -31,8 +31,8 @@ namespace ElementFactory {
         }
         
         window.customElements.define(`${name}`, class extends parentClass {
-            #attributes: Map<string, any>;
-            #observer: MutationObserver;
+            private #attributes: Map<string, any>;
+            private #observer: MutationObserver;
     
             constructor() {
                 super();

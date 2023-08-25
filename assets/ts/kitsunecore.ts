@@ -1,30 +1,30 @@
 // === Scripting Utils === //
-//#include kitsunelang.ts
-//#include toast.ts
-//#include chime.ts
-//#include keybinds.ts
-//#include random.ts
+////#include "kitsunelang.ts"
+///#include "toast.ts"
+///#include "chime.ts"
+///#include "keybinds.ts"
+///#include "random.ts"
 
 // === String Utils === //
-//#include base64.ts
-//#include compression.ts
-//#include encryption.ts
+///#include "base64.ts"
+///#include "compression.ts"
+///#include "encryption.ts"
 
 // === Parsers === //
-//#include configstring.ts
-//#include csv.ts
-//#include jsion.ts
-//#include jsonstreams.ts
-//#include shml.ts
+///#include "configstring.ts"
+///#include "csv.ts"
+///#include "jsion.ts"
+///#include "jsonstreams.ts"
+///#include "shml.ts"
 
 // === DOM Utils === //
-//#include domlib.ts
-//#include jsxtag.ts
-//#include jsx.ts
-//#include kitsunedom.ts
-//#include elementfactory.ts
-//#include elements.ts
-//#include htmlrasterizer.ts
+///#include "domlib.ts"
+///#include "jsxtag.ts"
+///#include "jsx.ts"
+///#include "kitsunedom.ts"
+///#include "elementfactory.ts"
+///#include "elements.ts"
+///#include "htmlrasterizer.ts"
 
 // === Not Included === //
 // vfs.ts (Does NOT work minified!)
