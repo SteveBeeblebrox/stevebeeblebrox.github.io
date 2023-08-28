@@ -62,13 +62,13 @@
             (async function() {
                 for await(const displacement of getDisplacement(new AbortController())) {
                     document.body.innerText = `%{str(DATE)}: Moved ${displacement} meters`;
-                    
+
                 }
             })//().catch(e => console.error(e))
 
 
             window.navigator.geolocation.watchPosition(function(pos) {
-                document.body.innerText = `%{str(DATE)}: Lat: ${pos.latitude}\u00b0 Long: ${pos.longitude}\u00b0`;
+                document.body.innerText = `%{str(DATE)}: Lat: ${pos.coords.latitude}\u00b0 Long: ${pos.coords.longitude}\u00b0`;
             }, function() {
 
             }, {enableHighAccuracy: true});
