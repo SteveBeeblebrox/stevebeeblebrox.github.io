@@ -62,8 +62,16 @@
             (async function() {
                 for await(const displacement of getDisplacement(new AbortController())) {
                     document.body.innerText = `%{str(DATE)}: Moved ${displacement} meters`;
+                    
                 }
-            })().catch(e => console.error(e))
+            })//().catch(e => console.error(e))
+
+
+            window.navigator.geolocation.watchPosition(function(pos) {
+                document.body.innerText = `%{str(DATE)}: Lat: ${pos.latitude}\u00b0 Long: ${pos.longitude}\u00b0`;
+            }, function() {
+
+            }, {enableHighAccuracy: true});
         </script>
         <!-- <div>
             <button>+ GPS</button>
