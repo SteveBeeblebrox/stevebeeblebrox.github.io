@@ -15,7 +15,7 @@
                     Math.cos(d2r(lat1)) * Math.cos(d2r(lat2)) * 
                     Math.sin(dLon/2) * Math.sin(dLon/2)
                 ;
-                return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) / 1000;
+                return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
             }
         </script>
     </head>
@@ -36,7 +36,6 @@
                 };
 
                 const watchId = window.navigator.geolocation.watchPosition(function(pos) {
-                    console.log(pos)
                     onNewDistance(pos);
                 });
 
@@ -60,7 +59,7 @@
 
             (async function() {
                 for await(const displacement of getDisplacement(new AbortController())) {
-                    document.body.innerText = `Moved ${displacement} meters`;
+                    document.body.innerText = `%{str(DATE)}: Moved ${displacement} meters`;
                 }
             })().catch(e => console.error(e))
         </script>

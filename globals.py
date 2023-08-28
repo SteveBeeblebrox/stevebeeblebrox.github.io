@@ -47,3 +47,6 @@ def HEAD(*, title: str = 'Document', appTitle: str = None, kcore: bool = True):
 
         <style>html {{font-family: arial;}}</style>
 ''' + appTitleOverride + kitsuneScriptTag
+
+from datetime import datetime
+DATE = datetime.now()
