@@ -37,7 +37,9 @@
 
                 const watchId = window.navigator.geolocation.watchPosition(function(pos) {
                     onNewDistance(pos);
-                });
+                }, function() {
+
+                }, {enableHighAccuracy: true});
 
                 async function getMetersMoved() {
                     const promise = new Promise(resolve => onNewDistance = resolve);
