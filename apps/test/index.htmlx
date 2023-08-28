@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        %{HEAD()}
+        <script ${TS}>
+            function getHaversineDistance(lat1, lon1, lat2, lon2) {
+                function d2r(deg) {
+                    return deg * (Math.PI/180);
+                }
+
+                const R = 6371; // Radius of the earth in km
+                const dLat = d2r(lat2-lat1), dLon = d2r(lon2-lon1); 
+                var a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(d2r(lat1)) * Math.cos(d2r(lat2)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2)
+                ;
+                return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) / 1000;
+            }
+        </script>
+    </head>
+    <body>
+        <script %{TS}>
+            window.navigator.geolocation.watchPosition(function(pos: GeolocationPosition) {
+                const {coords: {accuracy,longitude,latitude}} = pos;
+                document.body.append(<p>A {accuracy} Long {longitude} Lat {latitude}</p>)
+            }, function(e) {
+                console.error('Error getting geolocation: ' + e.message);
+            }, {enableHighAccuracy: true});
+
+            async function* getDisplacement(abort: AbortController) {
+                let previousLatitude = null, previousLongitude = null, totalDistance  = 0;
+
+                let onNewDistance = function(pos) {
+                    ({coords: {longitude: previousLongitude,latitude: previousLatitude}} = pos);
+                };
+
+                const watchId = window.navigator.geolocation.watchPosition(function(pos) {
+                    console.log(pos)
+                    onNewDistance(pos);
+                });
+
+                async function getMetersMoved() {
+                    const promise = new Promise(resolve => onNewDistance = resolve);
+                    const pos = await promise;
+
+                    const {coords: {accuracy,longitude,latitude}} = pos;
+                    const meters = previousLatitude !== null ? getHaversineDistance(previousLatitude, previousLongitude, latitude, longitude) : 0;
+                    [previousLatitude, previousLongitude] = [latitude, longitude];
+
+                    return meters;
+                }
+
+                while(!abort.signal.aborted) {
+                    yield totalDistance += await getMetersMoved();
+                }
+
+                window.navigator.geolocation.clearWatch(watchId);
+            }
+
+            (async function() {
+                for await(const displacement of getDisplacement(new AbortController())) {
+                    document.body.innerText = `Moved ${displacement} meters`;
+                }
+            })().catch(e => console.error(e))
+        </script>
+        <!-- <div>
+            <button>+ GPS</button>
+            <button>+ Treadmill</button>
+        </div> -->
+    </body>
+</html>
