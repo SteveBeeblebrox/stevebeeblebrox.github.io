@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace CSV {
     function validateDelimiter(delimiter: string): void {
         if(delimiter.length !== 1) throw new Error('CSV delimiter must be exactly one character (code unit) long');
