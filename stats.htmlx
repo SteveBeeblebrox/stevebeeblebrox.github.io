@@ -6,17 +6,19 @@
         <title>Loading...</title>
         <script src="/assets/js/kitsunecore.min.js"></script>
         <script>
-            const eDate = new Date('2023-09-14T16:40:00.000-06:00');
+            const eDate = new Date('2023-18-14T11:20:00.000-06:00'); // new Date('2023-09-14T16:40:00.000-06:00');
             const eTimeState = JSX.createState();
             
             const eFormattedTimeState = eTimeState.format(function(ms) {
                 const sign = -ms<0 ? '-' : '+';
-                
+
+                ms = Math.abs(ms);
+
                 const yy = Math.floor(ms / 1000 / 60 / 60 / 24 / 365);
-                ms -= yy * 1000 * 60 * 60 *24 * 365;
+                ms -= yy * 1000 * 60 * 60 * 24 * 365;
                 
                 const dd = Math.floor(ms / 1000 / 60 / 60 / 24);
-                ms -= dd * 1000 * 60 * 60 *24;
+                ms -= dd * 1000 * 60 * 60 * 24;
                 
                 const hh = Math.floor(ms / 1000 / 60 / 60);
                 ms -= hh * 1000 * 60 * 60;
