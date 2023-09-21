@@ -5,7 +5,7 @@
  * https://developer.mozilla.org/en-US/docs/Glossary/Base64
  */
 namespace Base64 {
-    function b64ToUint6(nChr: number) {
+    function b64ToUint6(nChr: number): number {
         return nChr > 64 && nChr < 91 ?
             nChr - 65
             : nChr > 96 && nChr < 123 ?
@@ -21,7 +21,7 @@ namespace Base64 {
         ;
     }
 
-    export function decodeBase64ToArray(sBase64: string, nBlocksSize?: number){ 
+    export function decodeBase64ToArray(sBase64: string, nBlocksSize?: number): Uint8Array { 
         const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, '');
         const nInLen = sB64Enc.length;
         const nOutLen = nBlocksSize ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize : nInLen * 3 + 1 >> 2;
@@ -49,7 +49,7 @@ namespace Base64 {
     }
 
     /* Base64 string to array encoding */
-    function uint6ToB64(nUint6: number) {
+    function uint6ToB64(nUint6: number): number {
         return nUint6 < 26 ?
             nUint6 + 65
             : nUint6 < 52 ?
@@ -65,14 +65,14 @@ namespace Base64 {
         ;
     }
 
-    export function encode(text: string) {
+    export function encode(text: string): string {
         return encodeBase64FromArray(new TextEncoder().encode(text));
     }
-    export function decode(text: string) {
+    export function decode(text: string): string {
         return new TextDecoder().decode(decodeBase64ToArray(text));
     }
 
-    export function encodeBase64FromArray(aBytes: Uint8Array) {
+    export function encodeBase64FromArray(aBytes: Uint8Array): string {
         let nMod3 = 2;
         let sB64Enc = '';
 
