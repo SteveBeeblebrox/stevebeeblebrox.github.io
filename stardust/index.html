@@ -1,8 +1,16 @@
 <script>
     const options = new URLSearchParams(window.location.search);
     if(options.get('type') === 'rfc') window.location = `https://www.rfc-editor.org/rfc/${options.get('value').toLowerCase().replaceAll(' ', '')}.html`
-    else if(options.get('type') === 'domain') document.write(`
-        <h1>Domain: ${options.get('value')}</h1>
-        <p>Lorem ipsum</p>
+    else document.write(`
+        <h1>${(function(e) {
+            switch(e) {
+                case 'build': return 'Build';
+                case 'test': return 'Test'; 
+                case 'test-plan': return 'Test Plan';
+                default: return 'Other';
+            }
+        })(options.get('type'))}: ${options.get('value')}</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</P>
+        <a href="https://savant-dev.ssc.lmco.com/search-results/${encodeURIComponent(options.get('value'))}?index=orionfileshare">View Savant Results</a>
     `)
 </script>
