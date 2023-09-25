@@ -4,7 +4,19 @@
         "rfc": {
             "pattern": "RFC ?\\d+",
             "color": "cadetblue"
+        },
+        "test_plan": {
+            "pattern": "ORN-TP-[A-Z]+-\\d+",
+            "color": "teal"
+        },
+        "test": {
+            "pattern": "EM2\\STST\\S\\d+",
+            "color": "teal"
+        },
+        "build": {
+            "pattern": "[bB]uild 20\\d+(?:\\.\\d)?",
+            "color": "teal"
         }
     },
-    "idleRunDelay": 3000
+    "idleRunDelay": 30000
 }
