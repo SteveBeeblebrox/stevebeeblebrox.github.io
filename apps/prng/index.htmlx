@@ -38,6 +38,7 @@
         </script>
     </head>
     <body>
+        <img src="fast.png" alt="Code for fast random algorithm">
         <pre>&nbsp;</pre>
         <script %{TS}>
             $ctx=<button onclick={function() {
