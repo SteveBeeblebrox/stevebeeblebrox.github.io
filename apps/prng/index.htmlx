@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        %{HEAD(title='PRNG')}
+        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/assets/ts/random.ts"></script>
+        <style type="text/less">
+            html {
+                &,body {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                }
+                body {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    font-family: Arial, Helvetica, sans-serif;
+                }
+            }
+            pre {
+                font-family: inherit;
+                user-select: auto;
+                font-size: large;
+                font-weight: bold;
+            }
+            button {
+                border: none;
+                padding: 1em;
+                border-radius: 2em;
+                color: white;
+                background-color: #5c5b5b;
+                user-select: none;
+            }
+        </style>
+        <script %{TS}>
+            const fastRandom = new Random({type: 'fast', seed: BigInt(0xdeadbeef)});
+        </script>
+    </head>
+    <body>
+        <pre>&nbsp;</pre>
+        <script %{TS}>
+            $ctx=<button onclick={function() {
+                $('pre').innerText = Math.round(fastRandom.random() * 100);
+            }} title="Generate a pseudorandom number">New Random Number</button>
+        </script>
+    </body>
+</html>
