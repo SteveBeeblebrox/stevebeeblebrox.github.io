@@ -82,7 +82,11 @@ namespace TypeUtil {
                 value.toString = value[Symbol.toStringTag] = value.valueOf = () => name;
 
                 // @ts-expect-error
-                value[Symbol.toPrimitive] = (hint) => hint === 'number' ? 0 : value.toString();
+                value[Symbol.toPrimitive] = (hint) => hint === 'number' ? types.reduce((a,c)=>a|c,0) : value.toString();
+
+                // @ts-expect-error
+                value[Symbols.castValue] = () => function() {throw new Error('Cannot cast to union type.')};
+
                 return Object.freeze(value) as unknown as ResolvedUnionType;
             }
 
@@ -289,9 +293,10 @@ namespace TypeUtil {
 
 console.clear()
 
-const {is,typeOf,cast,box,unbox,Types: {number,boolean,null_type,array,bigint,promise,any}} = TypeUtil;
+const {is,typeOf,cast,box,unbox,Types: {number,boolean,null_type,array,bigint,string,promise,any,union}} = TypeUtil;
 
 
-console.log(TypeUtil.cast(2,null_type))
+//console.log(TypeUtil.cast(2,null_type))
 
-console.log(TypeUtil.is(false, boolean | number), promise(1), cast(1, any), null_type(1))
+//console.log(TypeUtil.is(false, boolean | number), promise(1), cast(1, any), null_type(1))
+console.log(is(1n,boolean | union(number | bigint)), cast(1,string))
