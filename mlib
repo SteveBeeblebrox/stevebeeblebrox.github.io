@@ -172,6 +172,7 @@ def strcheck(str):
 
 def prints(*args, simplify = False):
     #display(ipy.display.HTML(' '.join([('<span data-force-inline>$$%s$$</span>' % (arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg),lambda:arg)))) for arg in args])));
+    display(ipy.display.HTML('<style>span[style="display: block; text-align: center;"] {text-align: left !important;}<style>'))
     display(ipy.display.Markdown(f'<span data-force-inline>$${(" ".join([(arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg) if simplify else arg,lambda:arg))) for arg in args]))}$$</span>'));
 
 
