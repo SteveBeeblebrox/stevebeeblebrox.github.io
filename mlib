@@ -1,15 +1,18 @@
 # (c) Trin Wasinger 2021-2023
+# Load using exec(__import__('requests').get('https://stevebeeblebrox.github.io/mlib').text)
 from sympy import *;
 import sympy as sym;
 import sympy;
 import numpy as num;
+import numpy;
 import IPython as ipy;
+import matplotlib.pyplot as plt;
 import re;
 import json;
 import random;
 import platform;
 
-from sympy.core.evalf import INF;
+#from sympy.core.evalf import INF;
 #from forbiddenfruit import curse;
 
 MLIB_VERSION='1.0.0'
