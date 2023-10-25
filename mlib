@@ -1,0 +1,204 @@
+# (c) Trin Wasinger 2021-2023
+from sympy import *;
+import sympy as sym;
+import sympy;
+import numpy as num;
+import IPython as ipy;
+import re;
+import json;
+import random;
+import platform
+
+from sympy.core.evalf import INF;
+#from forbiddenfruit import curse;
+
+MLIB_VERSION='1.0.0'
+
+false = False
+true = True
+null = None
+
+def let(**kwargs):
+    for key in kwargs:
+        value = globals()[key] = kwargs[key];
+    return value;
+
+def nlet(**kwargs):
+    return N(let(**kwargs));
+
+def delete(name):
+    t = globals()[name];
+    globals()[name] = None;
+    return t;
+
+def var(name):
+    globals()[name] = sympy.Symbol(name);
+    return globals()[name];
+
+def func(name,*symbols):
+    globals()[name] = sympy.Function(name)(*symbols);
+    return globals()[name];
+
+def varlist(*args):
+    return [var(name.strip()) for names in args for name in re.split(r'[, ]+', names.strip())];
+
+def try_or(func, fallback=None, expected_exc=(Exception,)):
+    try:
+        return func();
+    except expected_exc:
+        return fallback() if fallback is not None else None;
+
+# For an angle vec with z, use Vec(*Vec(theta=,mag=),0)
+def Vec(*args,theta=None,mag=None):
+    [theta_given,mag_given]=[theta!=None,mag!=None]
+    if theta_given or mag_given:
+        if theta_given and mag_given and len(args) == 0:
+            return mag*Vec(sympy.cos(theta),sympy.sin(theta));
+        else:
+            raise ValueError('theta and mag must be given together instead of *args')
+    
+    if isinstance(args[0],str):
+        return sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals(), locals={}) if c.startswith('@') else globals()[c]))] for c in re.split(r' +', args[0].replace('−','-').replace('−','-').strip())])
+    else:
+        return sympy.Matrix([[x] for x in args])
+
+def Mtx(str,globals=globals(), locals=locals()):
+    return sympy.Matrix() if str.strip() == '' else sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals, locals=locals) if c.startswith('@') else locals[c])) for c in re.split(r' +', r.strip())] for r in re.split(r'\n|;',str.replace('−','-').strip()) if not r.startswith('#')])
+
+def IdentMtx(n):
+    return sympy.Matrix([([ (row == column) + 0 for column in range(n)]) for row in range(n)]);
+
+def RandMtx(m, n, min = 0, max = 9):
+    return sympy.Matrix([([ random.randint(min, max) for column in range(n)]) for row in range(m)]);
+
+def error(arg):
+    print("\x1b[1;31m{}\x1b[0;30m".format(arg));
+    
+# def prints(*args,simplify=False):
+#     for arg in args:
+#         if isinstance(arg,str):
+#             display(ipy.display.Math(arg));
+#         else:
+#             try:
+#                 display(sympy.simplify(arg) if simplify else arg);
+#             except:
+#                 display(arg);
+
+def execexpr(script, globals=globals(), locals=locals()):
+    import ast
+    stmts = list(ast.iter_child_nodes(ast.parse(script)))
+    if not stmts:
+        return None
+    if isinstance(stmts[-1], ast.Expr):
+        if len(stmts) > 1:
+            exec(compile(ast.Module(body=stmts[:-1],type_ignores=[]), filename="<ast>", mode="exec"), globals, locals)
+        return eval(compile(ast.Expression(body=stmts[-1].value), filename="<ast>", mode="eval"), globals, locals)
+    else:
+        return exec(script, globals, locals)                
+
+def veclen(v):
+    return sympy.sqrt(v.dot(v));
+
+def vecangle(v1,v2):
+    return sympy.acos(v1.dot(v2)/(veclen(v1)*veclen(v2)))
+
+def cross(a,b):
+    return a.cross(b);
+
+def dot(a,b):
+    return a.dot(b);
+
+def tensor(a,b):
+    from sympy.physics.quantum import TensorProduct
+    return Tensor(a,b);
+
+def invsum(*args):
+    return 1/sum([1/x for x in args]);
+        
+def mexpr(*strs, globals=globals(), locals=locals()):
+    r = [sympy.parsing.sympy_parser.parse_expr(text.replace('−','-'),global_dict=globals,local_dict=locals,transformations=sympy.parsing.sympy_parser.T[:]) for text in strs];
+    return r[0] if len(r) == 1 else r;
+
+#curse(int, '__div__', lambda self, other: sympy.S(self)/other);
+
+i = sym.I
+e = sym.E
+infinity=oo
+
+def rad(*,deg):
+    return sympy.S(deg)/180*sympy.pi;
+def deg(*,rad):
+    return sympy.S(rad)*180/sympy.pi;
+
+
+def sublist(expr,symbols,values):
+    for i in range(0,len(values)):
+        expr = expr.subs(symbols[i],values[i])
+    return expr;
+def sub(arg, constants = {}, **kwargs):
+    arg = S(arg);
+    for item in kwargs.items():
+        arg = arg.subs(sympy.Symbol(item[0]), item[1]);
+    for item in constants.items():
+        arg = arg.subs(*item);
+    return arg;
+
+def nsub(arg, constants = {}, **kwargs):
+    return N(nsimplify(sub(arg,constants,**kwargs)));
+
+def assume(symbol, **kwargs):
+    globals()[symbol.name] = sympy.Symbol(symbol.name, **kwargs);
+    return globals()[symbol.name];
+
+fyzx = type('fyzx', (object,), {
+    'g' : 9.81,'G': 6.67e-11,
+    'ep0':8.854187812813e-12,
+    'elcharge':1.60217663e-19,
+    'emass':9.10938356e-31,
+    'pmass':1.672621898e-27,
+    'mu0':1.25663706212e-6,
+    'h':6.62607015-34
+})()
+
+def uvecs():
+    return [Vec(1,0,0), Vec(0,1,0), Vec(0,0,1)];
+
+def strcheck(str):
+    return bool(s and s.strip())
+
+def prints(*args, simplify = False):
+    #display(ipy.display.HTML(' '.join([('<span data-force-inline>$$%s$$</span>' % (arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg),lambda:arg)))) for arg in args])));
+    display(ipy.display.HTML(f'<span data-force-inline>$${(" ".join([(arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg) if simplify else arg,lambda:arg))) for arg in args]))}$$</span>'));
+
+
+from IPython.core.magic import (register_line_magic, register_cell_magic, register_line_cell_magic)
+from IPython import get_ipython
+
+# %%context or %context
+@register_line_cell_magic
+def context(line, cell=None):
+    get_ipython().run_line_magic('reset', '-f')
+    get_ipython().run_line_magic('run', r'-i /content/drive/MyDrive/Colab\ Notebooks/mlib.py')
+    if line or cell:
+        get_ipython().run_line_magic('md', '# ' + (line or cell))
+
+del context
+
+@register_line_cell_magic
+def md(line, cell=None):
+    display(ipy.display.Markdown(line if cell is None else line+'\n'+cell))
+del md
+
+@register_line_cell_magic
+def html(line, cell=None):
+    display(ipy.display.HTML(line if cell is None else line+'\n'+cell))
+del html
+
+display(ipy.display.HTML('''
+<style>
+    span[data-force-inline] div {
+        display: inline !important;
+    }
+</style>
+MLib v%s Context Ready!
+''' % (MLIB_VERSION)));
