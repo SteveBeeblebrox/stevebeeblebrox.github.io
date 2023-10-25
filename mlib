@@ -7,7 +7,7 @@ import IPython as ipy;
 import re;
 import json;
 import random;
-import platform
+import platform;
 
 from sympy.core.evalf import INF;
 #from forbiddenfruit import curse;
