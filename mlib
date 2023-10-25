@@ -172,7 +172,7 @@ def strcheck(str):
 
 def prints(*args, simplify = False):
     #display(ipy.display.HTML(' '.join([('<span data-force-inline>$$%s$$</span>' % (arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg),lambda:arg)))) for arg in args])));
-    display(ipy.display.HTML(f'<span data-force-inline>$${(" ".join([(arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg) if simplify else arg,lambda:arg))) for arg in args]))}$$</span>'));
+    display(ipy.display.Markdown(f'<span data-force-inline>$${(" ".join([(arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg) if simplify else arg,lambda:arg))) for arg in args]))}$$</span>'));
 
 
 from IPython.core.magic import (register_line_magic, register_cell_magic, register_line_cell_magic)
