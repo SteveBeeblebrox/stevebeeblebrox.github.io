@@ -11,6 +11,7 @@ import re;
 import json;
 import random;
 import platform;
+import requests;
 
 #from sympy.core.evalf import INF;
 #from forbiddenfruit import curse;
@@ -181,7 +182,7 @@ from IPython import get_ipython
 @register_line_cell_magic
 def context(line, cell=None):
     get_ipython().run_line_magic('reset', '-f')
-    get_ipython().run_line_magic('run', r'-i /content/drive/MyDrive/Colab\ Notebooks/mlib.py')
+    exec(requests.get('https://stevebeeblebrox.github.io/mlib').text)
     if line or cell:
         get_ipython().run_line_magic('md', '# ' + (line or cell))
 
