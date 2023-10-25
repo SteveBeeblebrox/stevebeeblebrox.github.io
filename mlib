@@ -182,7 +182,7 @@ from IPython import get_ipython
 @register_line_cell_magic
 def context(line, cell=None):
     get_ipython().run_line_magic('reset', '-f')
-    exec(requests.get('https://stevebeeblebrox.github.io/mlib').text)
+    exec(__import__('requests').get('https://stevebeeblebrox.github.io/mlib').text)
     if line or cell:
         get_ipython().run_line_magic('md', '# ' + (line or cell))
 
