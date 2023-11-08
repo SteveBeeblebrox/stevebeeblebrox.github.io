@@ -52,7 +52,7 @@ class Keybinds {
          shiftKey: reqs.includes(Keybinds.CommandKeys.Shift),
          altKey: reqs.includes(Keybinds.CommandKeys.Alt),
          metaKey: reqs.includes(Keybinds.CommandKeys.Meta) || reqs.includes(Keybinds.CommandKeys.Windows),
-         char: reqs.find(c=>!Keybinds.COMMAND_KEYS_ARRAY.includes(c)) ?? (()=>{throw new Error(`Keybind '${pattern}' must contain a none command key`)})()
+         char: reqs.find(c=>!Keybinds.COMMAND_KEYS_ARRAY.includes(c)) ?? (()=>{throw new Error(`Keybind '${pattern}' must contain a non command key`)})()
       },f);
    }
    static isKeyDown(key: string): boolean {
