@@ -16,7 +16,7 @@ import requests;
 #from sympy.core.evalf import INF;
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.0.0'
+MLIB_VERSION='1.0.1'
 
 false = False
 true = True
@@ -118,6 +118,9 @@ def tensor(a,b):
 
 def invsum(*args):
     return 1/sum([1/x for x in args]);
+
+def sqrsum(*args):
+    return sqrt(sum([x**2 for x in args]));
         
 def mexpr(*strs, globals=globals(), locals=locals()):
     r = [sympy.parsing.sympy_parser.parse_expr(text.replace('−','-'),global_dict=globals,local_dict=locals,transformations=sympy.parsing.sympy_parser.T[:]) for text in strs];
@@ -163,6 +166,8 @@ fyzx = type('fyzx', (object,), {
     'mu0':1.25663706212e-6,
     'h':6.62607015-34
 })()
+
+fyzx.c=1/sqrt(fyzx.mu0*fyzx.ep0)
 
 def uvecs():
     return [Vec(1,0,0), Vec(0,1,0), Vec(0,0,1)];
