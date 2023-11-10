@@ -154,8 +154,9 @@ def nsub(arg, constants = {}, **kwargs):
     return N(nsimplify(sub(arg,constants,**kwargs)));
 
 def assume(symbol, **kwargs):
-    globals()[symbol.name] = sympy.Symbol(symbol.name, **kwargs);
-    return globals()[symbol.name];
+    name = symbol if type(symbol) == str else symbol.name;
+    globals()[name] = sympy.Symbol(name, **kwargs);
+    return globals()[name];
 
 fyzx = type('fyzx', (object,), {
     'g' : 9.81,'G': 6.67e-11,
