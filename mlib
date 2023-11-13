@@ -28,7 +28,7 @@ def let(**kwargs):
     return value;
 
 def nlet(**kwargs):
-    return N(let(**kwargs));
+    return sympy.N(let(**kwargs));
 
 def delete(name):
     t = globals()[name];
@@ -151,7 +151,7 @@ def sub(arg, constants = {}, **kwargs):
     return arg;
 
 def nsub(arg, constants = {}, **kwargs):
-    return N(nsimplify(sub(arg,constants,**kwargs)));
+    return sympy.N(nsimplify(sub(arg,constants,**kwargs)));
 
 def assume(symbol, **kwargs):
     name = symbol if type(symbol) == str else symbol.name;
