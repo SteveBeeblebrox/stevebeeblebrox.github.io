@@ -32,5 +32,6 @@
 // sandbox.ts
 // githubshortcut.tsx (Include directly in script tag)
 // reporting.ts (Include directly in script tag)
+// types.ts (WIP)
 
 DomLib.bind(globalThis);
