@@ -121,6 +121,9 @@ def invsum(*args):
 
 def sqrsum(*args):
     return sqrt(sum([x**2 for x in args]));
+
+def stdsum(*args)
+    return sum(args);
         
 def mexpr(*strs, globals=globals(), locals=locals()):
     r = [sympy.parsing.sympy_parser.parse_expr(text.replace('−','-'),global_dict=globals,local_dict=locals,transformations=sympy.parsing.sympy_parser.T[:]) for text in strs];
