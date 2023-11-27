@@ -35,16 +35,16 @@ def delete(name):
     globals()[name] = None;
     return t;
 
-def var(name):
-    globals()[name] = sympy.Symbol(name);
+def var(name,**kwargs):
+    globals()[name] = sympy.Symbol(name,**kwargs);
     return globals()[name];
 
 def func(name,*symbols):
     globals()[name] = sympy.Function(name)(*symbols);
     return globals()[name];
 
-def varlist(*args):
-    return [var(name.strip()) for names in args for name in re.split(r'[, ]+', names.strip())];
+def varlist(*args,**kwargs):
+    return [var(name.strip(),**kwargs) for names in args for name in re.split(r'[, ]+', names.strip())];
 
 def try_or(func, fallback=None, expected_exc=(Exception,)):
     try:
@@ -77,6 +77,9 @@ def RandMtx(m, n, min = 0, max = 9):
 
 def error(arg):
     print("\x1b[1;31m{}\x1b[0;30m".format(arg));
+
+def warn(arg):
+    print("\x1b[1;33m{}\x1b[0;30m".format(arg));
     
 # def prints(*args,simplify=False):
 #     for arg in args:
@@ -157,6 +160,7 @@ def nsub(arg, constants = {}, **kwargs):
     return sympy.N(nsimplify(sub(arg,constants,**kwargs)));
 
 def assume(symbol, **kwargs):
+    warn('Note: assume() is deprecated, assumptions should be passed to var() or varlist() instead!');
     name = symbol if type(symbol) == str else symbol.name;
     globals()[name] = sympy.Symbol(name, **kwargs);
     return globals()[name];
