@@ -21,20 +21,65 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+///#pragma once
+
+declare function strc(expr: any): string;
+///#define strc(expr) #expr
+
+declare let _: any;
+Object.defineProperty(globalThis, '_', {get() {},set() {}});
+
+declare function partial<T>(expr: T): (...args: unknown[]) => T 
+const __partial__ = (args: unknown[], i: number = 0) => new Proxy(Object.create(null), {has: (_,p) => typeof p === 'string' && /^_\d*$/.test(p), get: (_,p) => typeof p === 'string' ? (p === '_' ? args[i++] : args[+p.substring(1)]) : undefined});
+///#define partial(expr) (...args: any[]) => { with(__partial__(args)) { return expr; } }
+
+type AssertionData = {str?: string, file?: string, line?: number, msg?: string};
 class AssertionError extends Error {
-    constructor(message?: string | undefined) {
-        super(`Assertion failed` + (message ? ': ' : '') + message??'');
+    readonly file: string;
+    readonly line: string;
+    readonly expr: string;
+    constructor(data?: AssertionData | string) {
+        super(AssertionError.format(data));
+
+        data = (typeof data === 'string' ? {} : data);
+        this.file = data?.file ?? '<unknown>';
+        this.line = data?.line?.toString() ?? '<unknown>';
+        this.expr = data?.str ?? '<unknown>';
+    }
+    static format(data?: AssertionData | string): string {
+        let message = 'Assertion Error';
+        if(data && typeof data === 'string') {
+            message += `: ${data}`;
+        } else if(data) {
+            const {str,file,line,msg} = data as AssertionData;
+            if(str) {
+                message += ` (${str})`;
+            }
+            if(msg) {
+                message += `: ${msg}`;
+            }
+            if(file && line != undefined) {
+                message += ` at ${file}:${line}`;
+            }
+        }
+        return message;
     }
 }
 
 const assert = (function() {
-    function assert(condition: false, message?: string): never
-    function assert(condition: boolean, message?: string): void
-    function assert(condition: boolean, message: string = '') {
-        if(!condition) throw new AssertionError(message);
+    function assert(expr: false, data?: AssertionData | string): never;
+    function assert(expr: boolean, data?: AssertionData | string): void;
+    function assert(expr: boolean, data?: AssertionData | string) {
+        if(!expr) throw new AssertionError(data);
     }
     return assert;
 })();
+
+///#define __assert_overload_1__(expr) assert(expr,{str:#expr,file:__FILE__,line:__LINE__}) 
+///#define __assert_overload_2__(expr,message) assert(expr,{str:#expr,file:__FILE__,line:__LINE__,msg:message})
+///#define __assert_overload_n__(_,expr,message,FUNC, ...)  FUNC  
+///#define assert(...) __assert_overload_n__(,##__VA_ARGS__,__assert_overload_2__(__VA_ARGS__),__assert_overload_1__(__VA_ARGS__),) 
 
 const throws = (e: any) => { throw e };
 
