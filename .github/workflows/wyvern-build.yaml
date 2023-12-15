@@ -18,7 +18,7 @@ jobs:
           echo "Deploying: "
           ls -R _site | sed 's/^_site/<root>/g' | sed 's/^/  /g'
       
-      - uses: actions/upload-pages-artifact@v1.0.7
+      - uses: actions/upload-pages-artifact@v2.0.0
   
   deploy:
     needs: build
@@ -35,4 +35,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1.2.9
+        uses: actions/deploy-pages@v3.1.0
