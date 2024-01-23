@@ -20,9 +20,9 @@ MLIB_MOTD=f'''
 **Welcome to version {MLIB_VERSION}!**
 
 Changelog:
-    + Added changelog
-    + Fixed issues when using sub() and variable assumptions
-    + Removed extra output
+  + Added changelog
+  + Fixed issues when using sub() and variable assumptions
+  + Removed extra output
 ''';
 
 false = False;
