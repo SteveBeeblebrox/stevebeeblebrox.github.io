@@ -13,10 +13,9 @@ import random;
 import platform;
 import requests;
 
-#from sympy.core.evalf import INF;
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.0.2'
+MLIB_VERSION='1.1.0'
 
 false = False
 true = True
@@ -48,6 +47,7 @@ def func(name,*symbols):
     # TODO, lookup like var()?
     globals()[name] = sympy.Function(name)(*symbols);
     return globals()[name];
+
 def varlist(*args,**kwargs):
     return [var(name.strip(),**kwargs) for names in args for name in re.split(r'[, ]+', names.strip())];
 
@@ -95,16 +95,6 @@ def error(arg):
 
 def warn(arg):
     print("\x1b[1;33m{}\x1b[0;30m".format(arg));
-    
-# def prints(*args,simplify=False):
-#     for arg in args:
-#         if isinstance(arg,str):
-#             display(ipy.display.Math(arg));
-#         else:
-#             try:
-#                 display(sympy.simplify(arg) if simplify else arg);
-#             except:
-#                 display(arg);
 
 def execexpr(script, globals=globals(), locals=locals()):
     import ast
@@ -174,12 +164,6 @@ def sub(arg, constants = {}, **kwargs):
 def nsub(arg, constants = {}, **kwargs):
     return sympy.N(nsimplify(sub(arg,constants,**kwargs)));
 
-def assume(symbol, **kwargs):
-    warn('Note: assume() is deprecated, assumptions should be passed to var() or varlist() instead!');
-    name = symbol if type(symbol) == str else symbol.name;
-    globals()[name] = sympy.Symbol(name, **kwargs);
-    return globals()[name];
-
 fyzx = type('fyzx', (object,), {
     'g' : 9.81,'G': 6.67e-11,
     'ep0':8.854187812813e-12,
@@ -199,7 +183,6 @@ def strcheck(str):
     return bool(s and s.strip())
 
 def prints(*args, simplify = False):
-    #display(ipy.display.HTML(' '.join([('<span data-force-inline>$$%s$$</span>' % (arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg),lambda:arg)))) for arg in args])));
     display(ipy.display.HTML('<style>span[style="display: block; text-align: center;"] {text-align: left !important;}<style>'))
     display(ipy.display.Markdown(f'<span data-force-inline>$${(" ".join([(arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg) if simplify else arg,lambda:arg))) for arg in args]))}$$</span>'));
 
