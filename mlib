@@ -16,7 +16,14 @@ import requests;
 #from forbiddenfruit import curse;
 
 MLIB_VERSION='1.1.1';
-MLIB_MOTD='Welcome to version 1.1.1';
+MLIB_MOTD=f''
+**Welcome to version {MLIB_VERSION}!**
+
+Changelog:
+    + Added changelog
+    + Fixed issues when using sub() and variable assumptions
+    + Removed extra output
+''';
 
 false = False;
 true = True;
@@ -216,7 +223,7 @@ def html(line, cell=None):
 del html;
 
 if not '__mlib' in globals() and MLIB_MOTD != None:
-    display(ipy.display.HTML(MLIB_MOTD));
+    display(ipy.display.Markdown(MLIB_MOTD));
 
 display(ipy.display.HTML('''
 <style>
