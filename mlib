@@ -35,14 +35,19 @@ def delete(name):
     globals()[name] = None;
     return t;
 
-def var(name,**kwargs):
+def var(name,*,__lookup=False,**kwargs):
+    if name in globals() and isinstance(globals()[name],sympy.Symbol):
+      if __lookup or sympy.Symbol(name,**kwargs) == globals()[name]:
+        return globals()[name];
+      else:
+        raise NameError('Cannot create two variables with the same name but different assumptions. Delete the old one first.');
     globals()[name] = sympy.Symbol(name,**kwargs);
     return globals()[name];
 
 def func(name,*symbols):
+    # TODO, lookup like var()?
     globals()[name] = sympy.Function(name)(*symbols);
     return globals()[name];
-
 def varlist(*args,**kwargs):
     return [var(name.strip(),**kwargs) for names in args for name in re.split(r'[, ]+', names.strip())];
 
@@ -160,8 +165,8 @@ def sublist(expr,symbols,values):
     return expr;
 def sub(arg, constants = {}, **kwargs):
     arg = S(arg);
-    for item in kwargs.items():
-        arg = arg.subs(sympy.Symbol(item[0]), item[1]);
+    for name, value in kwargs.items():
+        arg = arg.subs(var(name, __lookup=True), value);
     for item in constants.items():
         arg = arg.subs(*item);
     return arg;
