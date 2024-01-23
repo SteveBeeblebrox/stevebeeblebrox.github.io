@@ -208,7 +208,7 @@ def context(line, cell=None):
     if line or cell:
         get_ipython().run_line_magic('md', '# ' + (line or cell));
     else:
-        display(ipy.display.HTML(f'MLib v{MLIB_VERSION} Context Ready!'));
+        display(ipy.display.HTML(f'<hr style="width:40ch;margin-left:0;" title="New MLib Context (v{MLIB_VERSION})">'));
 
 del context;
 
