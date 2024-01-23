@@ -18,12 +18,12 @@ import markdown;
 
 MLIB_VERSION='1.1.1';
 MLIB_MOTD=f'''
-**Welcome to version {MLIB_VERSION}!**
+**Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
-  + Added changelog
-  + Fixed issues when using sub() and variable assumptions
-  + Removed extra output
+  + Fixed `delete()`
+  + Fixed `sub()` when using variable assumptions
+  + Cleaned up output
 ''';
 
 false = False;
