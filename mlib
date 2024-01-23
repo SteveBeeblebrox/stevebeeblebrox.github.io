@@ -15,7 +15,7 @@ import requests;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.0'
+MLIB_VERSION='1.1.1'
 
 false = False
 true = True
@@ -31,7 +31,7 @@ def nlet(**kwargs):
 
 def delete(name):
     t = globals()[name];
-    globals()[name] = None;
+    del globals()[name];
     return t;
 
 def var(name,*,__lookup=False,**kwargs):
@@ -183,7 +183,7 @@ def strcheck(str):
     return bool(s and s.strip())
 
 def prints(*args, simplify = False):
-    display(ipy.display.HTML('<style>span[style="display: block; text-align: center;"] {text-align: left !important;}<style>'))
+    display(ipy.display.HTML('<style>span[style="display: block; text-align: center;"] {text-align: left !important;}<style>'));
     display(ipy.display.Markdown(f'<span data-force-inline>$${(" ".join([(arg if isinstance(arg,str) else latex(try_or(lambda:sympy.simplify(arg) if simplify else arg,lambda:arg))) for arg in args]))}$$</span>'));
 
 
@@ -193,22 +193,27 @@ from IPython import get_ipython
 # %%context or %context
 @register_line_cell_magic
 def context(line, cell=None):
-    get_ipython().run_line_magic('reset', '-f')
-    exec(__import__('requests').get('https://stevebeeblebrox.github.io/mlib').text, globals())
+    get_ipython().run_line_magic('reset', '-f');
+    globals()['__mlib'] = True;
+    exec(__import__('requests').get('https://stevebeeblebrox.github.io/mlib').text, globals());
+    del globals()['__mlib'];
     if line or cell:
-        get_ipython().run_line_magic('md', '# ' + (line or cell))
+        get_ipython().run_line_magic('md', '# ' + (line or cell));
 
-del context
+del context;
 
 @register_line_cell_magic
 def md(line, cell=None):
-    display(ipy.display.Markdown(line if cell is None else line+'\n'+cell))
-del md
+    display(ipy.display.Markdown(line if cell is None else line+'\n'+cell));
+del md;
 
 @register_line_cell_magic
 def html(line, cell=None):
-    display(ipy.display.HTML(line if cell is None else line+'\n'+cell))
-del html
+    display(ipy.display.HTML(line if cell is None else line+'\n'+cell));
+del html;
+
+if not '__mlib' in globals():
+    display(ipy.display.HTML(MLIB_MOTD));
 
 display(ipy.display.HTML('''
 <style>
