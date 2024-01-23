@@ -12,6 +12,7 @@ import json;
 import random;
 import platform;
 import requests;
+import markdown;
 
 #from forbiddenfruit import curse;
 
@@ -206,7 +207,7 @@ def context(line, cell=None):
     exec(__import__('requests').get('https://stevebeeblebrox.github.io/mlib').text, globals());
     del globals()['__mlib'];
     if line or cell:
-        get_ipython().run_line_magic('md', '# ' + (line or cell));
+        display(ipy.display.HTML(f'''<div title="New MLib Context (v{MLIB_VERSION})">{markdown.markdown('# ' + (line or cell))}</div>'''));
     else:
         display(ipy.display.HTML(f'<hr style="width:40ch;margin-left:0;" title="New MLib Context (v{MLIB_VERSION})">'));
 
