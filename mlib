@@ -16,7 +16,7 @@ import requests;
 #from forbiddenfruit import curse;
 
 MLIB_VERSION='1.1.1';
-MLIB_MOTD=f''
+MLIB_MOTD=f'''
 **Welcome to version {MLIB_VERSION}!**
 
 Changelog:
