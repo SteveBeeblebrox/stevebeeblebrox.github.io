@@ -15,11 +15,12 @@ import requests;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.1'
+MLIB_VERSION='1.1.1';
+MLIB_MOTD='Welcome to version 1.1.1';
 
-false = False
-true = True
-null = None
+false = False;
+true = True;
+null = None;
 
 def let(**kwargs):
     for key in kwargs:
@@ -59,17 +60,17 @@ def try_or(func, fallback=None, expected_exc=(Exception,)):
 
 # For an angle vec with z, use Vec(*Vec(theta=,mag=),0)
 def Vec(*args,theta=None,mag=None):
-    [theta_given,mag_given]=[theta!=None,mag!=None]
+    [theta_given,mag_given]=[theta!=None,mag!=None];
     if theta_given or mag_given:
         if theta_given and mag_given and len(args) == 0:
             return mag*Vec(sympy.cos(theta),sympy.sin(theta));
         else:
-            raise ValueError('theta and mag must be given together instead of *args')
+            raise ValueError('theta and mag must be given together instead of *args');
     
     if isinstance(args[0],str):
-        return sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals(), locals={}) if c.startswith('@') else globals()[c]))] for c in re.split(r' +', args[0].replace('−','-').replace('−','-').strip())])
+        return sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals(), locals={}) if c.startswith('@') else globals()[c]))] for c in re.split(r' +', args[0].replace('−','-').replace('−','-').strip())]);
     else:
-        return sympy.Matrix([[x] for x in args])
+        return sympy.Matrix([[x] for x in args]);
 
 class Vlt(numpy.ndarray):
     def __new__(cls, *args):
@@ -212,7 +213,7 @@ def html(line, cell=None):
     display(ipy.display.HTML(line if cell is None else line+'\n'+cell));
 del html;
 
-if not '__mlib' in globals():
+if not '__mlib' in globals() and MLIB_MOTD != None:
     display(ipy.display.HTML(MLIB_MOTD));
 
 display(ipy.display.HTML('''
