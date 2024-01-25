@@ -16,7 +16,7 @@ import markdown;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.1';
+MLIB_VERSION='1.1.2';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
@@ -24,6 +24,7 @@ Changelog:
   + Fixed `delete()`
   + Fixed `sub()` when using variable assumptions
   + Cleaned up output
+  + Added `put()` function. Like `let()` but prints `key=value`
 ''';
 
 false = False;
@@ -37,6 +38,13 @@ def let(**kwargs):
 
 def nlet(**kwargs):
     return sympy.N(let(**kwargs));
+
+def put(**kwargs):
+    for key in kwargs:
+      value = let(**{key:kwargs[key]});
+      prints(f'{key} = ', value);
+
+    return value;
 
 def delete(name):
     t = globals()[name];
