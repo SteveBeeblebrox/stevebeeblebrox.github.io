@@ -46,6 +46,9 @@ def put(**kwargs):
 
     return value;
 
+def br():
+    print();
+
 def delete(name):
     t = globals()[name];
     del globals()[name];
