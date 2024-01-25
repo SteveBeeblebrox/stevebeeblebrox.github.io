@@ -134,15 +134,21 @@ def veclen(v):
 def vecangle(v1,v2):
     return sympy.acos(v1.dot(v2)/(veclen(v1)*veclen(v2)))
 
-def cross(a,b):
-    return a.cross(b);
-
 def dot(a,b):
     return a.dot(b);
 
-def tensor(a,b):
-    from sympy.physics.quantum import TensorProduct
-    return Tensor(a,b);
+def chain(arg1,arg2,*varargs,func):
+    value = func(arg1, arg2);
+    for arg in varargs:
+        value = func(value, arg);
+    return value;
+
+def cross(*args):
+    return chain(*args,func=lambda a,b: a.cross(b));
+
+def tensor(*args):
+    from sympy.physics.quantum import TensorProduct;
+    return chain(*args,func=TensorProduct);
 
 def invsum(*args):
     return 1/sum([1/x for x in args]);
