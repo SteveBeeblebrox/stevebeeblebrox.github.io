@@ -21,10 +21,7 @@ MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
-  + Fixed `delete()`
-  + Fixed `sub()` when using variable assumptions
-  + Cleaned up output
-  + Added `put()` function. Like `let()` but prints `key=value`
+  + Improved `put()` function
 ''';
 
 false = False;
@@ -42,8 +39,7 @@ def nlet(**kwargs):
 def put(**kwargs):
     for key in kwargs:
       value = let(**{key:kwargs[key]});
-      prints(f'{key} = ', value);
-
+      prints(f'''{re.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', value);
     return value;
 
 def br():
