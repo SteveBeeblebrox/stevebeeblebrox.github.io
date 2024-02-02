@@ -16,7 +16,7 @@ import markdown;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.2';
+MLIB_VERSION='1.1.3';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
