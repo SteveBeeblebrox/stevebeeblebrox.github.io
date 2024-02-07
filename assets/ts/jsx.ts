@@ -96,6 +96,11 @@ namespace JSX {
         return new State<T>(t);
     }
 
+    function isWritable(object: object, property: PropertyKey): boolean {
+        const descriptor = Object.getOwnPropertyDescriptor(object,property);
+        return descriptor ? descriptor.writable != false && descriptor.set != undefined : property in object;
+    }
+
     export const createElement = (function() {
         function createElement<K extends keyof HTMLElementTagNameMap>(name: K, properties: Properties | null, ...children: Node[]): HTMLElementTagNameMap[K]
         function createElement(tag: ElementType, properties: Properties | null, ...children: (Node|HTMLCollection)[]): Node {
@@ -131,20 +136,21 @@ namespace JSX {
                 const prototype = Object.getPrototypeOf(element);
 
                 for(const [key, value] of Object.entries(properties ?? {})) {
-                    if(key === 'is') continue;
-                    if(key === 'style' && typeof value === 'object' && key in prototype)
+                    const [name,namespace] = key.split(':').reverse();
+                    if(name === 'is') continue;
+                    if(name === 'style' && typeof value === 'object' && name in prototype)
                         for(const [property, style] of (value instanceof Map ? value.entries() : Object.entries(value)))
-                            Reflect.set(Reflect.get(element, key), property, style);
-                    else if((key === 'classList' || key === 'classlist' && key in prototype) || key === 'class' && Array.isArray(value))
+                            Reflect.set(Reflect.get(element, name), property, style);
+                    else if((name === 'classList' || name === 'classlist' && name in prototype) || name === 'class' && Array.isArray(value))
                         element.classList.add(...value);
-                    else if(key in prototype && value instanceof StateBase)
-                        value.connectWeakCallback([element],(t,element)=>Reflect.set(element,key,t));
-                    else if(key in prototype)
-                        Reflect.set(element, key, value);
+                    else if(name in prototype && value instanceof StateBase)
+                        value.connectWeakCallback([element],(t,element)=>Reflect.set(element,name,t));
+                    else if(name in prototype && isWritable(prototype,name))
+                        Reflect.set(element, name, value);
                     else if(value instanceof StateBase)
-                        value.connectWeakCallback([element],(t,element)=>element.setAttribute(key,t));
+                        value.connectWeakCallback([element],(t,element)=>element.setAttribute(name,t));
                     else
-                        element.setAttribute(key, value);
+                        element.setAttribute(name, value);
                 }
             }
             
