@@ -140,7 +140,10 @@ namespace JSX {
                     if(name === 'is') continue;
                     if(name === 'style' && typeof value === 'object' && name in prototype)
                         for(const [property, style] of (value instanceof Map ? value.entries() : Object.entries(value)))
-                            Reflect.set(Reflect.get(element, name), property, style);
+                            if(typeof property === 'string' && property.startsWith('--'))
+                                element[name].setProperty(property,style);
+                            else
+                                Reflect.set(Reflect.get(element, name), property, style);
                     else if((name === 'classList' || name === 'classlist' && name in prototype) || name === 'class' && Array.isArray(value))
                         element.classList.add(...value);
                     else if(name in prototype && value instanceof StateBase)
