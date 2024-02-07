@@ -45,6 +45,8 @@ def HEAD(*, title: str = 'Document', appTitle: str = None, kcore: bool = True):
 
         <title>{title}</title>
 
+        <link rel="stylesheet" href="/assets/css/chromium.css">
+
         <style>html {{font-family: arial;}}</style>
 ''' + appTitleOverride + kitsuneScriptTag
 

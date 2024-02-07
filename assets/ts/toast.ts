@@ -22,27 +22,27 @@
  * SOFTWARE.
  */
 const toast = (function() {
-    const div = document.createElement('div');
+    const hostSpan = document.createElement('span');
     if(document.readyState === 'complete')
-      document.body.appendChild(div);
+      document.body.appendChild(hostSpan);
     else
-      window.addEventListener('load', () => document.body.appendChild(div));
+      window.addEventListener('load', () => document.body.appendChild(hostSpan));
     
-    const shadowRoot = div.attachShadow({mode: 'closed'});
+    const shadowRoot = hostSpan.attachShadow({mode: 'closed'});
     shadowRoot.appendChild(Object.assign(document.createElement('style'), {
         textContent: `
-            :host {
+            :host>span {
                 position: fixed;
                 top: 0;
                 left: 0;
                 height: 100%;
                 width: 100%;
-                display: flex;
+                display: flex !important;
                 justify-content: center;
                 font-family: Arial;
                 pointer-events: none;
             }
-            :host>span {
+            :host>span>span {
                 transition: opacity 0.15s linear;
                 align-self: flex-end;
                 margin-bottom: 2em;
@@ -56,7 +56,7 @@ const toast = (function() {
                 user-select: none;
                 opacity: 0;
             }
-            :host>span>span {
+            :host>span>span>span {
                 --max-lines: 4;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -68,10 +68,12 @@ const toast = (function() {
         `
     }));
 
-    const span = document.createElement('span');
-    const textSpan = document.createElement('span');
+    const span = document.createElement('span'); // Positioning box
+    const shapeSpan = document.createElement('span'); // Toast shape
+    const textSpan = document.createElement('span'); // Text box
 
-    span.appendChild(textSpan);
+    shapeSpan.appendChild(textSpan);
+    span.appendChild(shapeSpan)
     shadowRoot.appendChild(span);
     
     const durations = {
@@ -90,9 +92,9 @@ const toast = (function() {
                 clearTimeout(resetTimeout)
                 pendingToasts.push(new Promise(function(resolveCompleted) {
                     textSpan.textContent = text;
-                    span.style.opacity = '1.0';
+                    shapeSpan.style.opacity = '1.0';
                     setTimeout(function() {
-                        span.style.opacity = '0.0';
+                        shapeSpan.style.opacity = '0.0';
                         resetTimeout = setTimeout(function() {
                             textSpan.textContent = '';
                             resolveReturn();
