@@ -8,5 +8,5 @@ fi;
 rm "$("$WYVERN_DIR/pt$EXE_SUFFIX" "$BUILD_DIR/$VFS_SOURCE" ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
 
 CHROME_CSS="$BUILD_DIR/assets/css/chromium.css"
-echo -e '* {\n\tall: unset;\n}' > $CHROME_CSS
+echo -e '* {\n\tall: unset;\n}\n' > $CHROME_CSS
 curl https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/core/html/resources/html.css >> $CHROME_CSS
