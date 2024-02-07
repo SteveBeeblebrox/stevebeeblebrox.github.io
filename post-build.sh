@@ -6,3 +6,7 @@ if [ "$VFS_SOURCE" -nt "$VFS_OUT" ]; then
 fi;
 # remove broken file
 rm "$("$WYVERN_DIR/pt$EXE_SUFFIX" "$BUILD_DIR/$VFS_SOURCE" ts~js '(?<=\.m|\.)tsx?$~~js' '(?=\..?js.?$)~~.min')"
+
+CHROME_CSS="$BUILD_DIR/assets/css/chromium.css"
+echo -e '* {\n\tall: unset;\n}' > $CHROME_CSS
+curl https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/core/html/resources/html.css >> $CHROME_CSS
