@@ -31,6 +31,13 @@
                 color: white;
                 background-color: #5c5b5b;
                 user-select: none;
+                cursor: pointer;
+            }
+            button:hover {
+                filter: brightness(110%);
+            }
+            button:active {
+                transform: translate(0.1em, 0.1em);
             }
         </style>
         <script %{TS}>
