@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        %{HEAD(title='M41 Dashboard')}
+        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/assets/ts/random.ts"></script>
+        <style type="text/less">
+            body, html {
+                margin: 0;
+                height: 100%;
+            }
+            body {
+                display: flex;
+            }
+            main {
+                width: 100%;
+                margin: 0 1em;
+            }
+            li.note {
+                -webkit-user-drag: element;
+                list-style-type: none;
+                margin: 1em 0;
+                background-color: lightblue;
+                padding: 1em;
+                input {
+                    background: none;
+                    outline: none;
+                    font-weight: bold;
+                    color: black;
+                    border-bottom: 0.1em solid darkgray;
+                    width: 50%;
+                    font-size: 1.25em;
+                }
+                details {
+
+                }
+                textarea {
+                    width: 100%;
+                }
+                details > summary::marker {
+                    font-family: monospace;
+                    content: "o";
+                }
+                details[open] > summary::marker {
+                    font-family: monospace;
+                    content: "-";
+                }
+            }
+        </style>
+        <script %{TS}>
+            type Note = {
+                tags: string[],
+                summary: string,
+                details: string,
+                dateCreated: Date,
+                parent: never
+            }
+
+            function getTestNotes() {
+                return [
+                    {tags: [], summary: 'Item 1', details: 'Lorem ipsum', dateCreated: new Date()},
+                    {tags: [], summary: 'Item 2', details: 'Hello World', dateCreated: new Date()}
+                ]
+            }
+
+            function focusSelf() {
+                this.focus();
+                if(this instanceof HTMLTextAreaElement) {
+                    this.selectionStart = this.value.length;
+                }
+            }
+
+            function createNoteElement(note: Note): HTMLElement {
+                return <li class="note">
+                    <details>
+                        <summary>
+                            <input onmouseover={focusSelf} value={note.summary}/>
+                        </summary>
+                        <div>
+                            <textarea onmouseover={focusSelf}>{note.details}</textarea>
+                        </div>
+                    </details>
+                    <span>Created on: {note.dateCreated}</span>
+                </li>
+            }
+        </script>
+    </head>
+    <body>
+        <main>
+            <sortable-list>
+                <ul>
+                    <script %{TS}>
+                        $ctx = <>
+                            {getTestNotes().map(createNoteElement)}
+                        </>
+                    </script>
+                </ul>
+            </sortable-list>
+        </main>
+    </body>
+</html>
