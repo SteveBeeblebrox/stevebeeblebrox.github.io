@@ -43,8 +43,6 @@ def HEAD(*, title: str = 'Document', appTitle: str = None, kcore: bool = True):
         <meta name="msapplication-config" content="/assets/images/icons/browserconfig.xml">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="stylesheet" href="/assets/css/chromium.css">
-
         <title>{title}</title>
 
         <style>html {{font-family: arial;}}</style>
