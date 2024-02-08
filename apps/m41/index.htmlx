@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         %{HEAD(title='M41 Dashboard')}
-        <!-- <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/assets/ts/random.ts"></script> -->
+        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=bottom-right&margin=1.5&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/apps/m41/index.htmlx"></script>
         <style type="text/less">
             body, html {
                 margin: 0;
@@ -56,11 +56,14 @@
                     display: inline-flex;
                     gap: 0.5rem;
                     padding: 0.25rem 0.5rem;
+                    flex-wrap: wrap;
                     .tag {
                         font-family: monospace;
                         font-weight: bold;
                         min-width: 3ch;
-                        text-align: center;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
                         color: var(--tag-color, inherit);
                         background-color: var(--tag-background-color, hsl(255,100%,75%));
                         border-radius: 1rem;
@@ -74,6 +77,9 @@
                     gap: 1rem;
                     font-size: 1.5rem;
                     user-select: none;
+                    position: absolute;
+                    top: 0.25rem;
+                    right: 0.5rem;
                     .add {
                         color: var(--action-color);
                         font-weight: bold;
@@ -84,11 +90,7 @@
                         color: var(--action-color);
                         font-size: 1.25rem;
                     }
-                    position: absolute;
-                    top: 0.25rem;
-                    right: 0.5rem;
                 }
-
                 
                 div {
                     display: flex;
@@ -106,20 +108,78 @@
                     font-size: smaller;
                 }
             }
+
             .note:first-of-type .close {
                 display: none;
             }
-            
         </style>
         <script %{TS}>
+            const LS_KEY = `${window.location.pathname}:notes.json`;
+            let noteCounter = 0;
             type Note = {
+                id: number,
                 summary: string,
                 details: string,
-                dateCreated: Date,
-                parent: never
             }
 
-            function createTag(text: string) {
+            let notes;
+
+            async function loadNotesFromStorage() {
+                notes = new Map(JSON.parse(await GZipCompression.decompress(window.localStorage.getItem(LS_KEY))).map(note=>[note.id,note]));
+            }
+
+            async function saveNotesToStorage() {
+                window.localStorage.setItem(LS_KEY, await GZipCompression.compress(JSON.stringify([...notes.values()])));
+            }
+
+            function onCreateNewNote() {
+                const note = {
+                    id: Date.now() * 10 + (noteCounter++ % 10),
+                    summary: '',
+                    details: ''
+                }
+                $`sortable-list>ul`.insertBefore(createNoteHtml(note), this.$self`^.note`.nextSibling);
+                notes.set(note.id,note);
+                onNotesSorted();
+            }
+
+            function getNoteFromElementId(id: string): Element {
+                return notes.get(+id.split('-')[1]);
+            }
+
+            function onDeleteNote() {
+                const element = this.$self`^.note`;
+                const note = getNoteFromElementId(element.id);
+                if(!confirm(`Are you sure you want to delete '${note.summary || '<Untitled Note>'}'?`)) return;
+                
+                notes.delete(note.id);
+                element.remove();
+                saveNotesToStorage();
+            }
+
+            function onNotesSorted() {
+                notes = new Map($$`sortable-list>ul>li`.$map(function(element) {
+                    const note = getNoteFromElementId(element.id);
+                    return [note.id,note]
+                }));
+                saveNotesToStorage();
+            }
+
+            function onNoteUpdated() {
+                const element = this.$self`^.note`;
+                const note = getNoteFromElementId(element.id);
+                note.summary = element.$self`input`.value;
+                note.details = element.$self`textarea`.value;
+
+                element.$self`.taglist`.$children = getTags(note).map(createTagHtml);
+                saveNotesToStorage();
+            }
+
+            function getTags(note?: Note): string[] {
+                return note?.details?.split('\n').flatMap(l=>l.match(/^\s*#((?:\S+(?:,\s*)?)+)\s*$/)?.slice(1,2)?.[0]?.split(/,\s*/) ?? []).filter(x=>x) ?? [];
+            }
+
+            function createTagHtml(text: string) {
                 const colorOverrides = Object.assign(Object.create(null), {
                     bug: 'red',
                     todo: 'green',
@@ -131,11 +191,11 @@
                 const displayOverrides = Object.assign(Object.create(null), {
                     bug: 'BUG⚠️',
                     todo: '//TODO',
-                    wip:'//WIP'
+                    wip:'//WIP',
                     js: 'JS',
                     ts: 'TS',
-                    rust: 'Rust 🦀',
-                    python: 'Python 🐍'
+                    rust: 'Rust&nbsp;🦀',
+                    python: 'Python&nbsp;🐍'
                 });
 
                 function hashCode(str: string): number {
@@ -152,36 +212,21 @@
                 return <span data-raw-tag={text} class="tag" style={{'--tag-background-color': bgColor, '--tag-color': Colors.getContrastingLightDark(bgColor, 'var(----color-white)', 'var(----color-black)')}}>{displayOverrides[text] ?? text}</span>
             }
 
-
-            function getTestNotes() {
-                return [
-                    {summary: 'Aster Loop Fix', details: 'Add additional mutated check for each tokenizer to rerun\n\n#bug, todo\n#aster\n#js\n#ts', dateCreated: new Date()},
-                    {summary: 'Rich Text Details', details: 'Add ability to add links and maybe other markup in this textbox\n\n#extension', dateCreated: new Date()},
-                    {summary: 'SJS CLI', details: '#rust,js,ts,desktop,extension', dateCreated: new Date()},
-                    {summary: 'Item 4', details: '#python,wip', dateCreated: new Date()},
-                    {summary: 'Item 5', details: 'Hello World', dateCreated: new Date()},
-                    {summary: 'Item 6', details: 'Hello World', dateCreated: new Date()},
-                    {summary: 'Item 7', details: 'Hello World', dateCreated: new Date()},
-                    {summary: 'Item 8', details: 'Hello World', dateCreated: new Date()}
-                ]
-            }
-
-            function focusSelf() {
-                this.focus();
-                if(this instanceof HTMLTextAreaElement) {
-                    this.selectionStart = this.value.length;
+            function createNoteHtml(note: Note): HTMLElement {
+                function focusSelf() {
+                    this.focus();
+                    if(this instanceof HTMLTextAreaElement) {
+                        this.selectionStart = this.value.length;
+                    }
                 }
-            }
-
-            function createNote(note: Note): HTMLElement {
-                return <li class="note" onclick={
+                return <li class="note" id={'note-'+note.id} onclick={
                     function(event) {
                         if(event.target != this) return;
                         $$`details`.$filter(e=>e!=this.$self`details`).removeAttribute('open');
                         this.$self`details`.toggleAttribute('open');
                     }
-                }>
-                    <span class="controls"><span class="add">&#9547;</span> <span class="close">&#10006;</span></span>
+                } ondragend={onNotesSorted}>
+                    <span class="controls"><span class="add" onclick={onCreateNewNote}>&#9547;</span> <span class="close" onclick={onDeleteNote}>&#10006;</span></span>
                     <details onclick={
                         function(){
                             $$`details`.$filter(e=>e!=this).removeAttribute('open');
@@ -194,14 +239,14 @@
                         }
                     }>
                         <summary>
-                            <input onmouseover={focusSelf} value={note.summary}/>
-                            <span class="taglist">{note.details.split('\n').flatMap(l=>l.match(/^\s*#((?:\S+(?:,\s*)?)+)\s*$/)?.slice(1,2)?.[0]?.split(/,\s*/) ?? []).map(createTag)}</span>
+                            <input onmouseover={focusSelf} value={note.summary} placeholder="Note summary..." oninput={onNoteUpdated}/>
+                            <span class="taglist">{getTags(note).map(createTagHtml)}</span>
                         </summary>
                         <div>
-                            <textarea onmouseover={focusSelf} rows="8">{note.details}</textarea>
+                            <textarea onmouseover={focusSelf} rows="8" placeholder="Note Details..." oninput={onNoteUpdated}>{note.details}</textarea>
                         </div>
                     </details>
-                    <span class="date">Created on: {note.dateCreated.toISOString().split('T')[0]}</span>
+                    <span class="date">Created on: {new Date(Math.floor(note.id/10)).toISOString().split('T')[0]}</span>
                 </li>
             }
         </script>
@@ -213,11 +258,14 @@
         <main>
             <sortable-list>
                 <ul>
-                    <script %{TS}>
-                        $ctx = <>{getTestNotes().map(createNote)}</>;
-                    </script>
                 </ul>
             </sortable-list>
+            <script>
+                (async function() {
+                    await loadNotesFromStorage();
+                    $`sortable-list>ul`.$children = [...notes.values()].map(createNoteHtml);
+                })();
+            </script>
         </main>
     </body>
 </html>

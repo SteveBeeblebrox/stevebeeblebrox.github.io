@@ -49,8 +49,7 @@
                     a {
                         position: fixed;
                         --margin: ${options.margin ?? '1'}rem;
-                        top: var(--margin);
-                        right: var(--margin);
+                        max-height: fit-content;
                     }
                     .top-left, .upper-left {
                         top: var(--margin);
@@ -75,7 +74,7 @@
                         opacity: 85%;
                     }
                 `}</style>
-                <a title={`${toTitleCase(options.title?.toString?.() ?? 'View')} on GitHub`} href={`https://github.com/${options.href ?? ''}`} class={options.position ?? ''} target="_blank" rel="noopener"><img src={src.replace(/(?<=\/)js(?=\/)/, 'images').replace(/(?<=\/)githubshortcut(?:\.min)?\.js$/, 'github/mark-32.png')} alt="GitHub Mark"/></a>
+                <a title={`${toTitleCase(options.title?.toString?.() ?? 'View')} on GitHub`} href={`https://github.com/${options.href ?? ''}`} class={options.position ?? 'top-right'} target="_blank" rel="noopener"><img src={src.replace(/(?<=\/)js(?=\/)/, 'images').replace(/(?<=\/)githubshortcut(?:\.min)?\.js$/, 'github/mark-32.png')} alt="GitHub Mark"/></a>
             </Shadow>
         );
     })();
