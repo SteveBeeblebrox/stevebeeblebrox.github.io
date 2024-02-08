@@ -114,6 +114,8 @@
             }
         </style>
         <script %{TS}>
+            const baseTitle = document.title;
+
             const LS_KEY = `${window.location.pathname}:notes.json`;
             let noteCounter = 0;
             type Note = {
@@ -123,13 +125,16 @@
             }
 
             let notes;
+            const updateTitle = (baseTitle=>()=>document.title=`${baseTitle}${notes.size ? ` (${notes.size}` : ''})`)(document.title);
 
             async function loadNotesFromStorage() {
                 notes = new Map(JSON.parse(await GZipCompression.decompress(window.localStorage.getItem(LS_KEY))).map(note=>[note.id,note]));
+                updateTitle();
             }
 
             async function saveNotesToStorage() {
                 window.localStorage.setItem(LS_KEY, await GZipCompression.compress(JSON.stringify([...notes.values()])));
+                updateTitle();
             }
 
             function onCreateNewNote() {
