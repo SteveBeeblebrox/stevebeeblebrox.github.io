@@ -2,63 +2,167 @@
 <html lang="en">
     <head>
         %{HEAD(title='M41 Dashboard')}
-        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/assets/ts/random.ts"></script>
+        <!-- <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/assets/ts/random.ts"></script> -->
         <style type="text/less">
             body, html {
                 margin: 0;
                 height: 100%;
+                --color-white: #fafafa;
+                --color-black: #444;
+                background-color: lightgray;
+                color: var(--color-black);
             }
             body {
                 display: flex;
+                overflow-y: scroll;
             }
             main {
                 width: 100%;
-                margin: 0 1em;
+                margin: 0 1rem;
+            }
+            ul {
+                padding: 0;
+            }
+            @property --action-color {
+                syntax: "<color>";
+                inherits: false;
+                initial-value: darkgrey;
+            }
+            :focus,:hover,:active {
+                --action-color: dodgerblue;
             }
             li.note {
+                box-shadow:0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
+                cursor: pointer;
+                position: relative;
                 -webkit-user-drag: element;
                 list-style-type: none;
-                margin: 1em 0;
-                background-color: lightblue;
-                padding: 1em;
+                margin: 1rem 0;
+                padding: 1rem;
+                background-color: white;
+                border: 4px solid black;
                 input {
+                    text-overflow: ellipsis;
                     background: none;
                     outline: none;
                     font-weight: bold;
                     color: black;
-                    border-bottom: 0.1em solid darkgray;
+                    border-bottom: 0.15rem solid var(--action-color);
                     width: 50%;
-                    font-size: 1.25em;
+                    font-size: 1.25rem;
                 }
-                details {
 
+                .taglist {
+                    display: inline-flex;
+                    gap: 0.5rem;
+                    padding: 0.25rem 0.5rem;
+                    .tag {
+                        font-family: monospace;
+                        font-weight: bold;
+                        min-width: 3ch;
+                        text-align: center;
+                        color: var(--tag-color, inherit);
+                        background-color: var(--tag-background-color, hsl(255,100%,75%));
+                        border-radius: 1rem;
+                        padding: 0.5rem;
+                        user-select: none;
+                    }
                 }
-                textarea {
-                    width: 100%;
+                
+                .controls {
+                    display: flex;
+                    gap: 1rem;
+                    font-size: 1.5rem;
+                    user-select: none;
+                    .add {
+                        color: var(--action-color);
+                        font-weight: bold;
+                        font-size: 1rem;
+                        vertical-align: text-bottom;
+                    }
+                    .close {
+                        color: var(--action-color);
+                        font-size: 1.25rem;
+                    }
+                    position: absolute;
+                    top: 0.25rem;
+                    right: 0.5rem;
                 }
-                details > summary::marker {
-                    font-family: monospace;
-                    content: "o";
+
+                
+                div {
+                    display: flex;
+                    textarea {
+                        margin: 0.5rem 0;
+                        padding: 0.5rem;
+                        outline: none;
+                        flex-grow: 1;
+                        border: 0.15rem solid var(--action-color);
+                        border-radius: 1rem;
+                    }
                 }
-                details[open] > summary::marker {
-                    font-family: monospace;
-                    content: "-";
+                
+                .date {
+                    font-size: smaller;
                 }
             }
+            .note:first-of-type .close {
+                display: none;
+            }
+            
         </style>
         <script %{TS}>
             type Note = {
-                tags: string[],
                 summary: string,
                 details: string,
                 dateCreated: Date,
                 parent: never
             }
 
+            function createTag(text: string) {
+                const colorOverrides = Object.assign(Object.create(null), {
+                    bug: 'red',
+                    todo: 'green',
+                    js: 'goldenrod',
+                    ts: 'dodgerblue',
+                    rust: 'orange',
+                    python: 'brown'
+                });
+                const displayOverrides = Object.assign(Object.create(null), {
+                    bug: 'BUG⚠️',
+                    todo: '//TODO',
+                    wip:'//WIP'
+                    js: 'JS',
+                    ts: 'TS',
+                    rust: 'Rust 🦀',
+                    python: 'Python 🐍'
+                });
+
+                function hashCode(str: string): number {
+                    let hash = 0;
+                    for (let i = 0; i < str.length; i++)
+                        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                    return hash;
+                }
+
+                text=text.toLowerCase();
+                const saturation = 90, lightness = 70;
+                let bgColor = `hsl(${Colors.convertTo(colorOverrides[text] ?? `hsl(${(((hashCode(text)+17) % 180)*2)}, ${saturation}%, ${lightness}%)`, 'hsla-array')[0]}, ${saturation}%, ${lightness}%)`
+
+                return <span data-raw-tag={text} class="tag" style={{'--tag-background-color': bgColor, '--tag-color': Colors.getContrastingLightDark(bgColor, 'var(----color-white)', 'var(----color-black)')}}>{displayOverrides[text] ?? text}</span>
+            }
+
+
             function getTestNotes() {
                 return [
-                    {tags: [], summary: 'Item 1', details: 'Lorem ipsum', dateCreated: new Date()},
-                    {tags: [], summary: 'Item 2', details: 'Hello World', dateCreated: new Date()}
+                    {summary: 'Aster Loop Fix', details: 'Add additional mutated check for each tokenizer to rerun\n\n#bug, todo\n#aster\n#js\n#ts', dateCreated: new Date()},
+                    {summary: 'Rich Text Details', details: 'Add ability to add links and maybe other markup in this textbox\n\n#extension', dateCreated: new Date()},
+                    {summary: 'SJS CLI', details: '#rust,js,ts,desktop,extension', dateCreated: new Date()},
+                    {summary: 'Item 4', details: '#python,wip', dateCreated: new Date()},
+                    {summary: 'Item 5', details: 'Hello World', dateCreated: new Date()},
+                    {summary: 'Item 6', details: 'Hello World', dateCreated: new Date()},
+                    {summary: 'Item 7', details: 'Hello World', dateCreated: new Date()},
+                    {summary: 'Item 8', details: 'Hello World', dateCreated: new Date()}
                 ]
             }
 
@@ -69,19 +173,40 @@
                 }
             }
 
-            function createNoteElement(note: Note): HTMLElement {
-                return <li class="note">
-                    <details>
+            function createNote(note: Note): HTMLElement {
+                return <li class="note" onclick={
+                    function(event) {
+                        if(event.target != this) return;
+                        $$`details`.$filter(e=>e!=this.$self`details`).removeAttribute('open');
+                        this.$self`details`.toggleAttribute('open');
+                    }
+                }>
+                    <span class="controls"><span class="add">&#9547;</span> <span class="close">&#10006;</span></span>
+                    <details onclick={
+                        function(){
+                            $$`details`.$filter(e=>e!=this).removeAttribute('open');
+                        }
+                    } onkeyup={
+                        function(event) {
+                            if('value' in document.activeElement && event.key == ' ') {
+                                event.preventDefault();
+                            }
+                        }
+                    }>
                         <summary>
                             <input onmouseover={focusSelf} value={note.summary}/>
+                            <span class="taglist">{note.details.split('\n').flatMap(l=>l.match(/^\s*#((?:\S+(?:,\s*)?)+)\s*$/)?.slice(1,2)?.[0]?.split(/,\s*/) ?? []).map(createTag)}</span>
                         </summary>
                         <div>
-                            <textarea onmouseover={focusSelf}>{note.details}</textarea>
+                            <textarea onmouseover={focusSelf} rows="8">{note.details}</textarea>
                         </div>
                     </details>
-                    <span>Created on: {note.dateCreated}</span>
+                    <span class="date">Created on: {note.dateCreated.toISOString().split('T')[0]}</span>
                 </li>
             }
+        </script>
+        <script>
+            new EventSource('https://ntfy.sh/19wZsBKfeGtNnpNQ/sse').onmessage = () => window.location.reload();
         </script>
     </head>
     <body>
@@ -89,9 +214,7 @@
             <sortable-list>
                 <ul>
                     <script %{TS}>
-                        $ctx = <>
-                            {getTestNotes().map(createNoteElement)}
-                        </>
+                        $ctx = <>{getTestNotes().map(createNote)}</>;
                     </script>
                 </ul>
             </sortable-list>
