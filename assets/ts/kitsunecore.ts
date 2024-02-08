@@ -4,6 +4,7 @@
 ///#include "chime.ts"
 ///#include "keybinds.ts"
 ///#include "random.ts"
+///#include "colors.ts"
 
 // === String Utils === //
 ///#include "base64.ts"
