@@ -128,7 +128,7 @@
             const updateTitle = (baseTitle=>()=>document.title=`${baseTitle}${notes.size ? ` (${notes.size}` : ''})`)(document.title);
 
             async function loadNotesFromStorage() {
-                notes = new Map(JSON.parse(await GZipCompression.decompress(window.localStorage.getItem(LS_KEY))).map(note=>[note.id,note]));
+                notes = new Map(JSON.parse(await GZipCompression.decompress(window.localStorage.getItem(LS_KEY) ?? await GZipCompression.compress(JSON.stringify({id:Date.now()*10,summary:'Hello World!',details:'Lorem Ipsum\n\n#todo'})))).map(note=>[note.id,note]));
                 updateTitle();
             }
 
