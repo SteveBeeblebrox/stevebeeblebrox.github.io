@@ -16,12 +16,13 @@ import markdown;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.3';
+MLIB_VERSION='1.1.4';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
-  + Improved `put()` function
+  + Added `nput()` function
+  + Added `clamp(value,minv,maxv)` function
 ''';
 
 false = False;
@@ -41,6 +42,12 @@ def put(**kwargs):
       value = let(**{key:kwargs[key]});
       prints(f'''{re.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', value);
     return value;
+
+def nput(**kwargs):
+    for key in kwargs:
+      value = let(**{key:kwargs[key]});
+      prints(f'''{re.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', sympy.N(value));
+    return sympy.N(value);
 
 def br():
     print();
@@ -202,7 +209,10 @@ def uvecs():
     return [Vec(1,0,0), Vec(0,1,0), Vec(0,0,1)];
 
 def strcheck(str):
-    return bool(s and s.strip())
+    return bool(s and s.strip());
+
+def clamp(value,minv,maxv):
+    return max(min(value, maxv), minv);
 
 def prints(*args, simplify = False):
     display(ipy.display.HTML('<style>span[style="display: block; text-align: center;"] {text-align: left !important;}<style>'));
