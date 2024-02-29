@@ -1,3 +1,4 @@
+/// #warning no header
 namespace KitsuneLang {
     export namespace Internals {}
     // @ts-expect-error
@@ -6,23 +7,22 @@ namespace KitsuneLang {
     export const VERSION = null;
 }
 
-
 /// #if KITSUNE_LANG_LEVEL >= 0
-/// #include "levels/level0/index.ts"
+/// #include "levels/0/index.ts"
 /// #endif
 
 /// #if KITSUNE_LANG_LEVEL >= 1
-/// #include "levels/level1/index.ts"
+/// #include "levels/1/index.ts"
 /// #endif
 
 /// #if KITSUNE_LANG_LEVEL >= 2
-/// #include "levels/level2/index.ts"
+/// #include "levels/2/index.ts"
 /// #endif
 
 /// #if KITSUNE_LANG_LEVEL >= 3
-/// #include "levels/level3/index.ts"
+/// #include "levels/3/index.ts"
 /// #endif
 
 /// #if KITSUNE_LANG_LEVEL >= 4
-/// #include "levels/level4/index.ts"
+/// #include "levels/4/index.ts"
 /// #endif

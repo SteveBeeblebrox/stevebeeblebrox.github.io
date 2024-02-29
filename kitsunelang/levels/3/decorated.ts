@@ -29,8 +29,5 @@ namespace KITSUNE_NAMESPACE {
     }
 }
 
-declare function constfn<ARGS extends unknown[]>(...args: ARGS): (...args:ARGS)=>unknown;
-///#define constfn class extends KitsuneLang.Internals.Level3.ConstFuncClass{}).__decorate__(function
-
-declare function fn<ARGS extends unknown[]>(...args: ARGS): (...args:ARGS)=>unknown;
-///#define fn function
+declare function decorated<ARGS extends unknown[]>(...args: ARGS): (...args:ARGS)=>unknown;
+///#define decorated class extends KitsuneLang.Internals.Level3.ConstFuncClass{}).__decorate__(

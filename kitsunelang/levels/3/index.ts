@@ -4,6 +4,6 @@
 
 // Level 3: Macro syntax extensions, minimal compatibility, not typed (Requires -p flag)
 
-/// #include "constfn.ts"
+/// #include "decorated.ts"
 
 namespace KITSUNE_NAMESPACE {}

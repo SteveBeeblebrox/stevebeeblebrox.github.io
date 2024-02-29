@@ -9,9 +9,8 @@
 /// #include "ispromise.ts"
 /// #include "throws.ts"
 /// #include "importscript.ts"
-/// #warning decorator factory lazy symbol handeling
 /// #include "decoratorfactory.ts"
 /// #include "deprecated.ts"
-/// #warning tryOr, mapping?
+/// #warning tryOr, mapping, async constfn?
 
 namespace KITSUNE_NAMESPACE {}

@@ -3,7 +3,7 @@
 
 const x = (
     @deprecated('warn')
-    constfn f(a) {
+    decorated async function f(a) {
         console.log(`${strc(a)}=${a}`)
     }
 );
@@ -12,4 +12,4 @@ const x = (
 console.log(KitsuneLang.LEVEL)
 
 
-x(1)
+console.log(x(1))
