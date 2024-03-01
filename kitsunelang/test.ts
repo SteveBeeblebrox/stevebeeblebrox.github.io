@@ -9,6 +9,14 @@ const x = (
 );
 
 
+/** /
+const z = 
+    @deprecated('warn')
+    decorated (async function f(a) {
+        console.log(`${strc(a)}=${a}`)
+    });
+/**/
+
 console.log(KitsuneLang.LEVEL)
 
 
