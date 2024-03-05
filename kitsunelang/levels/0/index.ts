@@ -14,5 +14,6 @@
 /// #include "deprecated.ts"
 /// #include "opaque.ts"
 /// #warning tryOr, mapping, async constfn?
+/// #warning in place set methods?
 
 namespace KITSUNE_NAMESPACE {}
