@@ -1,12 +1,12 @@
-type ConstFunctionDecoratorContext = {
-    readonly kind: 'constfn',
+type FunctionDecoratorContext = {
+    readonly kind: 'function',
     readonly name: string,
     metadata: DecoratorMetadata,
     readonly addInitializer: (initializer: (this: Function)=>void)=>void
 }
 
 namespace KITSUNE_NAMESPACE {
-    type QueuedDecorator<Args extends Array<unknown>> = [decorator: (f: Function,context: ConstFunctionDecoratorContext,...args: Args)=>Function|void, args:Args];
+    type QueuedDecorator<Args extends Array<unknown>> = [decorator: (f: Function,context: FunctionDecoratorContext,...args: Args)=>Function|void, args:Args];
     export class ConstFuncClass {
         static #decorators: QueuedDecorator<unknown[]>[] = [];
         static [KitsuneLang.Internals.Level0.addLazyDecoratorSymbol](...decorator: QueuedDecorator<unknown[]>) {
@@ -14,8 +14,8 @@ namespace KITSUNE_NAMESPACE {
         }
         static __decorate__(f: Function) {
             const initializerList: (()=>void)[] = [];
-            const context: ConstFunctionDecoratorContext = {
-                kind: 'constfn',
+            const context: FunctionDecoratorContext = {
+                kind: 'function',
                 name: f.name,
                 metadata: undefined,
                 addInitializer: initializerList.push.bind(initializerList)
@@ -30,4 +30,4 @@ namespace KITSUNE_NAMESPACE {
 }
 
 declare function decorated<ARGS extends unknown[]>(...args: ARGS): (...args:ARGS)=>unknown;
-///#define decorated class extends KitsuneLang.Internals.Level3.ConstFuncClass{}).__decorate__(
+///#define decorated class extends KitsuneLang.Internals.Level3.ConstFuncClass{}.__decorate__
