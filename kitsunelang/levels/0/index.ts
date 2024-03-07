@@ -13,6 +13,7 @@
 /// #include "decoratorfactory.ts"
 /// #include "deprecated.ts"
 /// #include "opaque.ts"
+/// #include "tree.ts"
 /// #warning tryOr, mapping, async constfn?
 /// #warning in place set methods?
 
