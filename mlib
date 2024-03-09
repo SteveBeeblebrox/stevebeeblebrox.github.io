@@ -16,13 +16,14 @@ import markdown;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.4';
+MLIB_VERSION='1.1.5';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
   + Added `nput()` function
   + Added `clamp(value,minv,maxv)` function
+  + New pattern matching funcitons (`extract(pattern,expr)` and `unknown(name)`)
 ''';
 
 false = False;
@@ -93,6 +94,20 @@ def Vec(*args,theta=None,mag=None):
         return sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals(), locals={}) if c.startswith('@') else globals()[c]))] for c in re.split(r' +', args[0].replace('−','-').replace('−','-').strip())]);
     else:
         return sympy.Matrix([[x] for x in args]);
+
+def unknown(name):
+    if not name.startswith('_'):
+        raise ValueError('Unknown Symbol names must start with a \'_\'');
+    globals()[name] = sympy.Wild(name);
+    return globals()[name];
+
+def extract(pattern, expr):
+    r=pattern.matches(expr);
+    if r is None:
+        raise Exception('Could not match pattern!');
+    for unknown, value in r.items():
+        globals()[unknown.name[1:]] = value;
+    return r;
 
 class Vlt(numpy.ndarray):
     def __new__(cls, *args):
