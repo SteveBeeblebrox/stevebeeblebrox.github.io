@@ -13,6 +13,7 @@ import random;
 import platform;
 import requests;
 import markdown;
+import itertools;
 
 #from forbiddenfruit import curse;
 
