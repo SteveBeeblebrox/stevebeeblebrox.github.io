@@ -17,13 +17,14 @@ import itertools;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.5';
+MLIB_VERSION='1.1.6';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
   + Added `nput()` function
   + Added `clamp(value,minv,maxv)` function
+  + Added default import for `itertools`
   + New pattern matching funcitons (`extract(pattern,expr)` and `unknown(name)`)
 ''';
 
