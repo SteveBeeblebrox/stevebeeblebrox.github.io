@@ -17,12 +17,13 @@ import itertools;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.6';
+MLIB_VERSION='1.1.7';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
   + Added `nput()` function
+  + Added `ZeroMtx(m,n)`
   + Added `clamp(value,minv,maxv)` function
   + Added default import for `itertools`
   + New pattern matching funcitons (`extract(pattern,expr)` and `unknown(name)`)
@@ -125,10 +126,13 @@ def Mtx(str,globals=globals(), locals=locals()):
     return sympy.Matrix() if str.strip() == '' else sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals, locals=locals) if c.startswith('@') else locals[c])) for c in re.split(r' +', r.strip())] for r in re.split(r'\n|;',str.replace('−','-').strip()) if not r.startswith('#')])
 
 def IdentMtx(n):
-    return sympy.Matrix([([ (row == column) + 0 for column in range(n)]) for row in range(n)]);
+    return sympy.Matrix([([(row == column) + 0 for column in range(n)]) for row in range(n)]);
 
 def RandMtx(m, n, min = 0, max = 9):
-    return sympy.Matrix([([ random.randint(min, max) for column in range(n)]) for row in range(m)]);
+    return sympy.Matrix([([random.randint(min, max) for column in range(n)]) for row in range(m)]);
+
+def ZeroMtx(m, n=None):
+    return sympy.Matrix([([0 for column in range(m if n is None else n)]) for row in range(m)]);
 
 def error(arg):
     print("\x1b[1;31m{}\x1b[0;30m".format(arg));
