@@ -22,7 +22,6 @@ MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
-  + Added `nput()` function
   + Added `ZeroMtx(m,n)`
   + Added `clamp(value,minv,maxv)` function
   + Added default import for `itertools`
