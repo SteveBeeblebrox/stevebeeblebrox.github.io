@@ -14,17 +14,18 @@ import platform;
 import requests;
 import markdown;
 import itertools;
+from collections import deque;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.7';
+MLIB_VERSION='1.1.8';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
   + Added `ZeroMtx(m,n)`
   + Added `clamp(value,minv,maxv)` function
-  + Added default import for `itertools`
+  + Added default import for `itertools` and `deque`
   + New pattern matching funcitons (`extract(pattern,expr)` and `unknown(name)`)
 ''';
 
