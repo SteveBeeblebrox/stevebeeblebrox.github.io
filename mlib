@@ -7,7 +7,7 @@ import numpy as num;
 import numpy;
 import IPython as ipy;
 import matplotlib.pyplot as plt;
-import re;
+import re as regex;
 import json;
 import random;
 import platform;
@@ -18,7 +18,7 @@ from collections import deque;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.8';
+MLIB_VERSION='1.1.9';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
@@ -44,13 +44,13 @@ def nlet(**kwargs):
 def put(**kwargs):
     for key in kwargs:
       value = let(**{key:kwargs[key]});
-      prints(f'''{re.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', value);
+      prints(f'''{regex.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', value);
     return value;
 
 def nput(**kwargs):
     for key in kwargs:
       value = let(**{key:kwargs[key]});
-      prints(f'''{re.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', sympy.N(value));
+      prints(f'''{regex.sub(r'(?<=.)_(?P<sub>.*)',lambda match: '_{%s}' % match.group('sub').replace('_', ' '),key)} = ''', sympy.N(value));
     return sympy.N(value);
 
 def br():
@@ -76,7 +76,7 @@ def func(name,*symbols):
     return globals()[name];
 
 def varlist(*args,**kwargs):
-    return [var(name.strip(),**kwargs) for names in args for name in re.split(r'[, ]+', names.strip())];
+    return [var(name.strip(),**kwargs) for names in args for name in regex.split(r'[, ]+', names.strip())];
 
 def try_or(func, fallback=None, expected_exc=(Exception,)):
     try:
@@ -94,7 +94,7 @@ def Vec(*args,theta=None,mag=None):
             raise ValueError('theta and mag must be given together instead of *args');
     
     if isinstance(args[0],str):
-        return sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals(), locals={}) if c.startswith('@') else globals()[c]))] for c in re.split(r' +', args[0].replace('−','-').replace('−','-').strip())]);
+        return sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals(), locals={}) if c.startswith('@') else globals()[c]))] for c in regex.split(r' +', args[0].replace('−','-').replace('−','-').strip())]);
     else:
         return sympy.Matrix([[x] for x in args]);
 
@@ -123,7 +123,7 @@ class Vlt(numpy.ndarray):
         return super().tolist().__repr__();
 
 def Mtx(str,globals=globals(), locals=locals()):
-    return sympy.Matrix() if str.strip() == '' else sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals, locals=locals) if c.startswith('@') else locals[c])) for c in re.split(r' +', r.strip())] for r in re.split(r'\n|;',str.replace('−','-').strip()) if not r.startswith('#')])
+    return sympy.Matrix() if str.strip() == '' else sympy.Matrix([[try_or(lambda: int(c), lambda: try_or(lambda: float(c), lambda: mexpr(c[1:], globals=globals, locals=locals) if c.startswith('@') else locals[c])) for c in regex.split(r' +', r.strip())] for r in regex.split(r'\n|;',str.replace('−','-').strip()) if not r.startswith('#')])
 
 def IdentMtx(n):
     return sympy.Matrix([([(row == column) + 0 for column in range(n)]) for row in range(n)]);
