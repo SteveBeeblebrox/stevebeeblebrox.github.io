@@ -6,8 +6,11 @@ TODO:
 JSON decycle
 types
 
+storage manager
+
 Eventual stuff (new projects):
-spl, qr codes, zip
+sql, qr codes, zip
+service worker
 
 Reworks:
 RENAME
