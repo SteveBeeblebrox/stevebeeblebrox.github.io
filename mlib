@@ -26,7 +26,7 @@ Changelog:
   + Added `ZeroMtx(m,n)`
   + Added `clamp(value,minv,maxv)` function
   + Added default import for `itertools` and `deque`
-  + New pattern matching funcitons (`extract(pattern,expr)` and `unknown(name)`)
+  + New pattern matching functions (`extract(pattern,expr)` and `unknown(name)`)
 ''';
 
 false = False;
