@@ -18,7 +18,7 @@ from collections import deque;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.1.9';
+MLIB_VERSION='1.2.0';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
@@ -27,6 +27,7 @@ Changelog:
   + Added `clamp(value,minv,maxv)` function
   + Added default import for `itertools` and `deque`
   + New pattern matching functions (`extract(pattern,expr)` and `unknown(name)`)
+  + Vec update
 ''';
 
 false = False;
@@ -84,12 +85,25 @@ def try_or(func, fallback=None, expected_exc=(Exception,)):
     except expected_exc:
         return fallback() if fallback is not None else None;
 
-# For an angle vec with z, use Vec(*Vec(theta=,mag=),0)
-def Vec(*args,theta=None,mag=None):
-    [theta_given,mag_given]=[theta!=None,mag!=None];
-    if theta_given or mag_given:
-        if theta_given and mag_given and len(args) == 0:
-            return mag*Vec(sympy.cos(theta),sympy.sin(theta));
+# Note, phi is z angle
+def RVec(r,theta,phi=None):
+    if phi is not None:
+        return Vec(
+            r*sympy.sin(phi)*sympy.cos(theta),
+            r*sympy.sin(phi)*sympy.sin(theta),
+            r*sympy.cos(phi),
+        );
+    else:
+        return Vec(
+            r*sympy.cos(theta),
+            r*sympy.sin(theta)
+        );
+
+# To expand a Vec, use Vec(*Vec(...),0)
+def Vec(*args,r=None,theta=None,phi=None):
+    if r is not None or theta is not None or phi is not None:
+        if r is not None and theta is not None and len(args) == 0:
+            return RVec(r,theta,phi);
         else:
             raise ValueError('theta and mag must be given together instead of *args');
     
