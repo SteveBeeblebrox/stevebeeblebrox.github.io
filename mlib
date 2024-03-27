@@ -184,6 +184,9 @@ def Pzr(arg0,theta=None,/,*,t=var('t',__lookup=True)):
         r=arg0;
     return RVec(r,rad(deg=theta));
 
+def pzrlen(phasor):
+    return sympy.sqrt(phasor[0]**2+phasor[1]**2);
+
 def pzrangle(phasor):
     return deg(rad=sympy.atan2(*phasor[::-1])); # atan(y,x)
 
