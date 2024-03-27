@@ -176,10 +176,10 @@ def Pzr(arg0,theta=None,/,*,t=var('t',__lookup=True)):
         p2=(r*sympy.sin(w*t+theta));
         try:
             rt=p1.matches(expr);
-            r,theta=[rt[r],rt[theta]-90];
+            r,theta=[rt[r],rt[theta]];
         except:
             rt=p2.matches(expr);
-            r,theta=[rt[r],rt[theta]];
+            r,theta=[rt[r],rt[theta]-90];
     else:
         r=arg0;
     return RVec(r,rad(deg=theta));
