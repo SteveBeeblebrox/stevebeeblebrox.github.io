@@ -166,7 +166,7 @@ def execexpr(script, globals=globals(), locals=locals()):
         return exec(script, globals, locals)                
 
 # Phazor
-def Pzr(arg0,theta=None,/,*,t=var('t',__lookup=True)):
+def Pzr(arg0=1,theta=0,/,*,t=var('t',__lookup=True)):
     if isinstance(arg0, sympy.core.Expr):
         expr=arg0;
         w=sympy.Wild('w');
