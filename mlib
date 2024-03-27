@@ -18,16 +18,15 @@ from collections import deque;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.2.0';
+MLIB_VERSION='1.2.1';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
 Changelog:
-  + Added `ZeroMtx(m,n)`
   + Added `clamp(value,minv,maxv)` function
   + Added default import for `itertools` and `deque`
   + New pattern matching functions (`extract(pattern,expr)` and `unknown(name)`)
-  + Vec update
+  + Added `Pzr(r,theta)` phasor and utils
 ''';
 
 false = False;
@@ -165,6 +164,28 @@ def execexpr(script, globals=globals(), locals=locals()):
         return eval(compile(ast.Expression(body=stmts[-1].value), filename="<ast>", mode="eval"), globals, locals)
     else:
         return exec(script, globals, locals)                
+
+# Phazor
+def Pzr(arg0,theta=None,/,*,t=var('t',__lookup=True)):
+    if isinstance(arg0, sympy.core.Expr):
+        expr=arg0;
+        w=sympy.Wild('w');
+        theta=sympy.Wild('theta');
+        r=sympy.Wild('r');
+        p1=(r*sympy.cos(w*t+theta));
+        p2=(r*sympy.sin(w*t+theta));
+        try:
+            rt=p1.matches(expr);
+            r,theta=[rt[r],rt[theta]-90];
+        except:
+            rt=p2.matches(expr);
+            r,theta=[rt[r],rt[theta]];
+    else:
+        r=arg0;
+    return RVec(r,rad(deg=theta));
+
+def pzrangle(phasor):
+    return deg(rad=sympy.atan2(*phasor[::-1])); # atan(y,x)
 
 def veclen(v):
     return sympy.sqrt(v.dot(v));
