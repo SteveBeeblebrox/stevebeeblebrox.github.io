@@ -169,8 +169,11 @@ def execexpr(script, globals=globals(), locals=locals()):
 def veclen(v):
     return sympy.sqrt(v.dot(v));
 
-def vecangle(v1,v2):
-    return sympy.acos(v1.dot(v2)/(veclen(v1)*veclen(v2)))
+def vecangle(v1,v2=None):
+    if len(v1) == 2:
+        return sympy.atan2(*v1[::-1]);
+    else:
+        return sympy.acos(v1.dot(v2)/(veclen(v1)*veclen(v2)));
 
 def dot(a,b):
     return a.dot(b);
