@@ -178,6 +178,9 @@ def pzrangle(phasor):
 def ri(arg0, arg1=None,/):
     return [sympy.re(arg0), sympy.im(arg0)] if arg1 is None else arg0 + sympy.I * arg1;
 
+from sympy.physics.quantum.dagger import Dagger as dag;
+from sympy.functions import conjugate as con;
+
 def veclen(v):
     return sympy.sqrt(v.dot(v));
 
