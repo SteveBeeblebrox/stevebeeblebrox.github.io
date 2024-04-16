@@ -8,6 +8,7 @@ import numpy;
 import IPython as ipy;
 import matplotlib.pyplot as plt;
 import re as regex;
+import math;
 import json;
 import random;
 import platform;
