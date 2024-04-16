@@ -221,7 +221,7 @@ def mexpr(*strs, globals=globals(), locals=locals()):
 
 #curse(int, '__div__', lambda self, other: sympy.S(self)/other);
 
-i = sympy.I
+j = i = sympy.I
 e = sympy.E
 infinity=sympy.oo
 
