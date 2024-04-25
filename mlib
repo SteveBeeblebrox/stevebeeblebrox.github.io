@@ -261,7 +261,7 @@ fyzx.c=1/sqrt(fyzx.mu0*fyzx.ep0)
 def uvecs():
     return [Vec(1,0,0), Vec(0,1,0), Vec(0,0,1)];
 
-def strcheck(str./):
+def strcheck(str,/):
     return bool(s and s.strip());
 
 def isclose(a,b,/,**kwargs):
