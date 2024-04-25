@@ -19,7 +19,7 @@ from collections import deque;
 
 #from forbiddenfruit import curse;
 
-MLIB_VERSION='1.3.2';
+MLIB_VERSION='1.3.3';
 MLIB_MOTD=f'''
 **Welcome to MLib version {MLIB_VERSION}!**
 
@@ -181,7 +181,7 @@ def ri(arg0, arg1=None,/):
 from sympy.physics.quantum.dagger import Dagger as dag;
 from sympy.functions import conjugate as con;
 
-def veclen(v):
+def veclen(v,/):
     return sympy.sqrt(v.dot(v));
 
 def vecangle(v1,v2=None):
@@ -261,10 +261,10 @@ fyzx.c=1/sqrt(fyzx.mu0*fyzx.ep0)
 def uvecs():
     return [Vec(1,0,0), Vec(0,1,0), Vec(0,0,1)];
 
-def strcheck(str):
+def strcheck(str./):
     return bool(s and s.strip());
 
-def isclose(a,b,**kwargs):
+def isclose(a,b,/,**kwargs):
     return math.isclose(sympy.re(a),sympy.re(b),**kwargs) and math.isclose(sympy.im(a),sympy.im(b),**kwargs);
 
 def clamp(value,minv,maxv):
