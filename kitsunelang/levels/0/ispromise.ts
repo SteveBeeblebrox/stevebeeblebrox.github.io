@@ -1,3 +1,4 @@
+///#pragma once
 declare interface PromiseConstructor {
     isPromise(arg: any): arg is Promise<any>;
 }

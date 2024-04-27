@@ -1,3 +1,4 @@
+///#pragma once
 const importScript = async function importScript(src: string): Promise<unknown> {
     const result = await fetch(src);
     if(!result.ok) {

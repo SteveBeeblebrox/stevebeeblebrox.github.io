@@ -1,3 +1,4 @@
+///#pragma once
 ; (function() {
     function isPromiseProperty(property: PropertyKey) {
         return Object.getOwnPropertyNames(Promise.prototype).includes(property as string) || property === Symbol.toStringTag;

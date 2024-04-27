@@ -1,3 +1,4 @@
+///#pragma once
 declare interface TreeArrayMethods<T> {
     push: Array<T>['push'];
     pop: Array<T>['pop'];
@@ -19,7 +20,7 @@ type StrayTree<T, K extends Tree<T> = Tree<T>> = K & { parent: undefined };
 
 class Tree<T> implements TreeArrayMethods<Tree<T>> {
     private readonly children: SubTree<T, typeof this>[] = [];
-    #parent: typeof this | undefined = undefined;
+    private #parent: typeof this | undefined = undefined;
     constructor(
         public value: T
     ) { }
@@ -28,20 +29,20 @@ class Tree<T> implements TreeArrayMethods<Tree<T>> {
         return this.#parent;
     }
 
-    #disown(other: undefined): undefined;
-    #disown(other: typeof this): StrayTree<T, typeof this>;
-    #disown(other: typeof this | undefined): StrayTree<T, typeof this> | undefined;
-    #disown(other: typeof this | undefined): StrayTree<T, typeof this> | undefined {
+    private #disown(other: undefined): undefined;
+    private #disown(other: typeof this): StrayTree<T, typeof this>;
+    private #disown(other: typeof this | undefined): StrayTree<T, typeof this> | undefined;
+    private #disown(other: typeof this | undefined): StrayTree<T, typeof this> | undefined {
         if (other !== undefined) {
             other.#parent = undefined;
         }
         return other as StrayTree<T, typeof this> | undefined;
     }
 
-    #own(other: undefined): never;
-    #own(other: Tree<T>): SubTree<T, typeof this>;
-    #own(other: Tree<T> | undefined): SubTree<T, typeof this>;
-    #own(other: Tree<T> | undefined): SubTree<T, typeof this> {
+    private #own(other: undefined): never;
+    private #own(other: Tree<T>): SubTree<T, typeof this>;
+    private #own(other: Tree<T> | undefined): SubTree<T, typeof this>;
+    private #own(other: Tree<T> | undefined): SubTree<T, typeof this> {
         if (other === undefined) {
             throw new Error('Cannot take ownership of undefined');
         }

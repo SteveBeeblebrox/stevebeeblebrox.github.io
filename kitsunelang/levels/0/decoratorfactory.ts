@@ -1,3 +1,4 @@
+///#pragma once
 namespace DecoratorFactory {
     function isDecoratorContext(arg: unknown): arg is DecoratorContext {
         return typeof arg === 'object' && arg !== null && ['kind','name'].every(key=>Object.hasOwn(arg,key))
