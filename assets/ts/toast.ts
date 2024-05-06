@@ -31,6 +31,9 @@ const toast = (function() {
     const shadowRoot = hostSpan.attachShadow({mode: 'closed'});
     shadowRoot.appendChild(Object.assign(document.createElement('style'), {
         textContent: `
+            :host {
+                all: unset !important;
+            }
             :host>span {
                 position: fixed;
                 top: 0;
