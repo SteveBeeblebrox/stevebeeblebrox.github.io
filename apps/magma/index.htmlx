@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        %{SCRIPTS}
+        <script src="magma.min.js"></script>
+        <script src="/assets/js/sandbox.min.js"></script>
+        <script %{TS}>
+            const debugState = JSX.createState(false);
+        </script>
+        <script %{TSMODULE}>
+            $`button`.$on('click', async function() {
+                try {
+                    const macros = new Map();
+                    if(debugState.get())
+                        macros.set('DEBUG','');
+                    const result = await Magma.transpile($`textarea`.value,{spacesToTabs:4,macros});
+                    $`ol`.replaceChildren(...[...result.entries()].map(([key,value]) => <li><p>{key}.mcfunction</p><pre><code>{value}</code></pre></li>));
+                } catch(error) {
+                    alert(`Error: ${error}`);
+                }
+            });
+        </script>
+    </head>
+    <body>
+        DEBUG:
+        <script %{TS}>
+            $ctx = <input type="checkbox" checked={debugState} oninput={debugState.consume(e=>e.target.checked)}/>
+        </script>
+        <textarea>
+fn demo:
+##ifdef DEBUG
+    say Running demo function...
+##endif
+    give @p diamond
+        </textarea>
+        <button>Compile</button>
+        <section>
+            <ol></ol>
+        </section>
+    </body>
+</html>
