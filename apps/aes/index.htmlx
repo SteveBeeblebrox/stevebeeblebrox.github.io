@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        %{HEAD(title='AES Example')}
+        <script defer src="/assets/js/githubshortcut.min.js?title=Contribute&position=top-right&margin=1.5&href=SteveBeeblebrox/stevebeeblebrox.github.io/blob/main/apps/aes/index.htmlx"></script>
+        <style type="text/less">
+            div {
+                padding: 0.5em;
+            }
+            body, html {
+                color: #111;
+                background-color: #eee;
+                margin: 0;
+                height: 100%;
+            }
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            ::file-selector-button, button {
+                border: none;
+                background: silver;
+                border-radius: 4px;
+                padding: 0.5em;
+                cursor: pointer;
+                &:hover {
+                    filter: brightness(80%);
+                }
+            }
+            input[type="password"] {
+                border: none;
+                border-bottom: 1px solid silver;
+                background-color: transparent;
+                &:hover {
+                    filter: brightness(80%);
+                }
+            }
+        </style>
+        <script %{TS}>
+            let result = JSX.createState(null), fname = name => name;
+            result.connectCallback(async v => v && await toast('Done!', 'medium'));
+            async function f2b(file) {
+                const reader = new FileReader();
+
+                const p = new Promise(function(resolve,reject) {
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = e => reject('Error reading file');
+                });
+                
+                reader.readAsArrayBuffer(file);
+
+                return p;
+            }
+
+            async function fencrypt() {
+                if(!password.value) {
+                    return await toast('No password provided!', 'medium');
+                }
+                if(!file.files.length) {
+                    return await toast('No file provided!', 'medium')
+                }
+
+                result.set(null);
+                try {
+                    const buf = await f2b(file.files[0]);
+                    result.set(await AESGCMEncryption.encryptBuffer(buf,password.value));
+                    fname = name => name+'.crypt'
+                } catch(e) {
+                    result.set(null);
+                    console.error(e);
+                    await toast(e,'long');
+                }
+            }
+
+            async function fdecrypt() {
+                if(!file.files.length) {
+                    return await toast('No file provided!', 'medium')
+                }
+
+                result.set(null);
+                try {
+                    const buf = await f2b(file.files[0]);
+                    if(password.value) {
+                        await toast('Decrypting...', 'medium');
+                        result.set(await AESGCMEncryption.decryptBuffer(buf,password.value));
+                        fname = name => name.replace(/\.crypt$/,'');
+                    } else {
+                        await toast('No password provided! Doing brute force...', 'medium');
+                        let r = null, n = 0;
+                        while(!r && n < 99999) {
+                            try {
+                                r = await AESGCMEncryption.decryptBuffer(buf,''+n++);
+                            } catch(_) {}
+                        }
+                        if(r) {
+                            result.set(r);
+                            fname = name => name.replace(/\.crypt$/,'');
+                        } else {
+                            result.set(null);
+                            await toast('Brute force failed!', 'long');
+                        }
+                    }
+                } catch(e) {
+                    result.set(null);
+                    console.error('e');
+                    await toast(e,'long');
+                }
+            }
+
+            async function fdownload() {
+                const objectURL = URL.createObjectURL(new Blob([result.get()]));
+                Object.assign(document.createElement('a'), {href: objectURL, download: fname(file.files[0].name) ?? '', onclick() {
+                    requestAnimationFrame(()=>URL.revokeObjectURL(objectURL));
+                }}).click();
+            }
+        </script>
+    </head>
+    <body>
+        <main>
+            <h1>AES GCM File Encryption</h1>
+            <div>
+                <label for="file">Input File:</label>
+                <script %{TS}>
+                    const fin = $ctx = <input id="file" name="file" type="file" accept="tar.gz.crypt"/>;
+                </script>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <script %{TS}>
+                    const password = $ctx = <input id="password" name="password" type="password"/>;
+                </script>
+            </div>
+            <hr>
+            <div>
+                <script %{TS}>
+                    const encrypt = $ctx = <button id="encrypt" name="encrypt" title="Encrypt" onclick={fencrypt}>Encrypt</button>;
+                </script>
+                <script %{TS}>
+                    const decrypt = $ctx = <button id="decrypt" name="decrypt" title="Decrypt" onclick={fdecrypt}>Decrypt</button>;
+                </script>
+                <script %{TS}>
+                    const download = $ctx = <button id="download" name="download" title="Download" onclick={fdownload}>Download</button>;
+                    result.connectCallback(v => download.style.display = (v ? 'unset' : 'none'));
+                </script>
+            </div>
+
+        </main>
+    </body>
+</html>
