@@ -65,7 +65,7 @@
                 try {
                     const buf = await f2b(file.files[0]);
                     result.set(await AESGCMEncryption.encryptBuffer(buf,password.value));
-                    fname = name => name+'.crypt'
+                    fname = name => name+'.aes'
                 } catch(e) {
                     result.set(null);
                     console.error(e);
@@ -84,7 +84,7 @@
                     if(password.value) {
                         await toast('Decrypting...', 'medium');
                         result.set(await AESGCMEncryption.decryptBuffer(buf,password.value));
-                        fname = name => name.replace(/\.crypt$/,'');
+                        fname = name => name.replace(/\.aes$/,'');
                     } else {
                         await toast('No password provided! Doing brute force...', 'medium');
                         let r = null, n = 0;
@@ -95,7 +95,7 @@
                         }
                         if(r) {
                             result.set(r);
-                            fname = name => name.replace(/\.crypt$/,'');
+                            fname = name => name.replace(/\.aes$/,'');
                         } else {
                             result.set(null);
                             await toast('Brute force failed!', 'long');
@@ -122,7 +122,7 @@
             <div>
                 <label for="file">Input File:</label>
                 <script %{TS}>
-                    const fin = $ctx = <input id="file" name="file" type="file" accept="tar.gz.crypt"/>;
+                    const fin = $ctx = <input id="file" name="file" type="file"/>;
                 </script>
             </div>
             <div>
